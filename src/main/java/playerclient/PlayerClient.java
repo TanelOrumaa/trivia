@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 
-
 public class PlayerClient extends Application {
 
     public static double getWidth() {
@@ -20,8 +19,8 @@ public class PlayerClient extends Application {
     @Override
     public void start(final Stage primaryStage) {
 
-        //Already have logInScreen, lobbyEntryScreen, lobbyScreen, registerScreen, questionChoiceScreen, questionTextAreaScreen, waitingAfterQuestionScene
-        //
+        //Already have logInScreen, lobbyEntryScreen, lobbyScreen, registerScreen, questionChoiceScreen, questionTextAreaScreen, waitingAfterQuestionScreen
+
         primaryStage.setScene(LogIn.change(primaryStage));
         primaryStage.setTitle("Player client");
         primaryStage.show();

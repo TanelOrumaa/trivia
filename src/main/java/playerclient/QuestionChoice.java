@@ -33,7 +33,7 @@ public class QuestionChoice {
         HBox questionChoiceQuestion = new HBox(questionChoiceQuestionText);
         questionChoiceQuestion.setPadding(new Insets(15));
 
-        int questionChoiceNumber = 5;
+        int questionChoiceNumber = 10;
         ArrayList<Button> questionChoiceOptions = new ArrayList<Button>();
         for (int i = 0; i < questionChoiceNumber; i++) {
             Button questionChoiceOptionButton = new Button(Integer.toString(i));
