@@ -6,7 +6,7 @@ public class Config {
 
     // SSH settings
     public static boolean DATABASE_IN_LOCALHOST = false;
-    public static final String SSH_TUNNE_USERNAME = "obfuscated";
+    public static final String SSH_TUNNEL_USERNAME = "obfuscated";
     public static final String SSH_TUNNEL_HOST = "11.11.11.11";
     public static final String SSH_PRIVATE_KEY_LOCATION = "src" + File.separator + "main" + File.separator + "resources" + File.separator + "static" + File.separator + "keys" + File.separator + "trivia.ppk";
     public static final int SSH_PORT_FORWARDING_PORT = 3307;
