@@ -1,4 +1,4 @@
-package playerclient;
+package general.baseclient;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -10,6 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import playerclient.PlayerClient;
 
 import java.util.ArrayList;
 
