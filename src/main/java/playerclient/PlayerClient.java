@@ -1,5 +1,6 @@
 package playerclient;
 
+import general.baseclient.LogIn;
 import javafx.application.Application;
 import javafx.stage.Stage;
 

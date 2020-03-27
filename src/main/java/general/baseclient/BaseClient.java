@@ -1,75 +1,46 @@
-package presenterclient;
+package general.baseclient;
 
+import general.questions.Question;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class PresenterClient extends Application {
-    BlockingQueue<Integer> questionTypes = new ArrayBlockingQueue<Integer>(1);
-    BlockingQueue<String> questions = new ArrayBlockingQueue<String>(100);
+public class BaseClient extends Application {
+    BlockingQueue<Question> questions = new ArrayBlockingQueue<Question>(10);
+
+
+    public static double getWidth() {
+        double width = 350;
+        return width;
+    }
+
+    public static double getHeight() {
+        double height = 561.5;
+        return height;
+    }
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
 
-        /*
-        TextField connection = new TextField();
 
-        connection.textProperty().addListener(new ChangeListener<String>() {
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                System.out.println(s);
-                System.out.println(t1);
-                int orderType = Integer.parseInt(t1);
-                switch (orderType) {
-                    case 0:
-                        System.out.println("order 0");
-                        showStartScreen(primaryStage);
-                        break;
-                    case 1:
-                        System.out.println("order 1");
-                        showNextQuestion(primaryStage);
-                        break;
-                    case 2:
-                        System.out.println("order 2");
-                        showLeaderboard(primaryStage);
-                        break;
-                }
-            }
-        });
-
-         */
-
-
-
-        PresenterClientBackEnd backEnd = new PresenterClientBackEnd(primaryStage, questionTypes, questions);
+        BaseClientBackEnd backEnd = new BaseClientBackEnd(primaryStage, questions);
         Thread backEndThread = new Thread(backEnd);
         backEndThread.start();
 
 
 
-        Group root = new Group();
-        Circle ajutine = new Circle(100, 100, 20, Color.RED);
-        ajutine.setOnMousePressed(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent mouseEvent) {
-                showNextQuestion(primaryStage);
-            }
-        });
-        root.getChildren().add(ajutine);
-        Scene scene = new Scene(root, 800, 600, Color.BLANCHEDALMOND);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("Presenter client");
+        //Already have logInScreen, lobbyEntryScreen, lobbyScreen, registerScreen, questionChoiceScreen, questionTextAreaScreen, waitingAfterQuestionScreen
+
+        primaryStage.setScene(LogIn.change(primaryStage));
+        primaryStage.setTitle("Base client");
         primaryStage.show();
-
-
 
 
 
@@ -91,8 +62,9 @@ public class PresenterClient extends Application {
 
 
     void showNextQuestion(Stage primaryStage) {
-        Integer questionType = questionTypes.poll();
-        String question = questions.poll();
+        Question question = questions.poll();
+        /*
+        Enum questionType = question.questionType;
         TextField questionField = new TextField(question);
         questionField.setEditable(false);
         switch (questionType){
@@ -106,6 +78,8 @@ public class PresenterClient extends Application {
                 showVideoQuestion(primaryStage, questionField);
                 break;
         }
+
+         */
 
     }
 
