@@ -54,7 +54,7 @@ public class QuestionTextArea {
     static EventHandler<ActionEvent> questionTextAreaButtonAction(final Stage primaryStage, final TextArea text) {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent actionEvent) {
-                //text.getText();
+                //text.getText(); and send to somewhere
                 primaryStage.setScene(WaitingAfterQuestion.change(primaryStage));
             }
         };
