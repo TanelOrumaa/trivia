@@ -10,16 +10,15 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import playerclient.PlayerClient;
 
 import java.util.ArrayList;
 
 public class Lobby {
 
-    public static Scene change(Stage primaryStage) {
+    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
-        double width = PlayerClient.getWidth();
-        double height = PlayerClient.getHeight();
+        double width = frontEnd.getWidth();
+        double height = frontEnd.getHeight();
 
         //Lobby scene, where player is waiting for start.
         BorderPane lobbyRoot = new BorderPane();

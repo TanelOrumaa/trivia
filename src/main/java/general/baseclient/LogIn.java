@@ -11,14 +11,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import playerclient.PlayerClient;
 
 public class LogIn {
 
-    public static Scene change(Stage primaryStage) {
+    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
-        double width = PlayerClient.getWidth();
-        double height = PlayerClient.getHeight();
+        double width = frontEnd.getWidth();
+        double height = frontEnd.getHeight();
 
         //Log in scene. Player has option to log in or register.
         BorderPane logInRoot = new BorderPane();
@@ -30,7 +29,7 @@ public class LogIn {
         final Label logInError = new Label("");
 
         TextField usernameInput = new TextField("Username");
-        usernameInput.setPrefSize(logInScreen.getWidth()/4*3,logInScreen.getHeight()/10);
+        usernameInput.setPrefSize(width/4*3,height/10);
         HBox username = new HBox(usernameInput);
 
         TextField passwordInput = new TextField("Password");
@@ -38,10 +37,35 @@ public class LogIn {
         HBox password = new HBox(passwordInput);
 
         Button logInButton = new Button("Log In");
-        logInButton.setOnAction(logInButtonAction(primaryStage, logInError));
-        Button registrationButton = new Button("Register");
-        registrationButton.setOnAction(registrationButtonAction(primaryStage));
-        HBox logInScreenButtons = new HBox(20, logInButton, registrationButton);
+        logInButton.setOnAction(new EventHandler<ActionEvent>() {
+            //Event handler: clicking on log in button. Checking if username and password match.
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                //if username and password match
+                if (true) {
+                    primaryStage.setScene(LobbyEntry.change(primaryStage, frontEnd));
+                } else {
+                    logInError.setText("Incorrect username/password");
+                }
+            }
+        });
+
+        HBox logInScreenButtons;
+        if (frontEnd.type != ClientType.PRESENTER) {
+            Button registrationButton = new Button("Register");
+            registrationButton.setOnAction(new EventHandler<ActionEvent>() {
+                //Event handler: clicking on "register" button
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    primaryStage.setScene(Register.change(primaryStage, frontEnd));
+                }
+            });
+            logInScreenButtons = new HBox(20, logInButton, registrationButton);
+        }
+        else {
+            logInScreenButtons = new HBox(20, logInButton);
+        }
+
 
         logIn.setAlignment(Pos.CENTER);
         username.setAlignment(Pos.CENTER);
@@ -55,27 +79,5 @@ public class LogIn {
 
     }
 
-    //Event handler: clicking on log in button. Checking if username and password match.
-    static EventHandler<ActionEvent> logInButtonAction(final Stage primaryStage, final Label logInError) {
-        return new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                //if username and password match
-                if (true) {
-                    primaryStage.setScene(LobbyEntry.change(primaryStage));
-                } else {
-                    logInError.setText("Incorrect username/password");
-                }
-            }
-        };
-    }
-
-    //Event handler: clicking on "register" button
-    static EventHandler<ActionEvent> registrationButtonAction(final Stage primaryStage) {
-        return new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                primaryStage.setScene(Register.change(primaryStage));
-            }
-        };
-    }
 
 }
