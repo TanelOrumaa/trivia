@@ -11,16 +11,15 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import playerclient.PlayerClient;
 
 import java.util.ArrayList;
 
 public class QuestionChoice {
 
-    public static Scene change(Stage primaryStage) {
+    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
-        double width = PlayerClient.getWidth();
-        double height = PlayerClient.getHeight();
+        double width = frontEnd.getWidth();
+        double height = frontEnd.getHeight();
 
         //Multiple-choice question. Player choose one correct answer.
         ScrollPane questionChoiceScroller = new ScrollPane();
@@ -39,7 +38,14 @@ public class QuestionChoice {
         for (int i = 0; i < questionChoiceNumber; i++) {
             Button questionChoiceOptionButton = new Button(Integer.toString(i));
             questionChoiceOptionButton.setPrefSize(width / 4 * 3, height / 10);
-            questionChoiceOptionButton.setOnAction(questionChoiceOptionButtonAction(primaryStage, i));
+            questionChoiceOptionButton.setOnAction(new EventHandler<ActionEvent>() {
+                //Event handler: multiple-choice question's: get index of button that was clicked, and should send it to backend.
+                //int i is the index
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    primaryStage.setScene(WaitingAfterQuestion.change(primaryStage, frontEnd));
+                }
+            });
             questionChoiceOptions.add(questionChoiceOptionButton);
         }
 
@@ -54,14 +60,5 @@ public class QuestionChoice {
         return questionChoiceScreen;
     }
 
-    //Event handler: multiple-choice question's: get index of button that was clicked, and should send it to backend.
-    //int i is the index
-    static EventHandler<ActionEvent> questionChoiceOptionButtonAction(final Stage primaryStage, final int i) {
-        return new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                primaryStage.setScene(WaitingAfterQuestion.change(primaryStage));
-            }
-        };
-    }
 
 }

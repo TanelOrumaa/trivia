@@ -3,16 +3,16 @@ package general.baseclient;
 import general.questions.BaseQuestion;
 import general.questions.Question;
 import general.questions.QuestionType;
-import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 import java.util.concurrent.BlockingQueue;
 
 public class BaseClientBackEnd implements Runnable {
-    Stage primaryStage;
-    BlockingQueue<Question> questions;
+    protected BaseClient frontEnd;
+    protected BlockingQueue<Question> questions;
 
-    public BaseClientBackEnd(Stage primaryStage, BlockingQueue<Question> questions) {
-        this.primaryStage = primaryStage;
+    public BaseClientBackEnd(BaseClient frontEnd, BlockingQueue<Question> questions) {
+        this.frontEnd = frontEnd;
         this.questions = questions;
 
     }
@@ -29,6 +29,12 @@ public class BaseClientBackEnd implements Runnable {
             Thread.sleep(2000);
             BaseQuestion question2 = new BaseQuestion(QuestionType.CHOICE, false, "Kes on Teet Margna?", 420, 30);
             //questions.add(question2);
+
+
+
+            // WORK IN PROGRESS
+            Scene nextQuestion = QuestionChoice.change(frontEnd.guiStage, frontEnd);
+            frontEnd.guiStage.setScene(nextQuestion);
 
         }
         catch (InterruptedException e){
