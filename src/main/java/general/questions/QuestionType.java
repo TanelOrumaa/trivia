@@ -2,8 +2,7 @@ package general.questions;
 
 public enum QuestionType {
 
-    CHOICE,
-    FREE_FORM,
+    TEXT,
     IMAGE,
     AUDIO,
     VIDEO
