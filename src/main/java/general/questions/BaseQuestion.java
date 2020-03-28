@@ -7,7 +7,7 @@ public class BaseQuestion {
     protected QuestionType questionType;
     protected boolean scoreDegradation;
     protected String question;
-    protected List<String> correctAnswers;
+    protected List<Answer> correctAnswers;
     protected int potentialPoints;
     protected int time;
     protected final int minTime = 10; //Minimum answer time in seconds
@@ -19,7 +19,7 @@ public class BaseQuestion {
 
     }
 
-    public BaseQuestion(QuestionType questionType, boolean scoreDegradation, String question, List<String> correctAnswers, int potentialPoints, int time) {
+    public BaseQuestion(QuestionType questionType, boolean scoreDegradation, String question, List<Answer> correctAnswers, int potentialPoints, int time) {
         this.questionType = questionType;
         this.scoreDegradation = scoreDegradation;
         this.question = question;
@@ -46,7 +46,7 @@ public class BaseQuestion {
 
     }
 
-    public List<String> getCorrectAnswers() {
+    public List<Answer> getCorrectAnswers() {
 
         return correctAnswers;
 

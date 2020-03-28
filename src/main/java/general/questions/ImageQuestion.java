@@ -5,16 +5,17 @@ import java.util.List;
 
 public class ImageQuestion extends BaseQuestion implements Question {
 
+    private Path imagePath;
 
-    public ImageQuestion(QuestionType questionType) {
+    public ImageQuestion(boolean scoreDegradation, String question, List<Answer> correctAnswers, int potentialPoints, int time) {
 
-        super(questionType);
+        super(QuestionType.IMAGE, scoreDegradation, question, correctAnswers, potentialPoints, time);
 
     }
 
-    public ImageQuestion(QuestionType questionType, boolean scoreDegradation, String question, List<String> correctAnswers, int potentialPoints, int time) {
+    public Path getImagePath() {
 
-        super(questionType, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        return imagePath;
 
     }
 

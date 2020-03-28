@@ -4,23 +4,17 @@ import java.util.List;
 
 public class VideoQuestion extends BaseQuestion implements Question {
 
-    private String address;
+    private String videoAddress;
 
-    public String getAddress() {
+    public String getVideoAddress() {
 
-        return address;
-
-    }
-
-    public VideoQuestion(QuestionType questionType) {
-
-        super(questionType);
+        return videoAddress;
 
     }
 
-    public VideoQuestion(QuestionType questionType, boolean scoreDegradation, String question, List<String> correctAnswers, int potentialPoints, int time) {
+    public VideoQuestion(boolean scoreDegradation, String question, List<Answer> correctAnswers, int potentialPoints, int time) {
 
-        super(questionType, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        super(QuestionType.VIDEO, scoreDegradation, question, correctAnswers, potentialPoints, time);
 
     }
 
