@@ -1,4 +1,4 @@
-package playerclient;
+package general.baseclient;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -11,6 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import playerclient.PlayerClient;
 
 public class QuestionTextArea {
 
