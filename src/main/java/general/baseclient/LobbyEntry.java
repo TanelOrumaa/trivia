@@ -11,14 +11,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import playerclient.PlayerClient;
 
 public class LobbyEntry {
 
-    public static Scene change(Stage primaryStage) {
+    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
-        double width = PlayerClient.getWidth();
-        double height = PlayerClient.getHeight();
+        double width = frontEnd.getWidth();
+        double height = frontEnd.getHeight();
 
         //It is a scene, where player has to enter code to join a lobby.
         BorderPane lobbyEntryRoot = new BorderPane();
@@ -32,7 +31,18 @@ public class LobbyEntry {
         HBox lobbyEntryCode = new HBox(lobbyEntryCodeInput);
 
         Button lobbyEntryButton = new Button("Enter to lobby");
-        lobbyEntryButton.setOnAction(lobbyEntryButtonAction(lobbyEntryCodeInput.getText(), primaryStage, lobbyEntryError));
+        lobbyEntryButton.setOnAction(new EventHandler<ActionEvent>() {
+            //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                //if exists lobby with this code
+                if (true) {
+                    primaryStage.setScene(Lobby.change(primaryStage, frontEnd));
+                } else {
+                    lobbyEntryError.setText("Something went wrong");
+                }
+            }
+        });
         HBox lobbyEntryButtons = new HBox(lobbyEntryButton);
 
         lobbyEntryButtons.setAlignment(Pos.CENTER);
@@ -45,18 +55,5 @@ public class LobbyEntry {
         return lobbyEntryScreen;
     }
 
-    //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
-    static EventHandler<ActionEvent> lobbyEntryButtonAction(String lobbyCode, final Stage primaryStage, final Label lobbyEntryError) {
-        return new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                //if exists lobby with this code
-                if (true) {
-                    primaryStage.setScene(Lobby.change(primaryStage));
-                } else {
-                    lobbyEntryError.setText("Something went wrong");
-                }
-            }
-        };
-    }
 
 }

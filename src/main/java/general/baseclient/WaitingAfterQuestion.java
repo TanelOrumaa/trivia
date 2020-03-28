@@ -6,14 +6,13 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import playerclient.PlayerClient;
 
 public class WaitingAfterQuestion {
 
-    public static Scene change(Stage primaryStage) {
+    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
-        double width = PlayerClient.getWidth();
-        double height = PlayerClient.getHeight();
+        double width = frontEnd.getWidth();
+        double height = frontEnd.getHeight();
 
         //After answering question, player wait until others answered too.
         BorderPane waitingAfterQuestionRoot = new BorderPane();

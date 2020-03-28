@@ -11,14 +11,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import playerclient.PlayerClient;
 
 public class QuestionTextArea {
 
-    public static Scene change(Stage primaryStage) {
+    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
-        double width = PlayerClient.getWidth();
-        double height = PlayerClient.getHeight();
+        double width = frontEnd.getWidth();
+        double height = frontEnd.getHeight();
 
         //Text area question. Player writes answer.
         BorderPane questionTextAreaRoot = new BorderPane();
@@ -35,7 +34,14 @@ public class QuestionTextArea {
         HBox questionTextAreaInputBox = new HBox(questionTextAreaInput);
 
         Button questionTextAreaButton = new Button("Answer");
-        questionTextAreaButton.setOnAction(questionTextAreaButtonAction(primaryStage, questionTextAreaInput));
+        questionTextAreaButton.setOnAction(new EventHandler<ActionEvent>() {
+            //Event handler: send text to server
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                //text.getText(); and send to somewhere
+                primaryStage.setScene(WaitingAfterQuestion.change(primaryStage, frontEnd));
+            }
+        });
         HBox questionTextAreaButtonBox = new HBox(questionTextAreaButton);
 
 
@@ -51,14 +57,5 @@ public class QuestionTextArea {
         return questionTextAreaScreen;
     }
 
-    //Event handler: send text to server
-    static EventHandler<ActionEvent> questionTextAreaButtonAction(final Stage primaryStage, final TextArea text) {
-        return new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent actionEvent) {
-                //text.getText(); and send to somewhere
-                primaryStage.setScene(WaitingAfterQuestion.change(primaryStage));
-            }
-        };
-    }
 
 }
