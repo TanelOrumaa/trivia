@@ -4,16 +4,9 @@ import java.util.List;
 
 public class TextQuestion extends BaseQuestion implements Question {
 
+    public TextQuestion(boolean scoreDegradation, String question, List<Answer> correctAnswers, int potentialPoints, int time) {
 
-    public TextQuestion(QuestionType questionType) {
-
-        super(questionType);
-
-    }
-
-    public TextQuestion(QuestionType questionType, boolean scoreDegradation, String question, List<String> correctAnswers, int potentialPoints, int time) {
-
-        super(questionType, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        super(QuestionType.TEXT, scoreDegradation, question, correctAnswers, potentialPoints, time);
 
     }
 
