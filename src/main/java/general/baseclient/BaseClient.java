@@ -9,11 +9,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class BaseClient extends Application {
-    BlockingQueue<Question> questions = new ArrayBlockingQueue<Question>(10);
+    protected ClientType type;
+    protected Stage guiStage;
+    protected BlockingQueue<Question> questions = new ArrayBlockingQueue<Question>(10);
 
 
     public static double getWidth() {
@@ -26,11 +29,29 @@ public class BaseClient extends Application {
         return height;
     }
 
+
+
+
     @Override
     public void start(final Stage primaryStage) throws Exception {
+        guiStage = primaryStage;
+
+        try (Scanner in = new Scanner(System.in)) {
+            System.out.println("Enter client type: (1 - Presenter, 2 - Player , 3 - Host) :");
+            String answer = in.next();
+            switch (answer) {
+                case "1":
+                    type = ClientType.PRESENTER;
+                case "2":
+                    type = ClientType.PLAYER;
+                case "3":
+                    type = ClientType.HOST;
+            }
+
+        }
 
 
-        BaseClientBackEnd backEnd = new BaseClientBackEnd(primaryStage, questions);
+        BaseClientBackEnd backEnd = new BaseClientBackEnd(this, questions);
         Thread backEndThread = new Thread(backEnd);
         backEndThread.start();
 
@@ -38,9 +59,9 @@ public class BaseClient extends Application {
 
         //Already have logInScreen, lobbyEntryScreen, lobbyScreen, registerScreen, questionChoiceScreen, questionTextAreaScreen, waitingAfterQuestionScreen
 
-        primaryStage.setScene(LogIn.change(primaryStage));
-        primaryStage.setTitle("Base client");
-        primaryStage.show();
+        guiStage.setScene(LogIn.change(guiStage, this));
+        guiStage.setTitle("Base client");
+        guiStage.show();
 
 
 
@@ -52,66 +73,5 @@ public class BaseClient extends Application {
         launch(args);
     }
 
-    static void showStartScreen(Stage primaryStage) {
-        System.out.println("showStartScreen");
-        Group startScreenRoot = new Group();
-
-        Scene startScreenScene = new Scene(startScreenRoot, 800, 600, Color.GREEN);
-        primaryStage.setScene(startScreenScene);
-    }
-
-
-    void showNextQuestion(Stage primaryStage) {
-        Question question = questions.poll();
-        /*
-        Enum questionType = question.questionType;
-        TextField questionField = new TextField(question);
-        questionField.setEditable(false);
-        switch (questionType){
-            case 0:
-                showTextQuestion(primaryStage, questionField);
-                break;
-            case 1:
-                showImageQuestion(primaryStage, questionField);
-                break;
-            case 2:
-                showVideoQuestion(primaryStage, questionField);
-                break;
-        }
-
-         */
-
-    }
-
-    void showTextQuestion(Stage primaryStage, TextField questionField) {
-        Group root = new Group();
-        questionField.setLayoutX(200);
-        questionField.setLayoutY(50);
-        root.getChildren().add(questionField);
-        Scene scene = new Scene(root, 800, 600, Color.BLANCHEDALMOND);
-        primaryStage.setScene(scene);
-    }
-
-    void showImageQuestion(Stage primaryStage, TextField questionField) {
-        Group root = new Group();
-        questionField.setLayoutX(200);
-        questionField.setLayoutY(50);
-        root.getChildren().add(questionField);
-
-        Rectangle image = new Rectangle(100, 100, 300, 300);
-        root.getChildren().add(image);
-        Scene scene = new Scene(root, 800, 600, Color.BLANCHEDALMOND);
-        primaryStage.setScene(scene);
-    }
-
-    void showVideoQuestion(Stage primaryStage, TextField questionField) {
-
-    }
-
-    void showLeaderboard(Stage primaryStage) {
-        Group root = new Group();
-        Scene scene = new Scene(root, 800, 600, Color.BLUE);
-        primaryStage.setScene(scene);
-    }
 
 }
