@@ -1,5 +1,6 @@
 package database;
 
+import Exceptions.IncorrectLoginInformationException;
 import general.User;
 
 import java.sql.ResultSet;
@@ -18,13 +19,15 @@ public class UsersDatabaseLayer {
     public static User validateUser(DatabaseConnection dbConnection, String username, String password) throws IncorrectLoginInformationException {
         // Check if user exists.
         int id = getUserIdFromDatabase(dbConnection, username);
-        System.out.println(id);
         if (id != -1) {
             // Check if passwords match.
             if (isPasswordValidForUser(dbConnection, id, password)) {
-                // TODO: Create user object from database data.
-                User user = new User();
-                return user;
+                try {
+                    ResultSet resultSet = dbConnection.runSelectQuery(String.format("SELECT u.username, u.first_name, u.last_name FROM users u WHERE u.id = '%d';", id));
+                    return new User(id, resultSet.getString(1), resultSet.getString(2), resultSet.getString(3));
+                } catch (SQLException e) {
+                    throw new RuntimeException("Unable to fetch user data.", e);
+                }
             }
         }
         throw new IncorrectLoginInformationException();

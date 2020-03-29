@@ -12,6 +12,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import static general.baseclient.BaseClientBackEnd.addCommand;
+
 public class LobbyEntry {
 
     public static Scene change(Stage primaryStage, BaseClient frontEnd) {
@@ -35,9 +37,11 @@ public class LobbyEntry {
             //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
             @Override
             public void handle(ActionEvent actionEvent) {
+                // TODO: For some reason this gets called twice.
+                addCommand(131, new String[] {lobbyEntryCodeInput.getText()}, 0);
                 //if exists lobby with this code
                 if (true) {
-                    primaryStage.setScene(Lobby.change(primaryStage, frontEnd));
+                    primaryStage.setScene(LobbyFX.change(primaryStage, frontEnd));
                 } else {
                     lobbyEntryError.setText("Something went wrong");
                 }

@@ -12,7 +12,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class LogIn {
+import static general.baseclient.BaseClientBackEnd.addCommand;
+
+public class LogIn extends BaseClient {
 
     public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
@@ -41,6 +43,11 @@ public class LogIn {
             //Event handler: clicking on log in button. Checking if username and password match.
             @Override
             public void handle(ActionEvent actionEvent) {
+                // Send the command to client backend.
+                // TODO: For some reason this gets called twice.
+                addCommand(121, new String[] {usernameInput.getText(), passwordInput.getText()}, 0);
+                // Wait for result
+                //while ()
                 //if username and password match
                 if (true) {
                     primaryStage.setScene(LobbyEntry.change(primaryStage, frontEnd));
