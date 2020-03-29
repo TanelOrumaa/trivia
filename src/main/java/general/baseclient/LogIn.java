@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 
 import static general.baseclient.BaseClientBackEnd.addCommand;
 
-public class LogIn extends BaseClient {
+public class LogIn {
 
     public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
@@ -47,7 +47,7 @@ public class LogIn extends BaseClient {
                 // TODO: For some reason this gets called twice.
                 addCommand(121, new String[] {usernameInput.getText(), passwordInput.getText()}, 0);
                 // Wait for result
-                //while ()
+
                 //if username and password match
                 if (true) {
                     primaryStage.setScene(LobbyEntry.change(primaryStage, frontEnd));
