@@ -57,6 +57,8 @@ public class PlayerClientConnection extends ServerRunnableBase {
                             // lower ping would be considered more trustworthy (so we don't overwrite the delta with more
                             // incorrect delta).
 
+                            System.out.println("Client sent a sync message.");
+
                             // Check that the hash matches.
                             if (dataInputStream.readUTF().equals(this.hash)) {
                                 long serverTime = System.currentTimeMillis();
@@ -75,6 +77,8 @@ public class PlayerClientConnection extends ServerRunnableBase {
                         case 121: // Login message
                             // The client sends a log in message with username and password. Server validates the logins and
                             // responds with 122 for successful login or 422 for invalid login data.
+
+                            System.out.println("Client sent a login message.");
 
                             // First validate the hash.
                             if (dataInputStream.readUTF().equals(this.hash)) {
@@ -105,6 +109,8 @@ public class PlayerClientConnection extends ServerRunnableBase {
                             // Reads the lobby code and checks if lobby exists and if it does, can the user join the
                             // lobby. Returns 132 if lobby exists and the user has joined it, 432 if the lobby does not
                             // exist and 434 if the lobby is full.
+
+                            System.out.println("Client sent a lobby connection message.");
 
                             if (dataInputStream.readUTF().equals(this.hash)) {
                                 int userSubmittedLobbyCode = dataInputStream.readInt();

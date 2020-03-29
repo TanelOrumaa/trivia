@@ -24,8 +24,11 @@ public class UsersDatabaseLayer {
             if (isPasswordValidForUser(dbConnection, id, password)) {
                 try {
                     ResultSet resultSet = dbConnection.runSelectQuery(String.format("SELECT u.username, u.first_name, u.last_name FROM users u WHERE u.id = '%d';", id));
+                    resultSet.next();
                     return new User(id, resultSet.getString(1), resultSet.getString(2), resultSet.getString(3));
                 } catch (SQLException e) {
+                    // TODO: Something wrong here with exception catching, as this error is never thrown.
+                    System.out.println("Unable to fetch user data.");
                     throw new RuntimeException("Unable to fetch user data.", e);
                 }
             }

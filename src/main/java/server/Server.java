@@ -46,6 +46,7 @@ public class Server {
                         // Read the message, should be 101 (contact message)
                         int code = dataInputStream.readInt();
                         if (code == 101) {
+                            System.out.println("Client sent a \"Hello\" message.");
 
                             // Read client type
                             int clientType = dataInputStream.readInt();

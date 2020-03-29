@@ -65,6 +65,7 @@ public class BaseClientBackEnd implements Runnable {
             int code = dataInputStream.readInt();
             if (code == 102) {
                 hash = dataInputStream.readUTF();
+                System.out.println("Server ackowledged our \"Hello\" message. Our hash is now " + hash);
             } else {
                 handleError(code);
             }
@@ -141,19 +142,36 @@ public class BaseClientBackEnd implements Runnable {
     private void handleError(int errorCode) {
         // TODO: WIP
         System.out.println("ERROR: " + errorCode);
-//        switch (errorCode) {
-//
-//        }
+        // TODO: Currently just for testing, need to implement actual events for different errors.
+        switch (errorCode) {
+            case 402:
+                System.out.println("Unexepcted message code.");
+                break;
+            case 404:
+                System.out.println("We sent an incorrect hash.");
+                break;
+            case 422:
+                System.out.println("Invalid login data.");
+                break;
+            case 432:
+                System.out.println("Lobby does not exist.");
+                break;
+            case 434:
+                System.out.println("Lobby is full.");
+                break;
+        }
     }
 
     private void sync() throws IOException {
         // Send sync intialization message.
+        System.out.println("Sending sync message to server.");
         long syncStart = System.currentTimeMillis();
         dataOutputStream.writeInt(111);
         dataOutputStream.writeUTF(hash);
 
         int code = dataInputStream.readInt();
         if (code == 112) {
+            System.out.println("Server accepted our sync message and responded.");
             String resonseHash = dataInputStream.readUTF();
             if (hash.equals(resonseHash)) {
                 long serverTime = dataInputStream.readLong();
@@ -177,6 +195,7 @@ public class BaseClientBackEnd implements Runnable {
 
     private void login(String username, String password) throws IOException {
         // Send login message.
+        System.out.println("Sending a login message to server.");
         dataOutputStream.writeInt(121);
         dataOutputStream.writeUTF(hash);
         dataOutputStream.writeUTF(username);
@@ -185,6 +204,7 @@ public class BaseClientBackEnd implements Runnable {
         // Receive response.
         int responseCode = dataInputStream.readInt();
         if (responseCode == 122) {
+            System.out.println("Server accepted our login message.");
             // Login was successful. Check if hash matches.
             String responseHash = dataInputStream.readUTF();
             if (hash.equals(responseHash)) {
@@ -205,6 +225,7 @@ public class BaseClientBackEnd implements Runnable {
 
     private void connectToLobby(int lobbyCode) throws IOException {
         // Send connect to lobby message.
+        System.out.println("Sending a connect to lobby message with code " + lobbyCode);
         dataOutputStream.writeInt(131);
         dataOutputStream.writeUTF(hash);
         dataOutputStream.writeInt(lobbyCode);
@@ -213,6 +234,7 @@ public class BaseClientBackEnd implements Runnable {
         int responseCode = dataInputStream.readInt();
 
         if (responseCode == 132) {
+            System.out.println("Server accepted the lobby connection message.");
             // Connecting to lobby was successful. Check if hash matches.
             String responseHash = dataInputStream.readUTF();
             if (hash.equals(responseHash)) {
