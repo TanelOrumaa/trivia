@@ -4,23 +4,17 @@ import java.util.List;
 
 public class AudioQuestion extends BaseQuestion implements Question {
 
-    private String address;
+    private String audioAddress;
 
-    public String getAddress() {
+    public String getAudioAddress() {
 
-        return address;
-
-    }
-
-    public AudioQuestion(QuestionType questionType) {
-
-        super(questionType);
+        return audioAddress;
 
     }
 
-    public AudioQuestion(QuestionType questionType, boolean scoreDegradation, String question, List<String> correctAnswers, int potentialPoints, int time) {
+    public AudioQuestion(boolean scoreDegradation, String question, List<Answer> correctAnswers, int potentialPoints, int time) {
 
-        super(questionType, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        super(QuestionType.AUDIO, scoreDegradation, question, correctAnswers, potentialPoints, time);
 
     }
 
