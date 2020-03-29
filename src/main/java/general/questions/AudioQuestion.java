@@ -1,7 +1,5 @@
 package general.questions;
 
-import java.util.List;
-
 public class AudioQuestion extends BaseQuestion implements Question {
 
     private String audioAddress;
@@ -12,7 +10,7 @@ public class AudioQuestion extends BaseQuestion implements Question {
 
     }
 
-    public AudioQuestion(boolean scoreDegradation, String question, List<Answer> correctAnswers, int potentialPoints, int time) {
+    public AudioQuestion(boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
 
         super(QuestionType.AUDIO, scoreDegradation, question, correctAnswers, potentialPoints, time);
 

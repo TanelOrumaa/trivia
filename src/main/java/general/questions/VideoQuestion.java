@@ -1,7 +1,5 @@
 package general.questions;
 
-import java.util.List;
-
 public class VideoQuestion extends BaseQuestion implements Question {
 
     private String videoAddress;
@@ -12,7 +10,7 @@ public class VideoQuestion extends BaseQuestion implements Question {
 
     }
 
-    public VideoQuestion(boolean scoreDegradation, String question, List<Answer> correctAnswers, int potentialPoints, int time) {
+    public VideoQuestion(boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
 
         super(QuestionType.VIDEO, scoreDegradation, question, correctAnswers, potentialPoints, time);
 
