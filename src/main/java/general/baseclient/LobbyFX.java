@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
-public class Lobby {
+public class LobbyFX {
 
     public static Scene change(Stage primaryStage, BaseClient frontEnd) {
 
