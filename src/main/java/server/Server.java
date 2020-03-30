@@ -1,6 +1,6 @@
 package server;
 
-import Exceptions.LobbyDoesNotExistException;
+import exceptions.LobbyDoesNotExistException;
 import configuration.Config;
 import general.Lobby;
 import general.User;
@@ -41,8 +41,8 @@ public class Server {
                     socket.setKeepAlive(true);
 
                     // Check the type of incoming client
-                    try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream())) {
-
+                    try {
+                        DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                         // Read the message, should be 101 (contact message)
                         int code = dataInputStream.readInt();
                         if (code == 101) {
@@ -52,22 +52,13 @@ public class Server {
                             int clientType = dataInputStream.readInt();
                             switch (clientType) {
                                 case 1:
-                                    executorService.submit(new PresenterClientConnection(socket, generateUniqueHash()));
+                                    executorService.submit(new PresenterClientConnection(socket, dataInputStream, generateUniqueHash()));
                                     break;
                                 case 2:
-                                    executorService.submit(new PlayerClientConnection(socket, generateUniqueHash()));
-                                    // For some reason the socket keeps closing if not using it constantly. Uncomment this
-                                    // to keep the socket alive, but this blocks any other sockets from connecting.
-                                    // Temporary solution for testing until I figure out how to keep the socket alive.
-                                    while (true) {
-                                        if (socket.isClosed()) {
-                                            System.out.println("Socket is now closed.");
-                                            break;
-                                        }
-                                    }
+                                    executorService.submit(new PlayerClientConnection(socket, dataInputStream, generateUniqueHash()));
                                     break;
                                 case 3:
-                                    executorService.submit(new HostClientConnection(socket, generateUniqueHash()));
+                                    executorService.submit(new HostClientConnection(socket, dataInputStream, generateUniqueHash()));
                                     break;
                                 default:
                                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -80,6 +71,8 @@ public class Server {
                             dataOutputStream.writeInt(402); // Unexpected message code.
                             dataOutputStream.close();
                         }
+                    } catch (IOException e) {
+                        System.out.println("Unable to open datainputstream for socket.");
                     }
 
                 } catch (IOException e) {

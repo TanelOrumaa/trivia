@@ -1,7 +1,7 @@
 package server;
 
-import Exceptions.IncorrectLoginInformationException;
-import Exceptions.LobbyDoesNotExistException;
+import exceptions.IncorrectLoginInformationException;
+import exceptions.LobbyDoesNotExistException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import database.DatabaseConnection;
@@ -21,12 +21,14 @@ public class PlayerClientConnection extends ServerRunnableBase {
 
     private DatabaseConnection databaseConnection;
     private Socket socket;
+    private DataInputStream dataInputStream;
     private String hash;
     private User user;
 
-    public PlayerClientConnection(Socket socket, String hash) {
+    public PlayerClientConnection(Socket socket, DataInputStream dataInputStream, String hash) {
         this.socket = socket;
         this.hash = hash;
+        this.dataInputStream = dataInputStream;
     }
 
     @Override
@@ -35,7 +37,6 @@ public class PlayerClientConnection extends ServerRunnableBase {
             this.databaseConnection = new DatabaseConnection();
 
             try (
-                    DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
 
                 // First acknowledge that we received the hello message and assign them a unique hash.
