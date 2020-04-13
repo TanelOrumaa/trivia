@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
-public class LobbyFX extends BaseClient {
+public class LobbyFX {
 
     private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
 
