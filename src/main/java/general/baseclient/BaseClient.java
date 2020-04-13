@@ -1,18 +1,29 @@
 package general.baseclient;
 
+import general.Command;
+import general.CommandQueue;
 import general.questions.Question;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class BaseClient extends Application {
+
+    static final Logger LOG = LoggerFactory.getLogger(BaseClient.class);
+
     protected ClientType type;
-    protected Stage guiStage;
+    protected static Stage guiStage;
     protected BlockingQueue<Question> questions = new ArrayBlockingQueue<Question>(10);
     protected BaseClientBackEnd baseClientBackEnd;
+
+    protected CommandQueue incomingCommands = new CommandQueue();
+
 
     public static double getWidth() {
         double width = 350;
@@ -45,7 +56,6 @@ public class BaseClient extends Application {
                     type = ClientType.HOST;
                     break;
             }
-
         }
 
 
@@ -61,15 +71,42 @@ public class BaseClient extends Application {
         guiStage.setTitle("Base client");
         guiStage.show();
 
-
-
     }
-
 
     public static void main(String[] args) {
 
         launch(args);
     }
 
+    public void listenEvent() {
+        LOG.debug("Listened to an event!");
+        Command command = incomingCommands.poll(System.currentTimeMillis());
+        LOG.debug("Listened to an event! " + command.toString());
+        switch (command.code) {
+            case 122:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to lobbyEntry");
+                    guiStage.setScene(LobbyEntry.change(guiStage, this));
+                });
+                break;
+            case 132:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to lobbyFX");
+                    guiStage.setScene(LobbyFX.change(guiStage, this, command.args));
+                });
+                break;
+            case 134:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to LobbyFX");
+                    guiStage.setScene(LobbyFX.change(guiStage, this, command.args));
+                });
+        }
+    }
+
+    public void addCommandAndInvoke(Command command) {
+        incomingCommands.add(command);
+        this.listenEvent();
+
+    }
 
 }

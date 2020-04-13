@@ -5,7 +5,9 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -13,10 +15,11 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
-public class LobbyFX {
+public class LobbyFX extends BaseClient {
 
-    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
+    private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
 
+    public static Scene change(Stage primaryStage, BaseClient frontEnd, String[] names) {
         double width = frontEnd.getWidth();
         double height = frontEnd.getHeight();
 
@@ -27,13 +30,13 @@ public class LobbyFX {
         lobby.setStyle("-fx-background-color: ROYALBLUE; -fx-font-family: Berlin Sans FB Demi");
 
         Label lobbyStart = new Label("THE GAME WILL START SOON ;)");
-        lobbyStart.setFont(Font.font("Berlin Sans FB Demi", 20));
+        lobbyStart.setFont(textFont);
 
         Label lobbyPlayers = new Label("Players that are already ready:");
         System.out.println(javafx.scene.text.Font.getFamilies());
 
         //How to update, when new players join?
-        final ObservableList<String> participants = FXCollections.observableArrayList("Taavi", "Mauno", "Gunnar", "Kaupo");
+        final ObservableList<String> participants = FXCollections.observableArrayList(names);
         final ArrayList<Label> participantsLabels = new ArrayList<Label>();
         for (String participant : participants) {
             participantsLabels.add(new Label(participant));
@@ -54,7 +57,36 @@ public class LobbyFX {
         lobby.getChildren().addAll(lobbyStart, lobbyPlayers);
         lobby.getChildren().addAll(participantsLabels);
 
-        lobbyRoot.setCenter(lobby);
+        // For testing purposes
+
+        // For sending outgoing commands.
+        final VBox testOutgoingCommands = new VBox();
+        Label outgoingCommand = new Label("Outgoing command");
+        outgoingCommand.setFont(textFont);
+        TextField command = new TextField("Code");
+        TextField params = new TextField("Params");
+        Button sendCommand = new Button("Send command");
+
+        // For displaying incoming commands.
+        final VBox receivedCommands = new VBox();
+        Label incomingCommand = new Label("Incoming command");
+        incomingCommand.setFont(textFont);
+        TextField incomingCommandsList = new TextField("");
+
+        // Add to VBox elements.
+        testOutgoingCommands.getChildren().addAll(outgoingCommand, command, params, sendCommand);
+        receivedCommands.getChildren().addAll(incomingCommand, incomingCommandsList);
+
+        // Event for sending out commands.
+        sendCommand.setOnMousePressed(event -> {
+            int code = Integer.parseInt(command.getText());
+            String[] parameters = params.getText().split(" ");
+            BaseClientBackEnd.addCommand(code, parameters, 0);
+        });
+
+        lobbyRoot.setTop(lobby);
+        lobbyRoot.setCenter(testOutgoingCommands);
+        lobbyRoot.setBottom(receivedCommands);
 
         return lobbyScreen;
     }

@@ -26,6 +26,7 @@ public class Lobby {
         this.name = name;
         this.connectedUsers = new ArrayList<>();
         this.connectedUsers.add(user);
+        this.lobbyOwner = user;
         this.code = Server.addLobby(this);
     }
 
@@ -44,6 +45,15 @@ public class Lobby {
 
     public List<User> getConnectedUsers() {
         return connectedUsers;
+    }
+
+    public String[] getConnectedUserNamesAsArray() {
+        // TODO: Needs to be threadsafe.
+        String[] names = new String[connectedUsers.size()];
+        for (int i = 0; i < connectedUsers.size(); i++) {
+            names[i] = connectedUsers.get(i).getFirstName() + " " + connectedUsers.get(i).getLastName(); // At one point makes sense to have something smarter here perhaps.
+        }
+        return names;
     }
 
     public boolean canAddUserToLobby() {
