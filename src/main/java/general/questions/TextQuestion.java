@@ -2,9 +2,9 @@ package general.questions;
 
 public class TextQuestion extends BaseQuestion implements Question {
 
-    public TextQuestion(boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
+    public TextQuestion(QuestionType questionType, long questionID, boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
 
-        super(QuestionType.TEXT, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        super(questionType, questionID, scoreDegradation, question, correctAnswers, potentialPoints, time);
 
     }
 

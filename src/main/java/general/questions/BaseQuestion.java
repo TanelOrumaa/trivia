@@ -3,6 +3,7 @@ package general.questions;
 public class BaseQuestion {
 
     protected QuestionType questionType;
+    protected long questionID;
     protected boolean scoreDegradation;
     protected String question;
     protected Answers correctAnswers;
@@ -17,13 +18,40 @@ public class BaseQuestion {
 
     }
 
-    public BaseQuestion(QuestionType questionType, boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
+    public BaseQuestion(QuestionType questionType, long questionID, boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
+
         this.questionType = questionType;
+        this.questionID = questionID;
         this.scoreDegradation = scoreDegradation;
         this.question = question;
         this.correctAnswers = correctAnswers;
         this.potentialPoints = potentialPoints;
         this.time = time;
+
+    }
+
+    public long getQuestionID() {
+
+        return questionID;
+
+    }
+
+    public boolean isScoreDegradation() {
+
+        return scoreDegradation;
+
+    }
+
+    public int getMinTime() {
+
+        return minTime;
+
+    }
+
+    public int getMaxTime() {
+
+        return maxTime;
+
     }
 
     public String getQuestion() {

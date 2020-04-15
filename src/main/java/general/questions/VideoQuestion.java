@@ -4,15 +4,16 @@ public class VideoQuestion extends BaseQuestion implements Question {
 
     private String videoAddress;
 
-    public String getVideoAddress() {
+    public VideoQuestion(QuestionType questionType, long questionID, boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time, String videoAddress) {
 
-        return videoAddress;
+        super(questionType, questionID, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        this.videoAddress = videoAddress;
 
     }
 
-    public VideoQuestion(boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
+    public String getVideoAddress() {
 
-        super(QuestionType.VIDEO, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        return videoAddress;
 
     }
 

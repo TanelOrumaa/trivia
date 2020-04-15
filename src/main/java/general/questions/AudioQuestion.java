@@ -4,15 +4,16 @@ public class AudioQuestion extends BaseQuestion implements Question {
 
     private String audioAddress;
 
-    public String getAudioAddress() {
+    public AudioQuestion(QuestionType questionType, long questionID, boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time, String audioAddress) {
 
-        return audioAddress;
+        super(questionType, questionID, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        this.audioAddress = audioAddress;
 
     }
 
-    public AudioQuestion(boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
+    public String getAudioAddress() {
 
-        super(QuestionType.AUDIO, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        return audioAddress;
 
     }
 
