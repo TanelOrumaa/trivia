@@ -1,4 +1,4 @@
-package general.baseclient;
+package baseclient;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

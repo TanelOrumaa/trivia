@@ -1,4 +1,4 @@
-package general.baseclient;
+package baseclient;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -12,7 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import static general.baseclient.BaseClientBackEnd.addCommand;
+import static baseclient.BaseClientBackEnd.addCommand;
 
 public class LobbyEntry {
 
