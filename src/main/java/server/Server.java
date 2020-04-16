@@ -1,6 +1,6 @@
 package server;
 
-import Exceptions.LobbyDoesNotExistException;
+import exceptions.LobbyDoesNotExistException;
 import configuration.Config;
 import general.Lobby;
 import general.User;
