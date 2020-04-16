@@ -3,8 +3,14 @@ package database;
 import exceptions.IncorrectLoginInformationException;
 import general.User;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class UsersDatabaseLayer {
 
@@ -83,14 +89,20 @@ public class UsersDatabaseLayer {
                 if (saltResult.next()) {
                     String salt = saltResult.getString("salt");
 
-                    // Use salt to generate hash.
-                    String hash = hashPassword(password, salt);
+                    try {
+                        // Use salt to generate hash.
+                        String hash = hashPassword(password, salt);
 
-                    // Compare generated hash against user password hash in db.
-                    ResultSet passwordMatchResult = dbConnection.runSelectQuery(String.format("SELECT '%s'=u.password AS valid_password FROM users u WHERE u.id = %d;", hash, user_id));
-                    if (passwordMatchResult.next()) {
-                        return passwordMatchResult.getBoolean("valid_password");
+                        // Compare generated hash against user password hash in db.
+                        ResultSet passwordMatchResult = dbConnection.runSelectQuery(String.format("SELECT '%s'=u.password AS valid_password FROM users u WHERE u.id = %d;", hash, user_id));
+                        if (passwordMatchResult.next()) {
+                            return passwordMatchResult.getBoolean("valid_password");
+                        }
+                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                        throw new RuntimeException("Hashing password failed!", e);
                     }
+
+
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -106,8 +118,13 @@ public class UsersDatabaseLayer {
      * @param salt String for the salt.
      * @return hashed password.
      */
-    private static String hashPassword(String password, String salt) {
-        // TODO: Implement hashing.
-        return password;
+    private static String hashPassword(String password, String salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        int iterationCount = 1000000;
+        int outputLength = 256;
+        byte[] saltBytes = salt.getBytes(StandardCharsets.UTF_8);
+        PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), saltBytes, iterationCount, outputLength);
+        byte[] hashedBytes = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
+
+        return Arrays.toString(hashedBytes);
     }
 }
