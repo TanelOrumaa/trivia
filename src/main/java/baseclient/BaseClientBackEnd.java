@@ -1,9 +1,9 @@
-package general.baseclient;
+package baseclient;
 
-import exceptions.MixedServerMessageException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import configuration.Config;
+import exceptions.MixedServerMessageException;
 import general.*;
 import general.questions.Question;
 import org.slf4j.Logger;

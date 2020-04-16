@@ -1,4 +1,4 @@
-package general.baseclient;
+package baseclient;
 
 public enum ClientType {
     PRESENTER,

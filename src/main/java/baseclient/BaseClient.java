@@ -1,4 +1,4 @@
-package general.baseclient;
+package baseclient;
 
 import general.Command;
 import general.CommandQueue;

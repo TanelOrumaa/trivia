@@ -1,4 +1,4 @@
-package general.baseclient;
+package baseclient;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
