@@ -1,6 +1,6 @@
 package database;
 
-import Exceptions.IncorrectLoginInformationException;
+import exceptions.IncorrectLoginInformationException;
 import general.User;
 
 import java.sql.ResultSet;

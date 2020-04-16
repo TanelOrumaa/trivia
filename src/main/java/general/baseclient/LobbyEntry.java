@@ -37,22 +37,27 @@ public class LobbyEntry {
             //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
             @Override
             public void handle(ActionEvent actionEvent) {
-                // TODO: For some reason this gets called twice.
                 addCommand(131, new String[] {lobbyEntryCodeInput.getText()}, 0);
                 //if exists lobby with this code
-                if (true) {
-                    primaryStage.setScene(LobbyFX.change(primaryStage, frontEnd));
-                } else {
-                    lobbyEntryError.setText("Something went wrong");
-                }
+//                if (true) {
+//                    primaryStage.setScene(LobbyFX.change(primaryStage, frontEnd));
+//                } else {
+//                    lobbyEntryError.setText("Something went wrong");
+//                }
             }
         });
+
+        Button lobbyCreationButton = new Button("Create lobby");
+        lobbyCreationButton.setOnMouseReleased(mouseEvent -> {
+            addCommand(133, new String[] {"Test lobby name"}, 0);
+        });
+
         HBox lobbyEntryButtons = new HBox(lobbyEntryButton);
 
         lobbyEntryButtons.setAlignment(Pos.CENTER);
         lobbyEntryCode.setAlignment(Pos.CENTER);
         lobbyEntry.setAlignment(Pos.CENTER);
-        lobbyEntry.getChildren().addAll(lobbyEntryError, lobbyEntryCode, lobbyEntryButtons);
+        lobbyEntry.getChildren().addAll(lobbyEntryError, lobbyEntryCode, lobbyEntryButtons, lobbyCreationButton);
 
         lobbyEntryRoot.setCenter(lobbyEntry);
 

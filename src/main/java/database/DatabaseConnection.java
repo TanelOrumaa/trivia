@@ -7,7 +7,6 @@ import java.sql.*;
 public class DatabaseConnection {
 
     private Connection databaseConnection;
-    private SSHTunnel sshTunnel;
 
     public DatabaseConnection() throws SQLException{
         this.databaseConnection = createDatabaseConnection();
@@ -15,14 +14,6 @@ public class DatabaseConnection {
 
     // Creates a database connection object which can later be used to run queries.
     private Connection createDatabaseConnection() throws SQLException {
-
-        // If SSH tunnel is needed, create it.
-        if (!Config.DATABASE_IN_LOCALHOST) {
-            this.sshTunnel = new SSHTunnel();
-        } else {
-            this.sshTunnel = null;
-        }
-
         // Return the database connection.
         return DriverManager.getConnection(Config.DB_CONNECT_STRING, Config.DB_USERNAME, Config.DB_PASSWORD);
     }
@@ -30,9 +21,6 @@ public class DatabaseConnection {
     // Close this connection.
     public void closeDatabaseConnection() throws SQLException {
         try {
-            if (this.sshTunnel != null) {
-                this.sshTunnel.closeSSHTunne();
-            }
             this.databaseConnection.close();
         } catch (SQLException e) {
             if (!databaseConnection.isClosed()) {

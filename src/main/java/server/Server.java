@@ -1,9 +1,11 @@
 package server;
 
-import Exceptions.LobbyDoesNotExistException;
 import configuration.Config;
+import exceptions.LobbyDoesNotExistException;
 import general.Lobby;
 import general.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -19,6 +21,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Server {
 
+    // Logger
+    static final Logger LOG = LoggerFactory.getLogger(Server.class);
+
+    private static List<PlayerClientConnection> playerClientConnections;
+
     private static final String hashAllowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@£$€&%";
     private static HashSet<String> allHashes = new HashSet<>();
     private static HashSet<Integer> allLobbyCodes = new HashSet<>();
@@ -33,7 +40,7 @@ public class Server {
 
         // Create a new serversocket.
         try (ServerSocket ss = new ServerSocket(portNumber)) {
-            System.out.println("Listening...");
+            LOG.info("Listening...");
             while (true) {
                 try {
                     // Accept incoming connection.
@@ -41,33 +48,27 @@ public class Server {
                     socket.setKeepAlive(true);
 
                     // Check the type of incoming client
-                    try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream())) {
-
+                    try {
+                        DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                         // Read the message, should be 101 (contact message)
                         int code = dataInputStream.readInt();
                         if (code == 101) {
-                            System.out.println("Client sent a \"Hello\" message.");
+                            LOG.debug("Client sent a \"Hello\" message.");
 
                             // Read client type
                             int clientType = dataInputStream.readInt();
+                            LOG.debug("Client type is " + clientType);
                             switch (clientType) {
                                 case 1:
-                                    executorService.submit(new PresenterClientConnection(socket, generateUniqueHash()));
+                                    executorService.submit(new PresenterClientConnection(socket, dataInputStream, generateUniqueHash()));
                                     break;
                                 case 2:
-                                    executorService.submit(new PlayerClientConnection(socket, generateUniqueHash()));
-                                    // For some reason the socket keeps closing if not using it constantly. Uncomment this
-                                    // to keep the socket alive, but this blocks any other sockets from connecting.
-                                    // Temporary solution for testing until I figure out how to keep the socket alive.
-                                    while (true) {
-                                        if (socket.isClosed()) {
-                                            System.out.println("Socket is now closed.");
-                                            break;
-                                        }
-                                    }
+                                    PlayerClientConnection playerClientConnection = new PlayerClientConnection(socket, dataInputStream, generateUniqueHash());
+//                                    playerClientConnections.add(playerClientConnection);
+                                    executorService.submit(playerClientConnection);
                                     break;
                                 case 3:
-                                    executorService.submit(new HostClientConnection(socket, generateUniqueHash()));
+                                    executorService.submit(new HostClientConnection(socket, dataInputStream, generateUniqueHash()));
                                     break;
                                 default:
                                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -76,10 +77,13 @@ public class Server {
                             }
 
                         } else {
+                            LOG.warn("Server expected 101 from client, received " + code);
                             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                             dataOutputStream.writeInt(402); // Unexpected message code.
                             dataOutputStream.close();
                         }
+                    } catch (IOException e) {
+                        System.out.println("Unable to open datainputstream for socket.");
                     }
 
                 } catch (IOException e) {
@@ -139,7 +143,11 @@ public class Server {
                 throw new LobbyDoesNotExistException(lobbyCode);
             }
         }
+    }
 
+    public static void subscribeToUpdates(PlayerClientConnection playerClientConnection) {
+        playerClientConnections.add(playerClientConnection);
+        LOG.debug("Added a new client to listeners, now " + playerClientConnections.size() + " listeners in the list.");
     }
 
     private static Lobby getLobbyByCode(int lobbyCode) {
@@ -150,6 +158,18 @@ public class Server {
             }
         }
         return lobby;
+    }
+
+    public static void sendLobbyUpdates(Lobby lobby) {
+        LOG.debug("Sending lobby updates for lobby " + lobby.getCode());
+        synchronized (monitor) {
+            for (int i = 0; i < playerClientConnections.size(); i++) {
+                if (playerClientConnections.get(i).getLobbyCode() == lobby.getCode()) {
+                    // This client is in this lobby, notify the user of new lobby members.
+                    playerClientConnections.get(i).notifyClient(136);
+                }
+            }
+        }
     }
 
     private static String generateHash() {

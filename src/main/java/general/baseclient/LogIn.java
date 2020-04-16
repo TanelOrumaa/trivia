@@ -48,12 +48,12 @@ public class LogIn {
                 addCommand(121, new String[] {usernameInput.getText(), passwordInput.getText()}, 0);
                 // Wait for result
 
-                //if username and password match
-                if (true) {
-                    primaryStage.setScene(LobbyEntry.change(primaryStage, frontEnd));
-                } else {
-                    logInError.setText("Incorrect username/password");
-                }
+//                //if username and password match
+//                if (true) {
+//                    primaryStage.setScene(LobbyEntry.change(primaryStage, frontEnd));
+//                } else {
+//                    logInError.setText("Incorrect username/password");
+//                }
             }
         });
 
