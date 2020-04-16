@@ -1,9 +1,14 @@
 package general;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 public class CommandQueue {
+
+    static final Logger LOG = LoggerFactory.getLogger(CommandQueue.class);
 
     LinkedList<Command> commands;
 
@@ -41,7 +46,7 @@ public class CommandQueue {
             for (int i = 0; i < commands.size(); i++) {
                 if (commands.get(i).time > command.time) {
                     commands.add(i, command);
-                    break;
+                    return;
                 }
             }
             commands.add(command);
@@ -50,5 +55,10 @@ public class CommandQueue {
 
     public int size() {
         return commands.size();
+    }
+
+    @Override
+    public String toString() {
+        return "CommandQueue has " + this.size() + " commands:" + commands;
     }
 }
