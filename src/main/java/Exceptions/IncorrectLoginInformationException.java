@@ -1,4 +1,4 @@
-package database;
+package Exceptions;
 
 public class IncorrectLoginInformationException extends RuntimeException {
 
