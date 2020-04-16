@@ -1,7 +1,7 @@
 package server;
 
-import Exceptions.IncorrectLoginInformationException;
-import Exceptions.LobbyDoesNotExistException;
+import exceptions.IncorrectLoginInformationException;
+import exceptions.LobbyDoesNotExistException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import database.DatabaseConnection;

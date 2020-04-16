@@ -1,6 +1,6 @@
 package general.baseclient;
 
-import Exceptions.MixedServerMessageException;
+import exceptions.MixedServerMessageException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import configuration.Config;
