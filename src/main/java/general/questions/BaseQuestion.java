@@ -1,58 +1,45 @@
 package general.questions;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import general.User;
+import general.UserDeserializer;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class BaseQuestion {
 
     protected QuestionType questionType;
+    protected AnswerType answerType;
+    protected long questionID;
     protected boolean scoreDegradation;
     protected String question;
-    protected Answers correctAnswers;
+    protected List<Answer> answerList;
     protected int potentialPoints;
     protected int time;
     protected final int minTime = 10; //Minimum answer time in seconds
     protected final int maxTime = 600;
 
     public BaseQuestion(QuestionType questionType) {
+        //Constructor for initializing a question in the application.
 
         this.questionType = questionType;
 
     }
 
-    public BaseQuestion(QuestionType questionType, boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
+    public BaseQuestion(QuestionType questionType, AnswerType answerType, long questionID, boolean scoreDegradation,
+                        String question, List<Answer> answerList, int potentialPoints, int time) {
+        //Constructor for creating a question from the database.
+
         this.questionType = questionType;
+        this.answerType = answerType;
+        this.questionID = questionID;
         this.scoreDegradation = scoreDegradation;
         this.question = question;
-        this.correctAnswers = correctAnswers;
+        this.answerList = answerList;
         this.potentialPoints = potentialPoints;
         this.time = time;
-    }
-
-    public String getQuestion() {
-
-        return question;
-
-    }
-
-    public int getPotentialPoints() {
-
-        return potentialPoints;
-
-    }
-
-    public int getTime() {
-
-        return time;
-
-    }
-
-    public Answers getCorrectAnswers() {
-
-        return correctAnswers;
-
-    }
-
-    public QuestionType getQuestionType() {
-
-        return questionType;
 
     }
 
@@ -83,4 +70,74 @@ public class BaseQuestion {
 
     }
 
+    public void addAnswer(Answer answer) {
+        //Todo: Check whether answer can be added or not.
+
+        this.answerList.add(answer);
+
+    }
+
+    public QuestionType getQuestionType() {
+        return questionType;
+    }
+
+    public AnswerType getAnswerType() {
+        return answerType;
+    }
+
+    public long getQuestionID() {
+        return questionID;
+    }
+
+    public boolean isScoreDegradation() {
+        return scoreDegradation;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public List<Answer> getAnswerList() {
+        return answerList;
+    }
+
+    public int getPotentialPoints() {
+        return potentialPoints;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public int getMinTime() {
+        return minTime;
+    }
+
+    public int getMaxTime() {
+        return maxTime;
+    }
+
+    public void setQuestionType(QuestionType questionType) {
+        this.questionType = questionType;
+    }
+
+    public void setAnswerType(AnswerType answerType) {
+        this.answerType = answerType;
+    }
+
+    public void setScoreDegradation(boolean scoreDegradation) {
+        this.scoreDegradation = scoreDegradation;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
+    }
+
+    public void setPotentialPoints(int potentialPoints) {
+        this.potentialPoints = potentialPoints;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
 }
