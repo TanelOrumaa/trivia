@@ -22,7 +22,7 @@ public class VideoQuestionSerializer implements JsonSerializer<VideoQuestion> {
         questionObject.addProperty("potentialPoints", videoQuestion.getPotentialPoints());
         questionObject.addProperty("time", videoQuestion.getTime());
 
-        Answers correctAnswers = videoQuestion.getCorrectAnswers();
+        Answer correctAnswers = videoQuestion.getCorrectAnswers();
         List<String> receivedAnswers = correctAnswers.getAnswers();
         String answers = "";
         switch (correctAnswers.getAnswerType()) {

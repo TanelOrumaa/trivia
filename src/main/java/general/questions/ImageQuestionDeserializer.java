@@ -2,7 +2,6 @@ package general.questions;
 
 import com.google.gson.*;
 
-import java.awt.*;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,7 +32,7 @@ public class ImageQuestionDeserializer implements JsonDeserializer<ImageQuestion
 
         }
         List<String> answers = Arrays.asList(questionObject.get("answers").getAsString().split(" {2}S {2}"));
-        Answers correctAnswers = new Answers(answers, answerType);
+        Answer correctAnswers = new Answer(answers, answerType);
 
         return new ImageQuestion(QuestionType.TEXT, questionID, scoreDegradation, question, correctAnswers, potentialPoints, time, imagePath);
 

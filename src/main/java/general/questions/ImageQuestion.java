@@ -1,22 +1,33 @@
 package general.questions;
 
 import java.nio.file.Path;
+import java.util.List;
 
 public class ImageQuestion extends BaseQuestion implements Question {
 
-    private Path imagePath;
+    private String imagePath;
 
-    public ImageQuestion(QuestionType questionType, long questionID, boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time, Path imagePath) {
+    public ImageQuestion() {
+        //Constructor for creating a question from the application.
 
-        super(questionType, questionID, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        super(QuestionType.IMAGE);
+
+    }
+
+    public ImageQuestion(String imagePath, AnswerType answerType, long questionID, boolean scoreDegradation, String question, List<Answer> answerList, int potentialPoints, int time) {
+        //Constructor for creating a question from the database.
+
+        super(QuestionType.IMAGE, answerType, questionID, scoreDegradation, question, answerList, potentialPoints, time);
         this.imagePath = imagePath;
 
     }
 
-    public Path getImagePath() {
-
+    public String getImagePath() {
         return imagePath;
+    }
 
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     @Override

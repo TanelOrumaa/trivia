@@ -3,8 +3,6 @@ package general.questions;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +30,7 @@ public class AudioQuestionDeserializer implements JsonDeserializer<AudioQuestion
 
         }
         List<String> answers = Arrays.asList(questionObject.get("answers").getAsString().split(" {2}S {2}"));
-        Answers correctAnswers = new Answers(answers, answerType);
+        Answer correctAnswers = new Answer(answers, answerType);
 
         return new AudioQuestion(QuestionType.TEXT, questionID, scoreDegradation, question, correctAnswers, potentialPoints, time, audioAddress);
 

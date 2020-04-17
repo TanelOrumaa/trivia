@@ -3,7 +3,6 @@ package general.questions;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TextQuestionSerializer implements JsonSerializer<TextQuestion> {
@@ -19,7 +18,7 @@ public class TextQuestionSerializer implements JsonSerializer<TextQuestion> {
         questionObject.addProperty("potentialPoints", textQuestion.getPotentialPoints());
         questionObject.addProperty("time", textQuestion.getTime());
 
-        Answers correctAnswers = textQuestion.getCorrectAnswers();
+        Answer correctAnswers = textQuestion.getCorrectAnswers();
         List<String> receivedAnswers = correctAnswers.getAnswers();
         String answers = "";
         switch (correctAnswers.getAnswerType()) {

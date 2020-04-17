@@ -22,7 +22,7 @@ public class ImageQuestionSerializer implements JsonSerializer<ImageQuestion> {
         questionObject.addProperty("potentialPoints", imageQuestion.getPotentialPoints());
         questionObject.addProperty("time", imageQuestion.getTime());
 
-        Answers correctAnswers = imageQuestion.getCorrectAnswers();
+        Answer correctAnswers = imageQuestion.getCorrectAnswers();
         List<String> receivedAnswers = correctAnswers.getAnswers();
         String answers = "";
         switch (correctAnswers.getAnswerType()) {

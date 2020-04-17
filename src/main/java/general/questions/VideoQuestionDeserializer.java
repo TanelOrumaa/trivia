@@ -30,7 +30,7 @@ public class VideoQuestionDeserializer implements JsonDeserializer<VideoQuestion
 
         }
         List<String> answers = Arrays.asList(questionObject.get("answers").getAsString().split(" {2}S {2}"));
-        Answers correctAnswers = new Answers(answers, answerType);
+        Answer correctAnswers = new Answer(answers, answerType);
 
         return new VideoQuestion(QuestionType.TEXT, questionID, scoreDegradation, question, correctAnswers, potentialPoints, time, videoAddress);
 

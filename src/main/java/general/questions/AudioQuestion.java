@@ -1,12 +1,22 @@
 package general.questions;
 
+import java.util.List;
+
 public class AudioQuestion extends BaseQuestion implements Question {
 
     private String audioAddress;
 
-    public AudioQuestion(QuestionType questionType, long questionID, boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time, String audioAddress) {
+    public AudioQuestion() {
+        //Constructor for creating a question from the application.
 
-        super(questionType, questionID, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        super(QuestionType.AUDIO);
+
+    }
+
+    public AudioQuestion(AnswerType answerType, long questionID, boolean scoreDegradation, String question, List<Answer> answerList, int potentialPoints, int time, String audioAddress) {
+        //Constructor for creating a question from the database.
+
+        super(QuestionType.AUDIO, answerType, questionID, scoreDegradation, question, answerList, potentialPoints, time);
         this.audioAddress = audioAddress;
 
     }

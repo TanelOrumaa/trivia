@@ -22,7 +22,7 @@ public class AudioQuestionSerializer implements JsonSerializer<AudioQuestion> {
         questionObject.addProperty("potentialPoints", audioQuestion.getPotentialPoints());
         questionObject.addProperty("time", audioQuestion.getTime());
 
-        Answers correctAnswers = audioQuestion.getCorrectAnswers();
+        Answer correctAnswers = audioQuestion.getCorrectAnswers();
         List<String> receivedAnswers = correctAnswers.getAnswers();
         String answers = "";
         switch (correctAnswers.getAnswerType()) {
