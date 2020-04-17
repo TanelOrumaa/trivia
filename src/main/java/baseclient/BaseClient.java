@@ -121,7 +121,7 @@ public class BaseClient extends Application {
             case 137:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to WaitingAfterQuestion");
-                    guiStage.setScene(WaitingAfterQuestionScreen.change(guiStage, this));
+                    guiStage.setScene(WaitingAfterQuestionScreen.change(this));
                 });
                 break;
             case 138:
