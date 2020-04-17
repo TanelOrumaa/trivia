@@ -1,18 +1,29 @@
 package general.questions;
 
+import java.util.List;
+
 public class VideoQuestion extends BaseQuestion implements Question {
 
     private String videoAddress;
 
-    public String getVideoAddress() {
+    public VideoQuestion() {
+        //Constructor for creating a question from the application.
 
-        return videoAddress;
+        super(QuestionType.VIDEO);
 
     }
 
-    public VideoQuestion(boolean scoreDegradation, String question, Answers correctAnswers, int potentialPoints, int time) {
+    public VideoQuestion(AnswerType answerType, long questionID, boolean scoreDegradation, String question, List<Answer> answerList, int potentialPoints, int time, String videoAddress) {
+        //Constructor for creating a question from the database.
 
-        super(QuestionType.VIDEO, scoreDegradation, question, correctAnswers, potentialPoints, time);
+        super(QuestionType.VIDEO, answerType, questionID, scoreDegradation, question, answerList, potentialPoints, time);
+        this.videoAddress = videoAddress;
+
+    }
+
+    public String getMediaPath() {
+
+        return videoAddress;
 
     }
 
