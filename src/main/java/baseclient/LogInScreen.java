@@ -1,5 +1,6 @@
 package baseclient;
 
+import general.Command;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -10,13 +11,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import static baseclient.BaseClientBackEnd.addCommand;
 
-public class LogIn {
+public class LogInScreen {
 
-    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
+    public static Scene change(BaseClient frontEnd) {
 
         double width = frontEnd.getWidth();
         double height = frontEnd.getHeight();
@@ -39,14 +39,12 @@ public class LogIn {
         HBox password = new HBox(passwordInput);
 
         Button logInButton = new Button("Log In");
-        logInButton.setOnAction(new EventHandler<ActionEvent>() {
-            //Event handler: clicking on log in button. Checking if username and password match.
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                // Send the command to client backend.
-                // TODO: For some reason this gets called twice.
-                addCommand(121, new String[] {usernameInput.getText(), passwordInput.getText()}, 0);
-                // Wait for result
+        //Event handler: clicking on log in button. Checking if username and password match.
+        logInButton.setOnAction(actionEvent -> {
+            // Send the command to client backend.
+            // TODO: For some reason this gets called twice.
+            addCommand(121, new String[]{usernameInput.getText(), passwordInput.getText()}, 0);
+            // Wait for result
 
 //                //if username and password match
 //                if (true) {
@@ -54,18 +52,15 @@ public class LogIn {
 //                } else {
 //                    logInError.setText("Incorrect username/password");
 //                }
-            }
         });
 
         HBox logInScreenButtons;
         if (frontEnd.type != ClientType.PRESENTER) {
             Button registrationButton = new Button("Register");
-            registrationButton.setOnAction(new EventHandler<ActionEvent>() {
-                //Event handler: clicking on "register" button
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    primaryStage.setScene(Register.change(primaryStage, frontEnd));
-                }
+            //Event handler: clicking on "register" button
+            registrationButton.setOnAction(actionEvent -> {
+                // command: change to Register
+                frontEnd.addCommandAndInvoke(new Command(136, new String[0]));
             });
             logInScreenButtons = new HBox(20, logInButton, registrationButton);
         }
