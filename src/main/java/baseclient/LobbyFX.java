@@ -19,7 +19,7 @@ public class LobbyFX {
 
     private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
 
-    public static Scene change(Stage primaryStage, BaseClient frontEnd, String[] names) {
+    public static Scene change(BaseClient frontEnd, String[] names) {
         double width = frontEnd.getWidth();
         double height = frontEnd.getHeight();
 
@@ -37,20 +37,18 @@ public class LobbyFX {
 
         //How to update, when new players join?
         final ObservableList<String> participants = FXCollections.observableArrayList(names);
-        final ArrayList<Label> participantsLabels = new ArrayList<Label>();
+        final ArrayList<Label> participantsLabels = new ArrayList<>();
         for (String participant : participants) {
             participantsLabels.add(new Label(participant));
         }
 
-        participants.addListener(new ListChangeListener<String>() {
-            public void onChanged(Change observable) {
-                lobby.getChildren().removeAll(participantsLabels);
-                participantsLabels.clear();
-                for (String participant : participants) {
-                    participantsLabels.add(new Label(participant));
-                }
-                lobby.getChildren().addAll(participantsLabels);
+        participants.addListener((ListChangeListener<String>) observable -> {
+            lobby.getChildren().removeAll(participantsLabels);
+            participantsLabels.clear();
+            for (String participant : participants) {
+                participantsLabels.add(new Label(participant));
             }
+            lobby.getChildren().addAll(participantsLabels);
         });
 
         lobby.setAlignment(Pos.CENTER);

@@ -16,7 +16,7 @@ import static baseclient.BaseClientBackEnd.addCommand;
 
 public class LobbyEntry {
 
-    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
+    public static Scene change(BaseClient frontEnd) {
 
         double width = frontEnd.getWidth();
         double height = frontEnd.getHeight();
@@ -33,18 +33,15 @@ public class LobbyEntry {
         HBox lobbyEntryCode = new HBox(lobbyEntryCodeInput);
 
         Button lobbyEntryButton = new Button("Enter to lobby");
-        lobbyEntryButton.setOnAction(new EventHandler<ActionEvent>() {
-            //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                addCommand(131, new String[] {lobbyEntryCodeInput.getText()}, 0);
-                //if exists lobby with this code
+        //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
+        lobbyEntryButton.setOnAction(actionEvent -> {
+            addCommand(131, new String[]{lobbyEntryCodeInput.getText()}, 0);
+            //if exists lobby with this code
 //                if (true) {
 //                    primaryStage.setScene(LobbyFX.change(primaryStage, frontEnd));
 //                } else {
 //                    lobbyEntryError.setText("Something went wrong");
 //                }
-            }
         });
 
         Button lobbyCreationButton = new Button("Create lobby");
