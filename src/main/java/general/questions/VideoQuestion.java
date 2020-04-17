@@ -21,7 +21,7 @@ public class VideoQuestion extends BaseQuestion implements Question {
 
     }
 
-    public String getVideoAddress() {
+    public String getMediaPath() {
 
         return videoAddress;
 

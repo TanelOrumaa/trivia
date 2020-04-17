@@ -14,7 +14,7 @@ public class ImageQuestion extends BaseQuestion implements Question {
 
     }
 
-    public ImageQuestion(String imagePath, AnswerType answerType, long questionID, boolean scoreDegradation, String question, List<Answer> answerList, int potentialPoints, int time) {
+    public ImageQuestion(AnswerType answerType, long questionID, boolean scoreDegradation, String question, List<Answer> answerList, int potentialPoints, int time, String imagePath) {
         //Constructor for creating a question from the database.
 
         super(QuestionType.IMAGE, answerType, questionID, scoreDegradation, question, answerList, potentialPoints, time);
@@ -22,7 +22,7 @@ public class ImageQuestion extends BaseQuestion implements Question {
 
     }
 
-    public String getImagePath() {
+    public String getMediaPath() {
         return imagePath;
     }
 

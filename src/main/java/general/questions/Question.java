@@ -2,11 +2,13 @@ package general.questions;
 
 import java.util.List;
 
-interface Question {
+public interface Question {
 
     boolean validateQuestion();
 
     void degradeScore();
+
+    String getMediaPath();
 
     QuestionType getQuestionType();
 

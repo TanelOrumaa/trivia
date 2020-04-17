@@ -18,6 +18,12 @@ public class TextQuestion extends BaseQuestion implements Question {
 
     }
 
+    public String getMediaPath() {
+
+        return null;
+
+    }
+
     @Override
     public boolean validateQuestion() {
 

@@ -21,7 +21,7 @@ public class AudioQuestion extends BaseQuestion implements Question {
 
     }
 
-    public String getAudioAddress() {
+    public String getMediaPath() {
 
         return audioAddress;
 
