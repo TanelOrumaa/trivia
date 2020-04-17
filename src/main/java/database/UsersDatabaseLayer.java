@@ -5,8 +5,10 @@ import general.User;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -121,10 +123,35 @@ public class UsersDatabaseLayer {
     private static String hashPassword(String password, String salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
         int iterationCount = 1000000;
         int outputLength = 256;
-        byte[] saltBytes = salt.getBytes(StandardCharsets.UTF_8);
+        byte[] saltBytes = hexStringToByteArray(salt);
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), saltBytes, iterationCount, outputLength);
         byte[] hashedBytes = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
 
-        return Arrays.toString(hashedBytes);
+        return byteArrayToString(hashedBytes);
+    }
+
+    private static String generateSalt(){
+        SecureRandom rng = new SecureRandom();
+        byte[] saltBytes = new byte[16];
+        rng.nextBytes(saltBytes);
+
+        return byteArrayToString(saltBytes);
+    }
+
+    public static String byteArrayToString(byte[] bytes) {
+        BigInteger bigBoi = new BigInteger(1, bytes);
+        return String.format("%0" + (bytes.length << 1) + "x", bigBoi);
+    }
+
+    public static byte[] hexStringToByteArray(String hexString) {
+        byte[] byteArray = new BigInteger(hexString, 16).toByteArray();
+        //toByteArray produces an additional sign bit or something, so we must remove it
+        if (byteArray[0] == 0) {
+
+            byte[] output = new byte[byteArray.length - 1];
+            System.arraycopy(byteArray, 1, output, 0, output.length);
+            return output;
+        }
+        return byteArray;
     }
 }
