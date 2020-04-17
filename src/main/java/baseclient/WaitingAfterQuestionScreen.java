@@ -5,11 +5,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
-public class WaitingAfterQuestion {
+public class WaitingAfterQuestionScreen {
 
-    public static Scene change(Stage primaryStage, BaseClient frontEnd) {
+    public static Scene change(BaseClient frontEnd) {
 
         double width = frontEnd.getWidth();
         double height = frontEnd.getHeight();

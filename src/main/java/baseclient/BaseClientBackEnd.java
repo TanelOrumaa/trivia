@@ -37,10 +37,10 @@ public class BaseClientBackEnd implements Runnable {
     private static long serverTimeDelta;
     private static long smallestPing;
 
-    public BaseClientBackEnd(ClientType clientType, BaseClient frontEnd, BlockingQueue<Question> questions) {
+    public BaseClientBackEnd(BaseClient frontEnd, BlockingQueue<Question> questions) {
         this.frontEnd = frontEnd;
         this.questions = questions;
-        this.clientType = clientType;
+        this.clientType = frontEnd.type;
 
         smallestPing = Long.MAX_VALUE;
         commandQueue = new CommandQueue();
@@ -155,6 +155,12 @@ public class BaseClientBackEnd implements Runnable {
                 }
                 createLobby(lobbyName);
                 break;
+            case 144:
+                if (command.args != null && command.args.length == 2) {
+                    String username = command.args[0];
+                    String password = command.args[1];
+
+                }
             default:
                 // For testing.
                 LOG.debug("Unknown command " + command + ". Sending to server.");
