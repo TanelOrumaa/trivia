@@ -21,29 +21,6 @@ public class BaseQuestion {
     protected final int minTime = 10; //Minimum answer time in seconds
     protected final int maxTime = 600;
 
-    public static void main(String[] args) {
-
-        List<Answer> answers = new ArrayList<>();
-        answers.add(new Answer("siin", true, 1));
-        answers.add(new Answer("seal", false, 2));
-        answers.add(new Answer("Lible", true, 3));
-
-        TextQuestion textQuestion = new TextQuestion(AnswerType.CHOICE, 1, true, "Kus sa oled", answers, 69, 420);
-        ImageQuestion imageQuestion = new ImageQuestion(AnswerType.FREEFORM, 1, true, "Kus sa oled", answers, 69, 420, "teerada");
-        AudioQuestion audioQuestion = new AudioQuestion(AnswerType.CHOICE, 1, false, "peeter", answers, 666, 420, "youtube");
-        VideoQuestion videoQuestion = new VideoQuestion(AnswerType.CHOICE, 1, true, "Kus sa oled", answers, 69, 420, "twitter");
-
-        Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionSerializer()).create();
-        System.out.println(gson.toJson(textQuestion));
-        System.out.println(gson.toJson(imageQuestion));
-        System.out.println(gson.toJson(audioQuestion));
-        System.out.println(gson.toJson(videoQuestion));
-
-        Gson gson2 = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionDeserializer()).create();
-        Question audioQuestion2 = gson2.fromJson(gson.toJson(audioQuestion), Question.class);
-        System.out.println(audioQuestion2.getPotentialPoints());
-    }
-
     public BaseQuestion(QuestionType questionType) {
         //Constructor for initializing a question in the application.
 
