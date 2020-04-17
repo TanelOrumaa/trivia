@@ -19,27 +19,31 @@ public class BaseClient extends Application {
 
     protected ClientType type;
     protected static Stage guiStage;
-    protected BlockingQueue<Question> questions = new ArrayBlockingQueue<Question>(10);
+    protected BlockingQueue<Question> questions = new ArrayBlockingQueue<>(10);
     protected BaseClientBackEnd baseClientBackEnd;
 
     protected CommandQueue incomingCommands = new CommandQueue();
 
 
-    public static double getWidth() {
-        double width = 350;
-        return width;
+    public double getWidth() {
+        if (type == ClientType.PRESENTER) {
+            return 1280;
+        }
+        return 350;
     }
 
-    public static double getHeight() {
-        double height = 561.5;
-        return height;
+    public double getHeight() {
+        if (type == ClientType.PRESENTER) {
+            return 720;
+        }
+        return 580;
     }
 
 
 
 
     @Override
-    public void start(final Stage primaryStage) throws Exception {
+    public void start(final Stage primaryStage) {
         guiStage = primaryStage;
 
         try (Scanner in = new Scanner(System.in)) {
@@ -48,18 +52,21 @@ public class BaseClient extends Application {
             switch (answer) {
                 case "1":
                     type = ClientType.PRESENTER;
+                    guiStage.setTitle("Presenter client");
                     break;
                 case "2":
                     type = ClientType.PLAYER;
+                    guiStage.setTitle("Player client");
                     break;
                 case "3":
                     type = ClientType.HOST;
+                    guiStage.setTitle("Host client");
                     break;
             }
         }
 
 
-        this.baseClientBackEnd = new BaseClientBackEnd(this.type, this, questions);
+        this.baseClientBackEnd = new BaseClientBackEnd(this, questions);
         Thread backEndThread = new Thread(baseClientBackEnd);
         backEndThread.start();
 
@@ -67,14 +74,12 @@ public class BaseClient extends Application {
 
         //Already have logInScreen, lobbyEntryScreen, lobbyScreen, registerScreen, questionChoiceScreen, questionTextAreaScreen, waitingAfterQuestionScreen
 
-        guiStage.setScene(LogIn.change(guiStage, this));
-        guiStage.setTitle("Base client");
+        guiStage.setScene(LogInScreen.change(this));
         guiStage.show();
 
     }
 
     public static void main(String[] args) {
-
         launch(args);
     }
 
@@ -86,19 +91,43 @@ public class BaseClient extends Application {
             case 122:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyEntry");
-                    guiStage.setScene(LobbyEntry.change(guiStage, this));
+                    guiStage.setScene(LobbyEntry.change(this));
                 });
                 break;
             case 132:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");
-                    guiStage.setScene(LobbyFX.change(guiStage, this, command.args));
+                    guiStage.setScene(LobbyFX.change(this, command.args));
                 });
                 break;
             case 134:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to LobbyFX");
-                    guiStage.setScene(LobbyFX.change(guiStage, this, command.args));
+                    guiStage.setScene(LobbyFX.change(this, command.args));
+                });
+                break;
+            case 135:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to LogIn");
+                    guiStage.setScene(LogInScreen.change(this));
+                });
+                break;
+            case 136:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to Register");
+                    guiStage.setScene(RegistrationScreen.change(this));
+                });
+                break;
+            case 137:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to WaitingAfterQuestion");
+                    guiStage.setScene(WaitingAfterQuestionScreen.change(this));
+                });
+                break;
+            case 138:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to QuestionFX");
+                    guiStage.setScene(QuestionScene.change(this, questions.poll()));
                 });
         }
     }
