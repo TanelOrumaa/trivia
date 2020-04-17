@@ -1,7 +1,7 @@
 package baseclient;
 
 import general.Command;
-import general.questions.Answers;
+import general.questions.Answer;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class FreeformAnswerFX {
 
-    public static void addAnswerGraphics(VBox mainBox, List<String> answers, BaseClient frontEnd) {
+    public static void addAnswerGraphics(VBox mainBox, List<Answer> answers, BaseClient frontEnd) {
 
         VBox answerTextArea = new VBox(20);
 

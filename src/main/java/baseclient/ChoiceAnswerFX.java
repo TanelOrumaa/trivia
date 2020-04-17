@@ -1,7 +1,7 @@
 package baseclient;
 
 import general.Command;
-import general.questions.Answers;
+import general.questions.Answer;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ChoiceAnswerFX {
 
-    public static void addAnswerGraphics(VBox mainBox, List<String> answers, BaseClient frontEnd) {
+    public static void addAnswerGraphics(VBox mainBox, List<Answer> answers, BaseClient frontEnd) {
 
         //Multiple-choice question. Player choose one correct answer.
         ScrollPane choiceAnswerScroller = new ScrollPane();
@@ -20,7 +20,7 @@ public class ChoiceAnswerFX {
 
         ArrayList<Button> answerButtons = new ArrayList<>();
         for (int i = 0; i < answers.size(); i++) {
-            Button answerButton = new Button(answers.get(i));
+            Button answerButton = new Button(answers.get(i).getAnswerText());
             answerButton.setPrefSize(frontEnd.getWidth() / 4 * 3, frontEnd.getHeight() / 10);
 
             final String answerNumber = Integer.toString(i);

@@ -1,7 +1,6 @@
 package baseclient;
 
 import general.questions.AnswerType;
-import general.questions.Answers;
 import general.questions.Question;
 import general.questions.QuestionType;
 import javafx.geometry.Insets;
@@ -11,8 +10,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-
-import java.util.List;
 
 public class QuestionScene {
 
@@ -42,10 +39,9 @@ public class QuestionScene {
         }
 
         // add answer GUI
-        AnswerType answerType = AnswerType.CHOICE; //question.getAnswers().getAnswerTpe()
-        Answers answers = new Answers(List.of("temporary1", "temporary2"), AnswerType.CHOICE);
-        if (answerType == AnswerType.CHOICE) ChoiceAnswerFX.addAnswerGraphics(mainBox, answers.getAnswers(), frontEnd);
-        if (answerType == AnswerType.FREEFORM) FreeformAnswerFX.addAnswerGraphics(mainBox, answers.getAnswers(), frontEnd);
+        AnswerType answerType = question.getAnswerType();
+        if (answerType == AnswerType.CHOICE) ChoiceAnswerFX.addAnswerGraphics(mainBox, question.getAnswerList(), frontEnd);
+        if (answerType == AnswerType.FREEFORM) FreeformAnswerFX.addAnswerGraphics(mainBox, question.getAnswerList(), frontEnd);
 
         return new Scene(mainBox, frontEnd.getWidth(), frontEnd.getHeight());
     }
