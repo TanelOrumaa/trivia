@@ -55,8 +55,8 @@
 #####137: Switching scene to WaitingAfterQuestion
 - Example: 137 
 
-#####138: Switchign scene to QuestionFX
-- Example: 138
+#####138: Server -> Client "Display next question"
+- Example: 138 hash
 
 #####199: Client -> Server "Quitting, please close socket."
 - Example: 199 hash 
