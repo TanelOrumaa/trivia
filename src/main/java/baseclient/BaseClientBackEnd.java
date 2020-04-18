@@ -429,7 +429,7 @@ public class BaseClientBackEnd implements Runnable {
 
         // Read the response
         int responseCode = dataInputStream.readInt();
-        if (responseCode == 202){
+        if (responseCode == 203){
             LOG.debug("Server responded positively and sent next question");
             String responseHash = dataInputStream.readUTF();
             if (hash.equals(responseHash)){

@@ -112,27 +112,9 @@ public class BaseClient extends Application {
                     guiStage.setScene(LobbyFX.change(this, command.args));
                 });
                 break;
-            case 135:
-                Platform.runLater(() -> {
-                    LOG.debug("Switching scene to LogIn");
-                    guiStage.setScene(LogInScreen.change(this));
-                });
-                break;
-            case 136:
-                Platform.runLater(() -> {
-                    LOG.debug("Switching scene to Register");
-                    guiStage.setScene(RegistrationScreen.change(this));
-                });
-                break;
-            case 137:
-                Platform.runLater(() -> {
-                    LOG.debug("Switching scene to WaitingAfterQuestion");
-                    guiStage.setScene(WaitingAfterQuestionScreen.change(this));
-                });
-                break;
             case 138:
                 Platform.runLater(() -> {
-                    LOG.debug("Switching scene to QuestionFX");
+                    LOG.debug("Switching scene to QuestionScene");
                     guiStage.setScene(QuestionScene.change(this, questions.poll()));
                 });
             case 203:

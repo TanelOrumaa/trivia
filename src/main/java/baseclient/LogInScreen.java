@@ -58,10 +58,7 @@ public class LogInScreen {
         if (frontEnd.type != ClientType.PRESENTER) {
             Button registrationButton = new Button("Register");
             //Event handler: clicking on "register" button
-            registrationButton.setOnAction(actionEvent -> {
-                // command: change to Register
-                frontEnd.addCommandAndInvoke(new Command(136, new String[0]));
-            });
+            registrationButton.setOnAction(actionEvent -> frontEnd.guiStage.setScene(RegistrationScreen.change(frontEnd)));
             logInScreenButtons = new HBox(20, logInButton, registrationButton);
         }
         else {
