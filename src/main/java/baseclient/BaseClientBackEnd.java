@@ -6,6 +6,7 @@ import configuration.Config;
 import exceptions.MixedServerMessageException;
 import general.*;
 import general.questions.Question;
+import general.questions.QuestionDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,6 +144,11 @@ public class BaseClientBackEnd implements Runnable {
                     login(command.args[0], command.args[1]);
                 }
                 break;
+            case 123: // Register new user
+                if (command.args != null && command.args.length == 3) {
+                    registerUser(command.args[0], command.args[1], command.args[2]);
+
+                }
             case 131: // Connect to lobby
                 if (command.args != null && command.args.length == 1) {
                     connectToLobby(Integer.parseInt(command.args[0]));
@@ -155,11 +161,19 @@ public class BaseClientBackEnd implements Runnable {
                 }
                 createLobby(lobbyName);
                 break;
-            case 123: // Register new user
-                if (command.args != null && command.args.length == 3) {
-                    registerUser(command.args[0], command.args[1], command.args[2]);
-
+            case 138: // Display next question
+                if (command.args != null && command.args.length == 0){
+                    frontEnd.addCommandAndInvoke(new Command(138, new String[0]));
                 }
+            case 201: // Inform server about user's answer
+                if (command.args != null && command.args.length == 1) {
+                    // TODO
+                }
+            case 202: // Ask server for next question
+                if (command.args != null && command.args.length == 0) {
+                    requestQuestion();
+                }
+
             default:
                 // For testing.
                 LOG.debug("Unknown command " + command + ". Sending to server.");
@@ -242,6 +256,9 @@ public class BaseClientBackEnd implements Runnable {
                 break;
             case 434:
                 LOG.debug("Lobby is full.");
+                break;
+            case 436:
+                LOG.debug("Server failed to send us next question");
                 break;
         }
     }
@@ -395,6 +412,35 @@ public class BaseClientBackEnd implements Runnable {
 
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
+            }
+
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+    }
+
+    private void requestQuestion() throws IOException {
+        // Send request question message
+        LOG.debug("Sending a request next question message");
+        dataOutputStream.writeInt(202);
+        dataOutputStream.writeUTF(hash);
+
+        // Read the response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 202){
+            LOG.debug("Server responded positively and sent next question");
+            String responseHash = dataInputStream.readUTF();
+            if (hash.equals(responseHash)){
+                // Read the Question object and deserialize it
+                String questionJson = dataInputStream.readUTF();
+                Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionDeserializer()).create();
+                Question nextQuestion = gson.fromJson(questionJson, Question.class);
+
+                // Add the question to question queue but wait for server's message before displaying it
+                questions.add(nextQuestion);
+                // also send confirmation to server that we have received the question?
             }
 
         } else if (responseCode >= 400 && responseCode < 500) {

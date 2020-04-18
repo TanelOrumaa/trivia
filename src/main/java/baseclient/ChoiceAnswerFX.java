@@ -1,6 +1,5 @@
 package baseclient;
 
-import general.Command;
 import general.questions.Answer;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -8,6 +7,8 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static baseclient.BaseClientBackEnd.addCommand;
 
 public class ChoiceAnswerFX {
 
@@ -25,9 +26,8 @@ public class ChoiceAnswerFX {
 
             final String answerNumber = Integer.toString(i);
             answerButton.setOnAction(actionEvent -> {
-                // inform back-end about client's answer
-                Command buttonPressedCommand = new Command(201, new String[] {answerNumber});
-                frontEnd.addCommandAndInvoke(buttonPressedCommand);
+                // Inform back-end about user's answer
+                addCommand(201, new String[] {answerNumber}, 0);
             });
             answerButtons.add(answerButton);
         }

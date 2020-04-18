@@ -135,6 +135,11 @@ public class BaseClient extends Application {
                     LOG.debug("Switching scene to QuestionFX");
                     guiStage.setScene(QuestionScene.change(this, questions.poll()));
                 });
+            case 203:
+                Platform.runLater(() -> {
+                    LOG.debug("Received next question. Will wait for server's message to display the question");
+
+                });
             case 423:
                 Platform.runLater(() -> {
                     LOG.debug("User registration failed - username already exists");

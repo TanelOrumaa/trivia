@@ -1,6 +1,5 @@
 package baseclient;
 
-import general.Command;
 import general.questions.Answer;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -9,6 +8,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
+
+import static baseclient.BaseClientBackEnd.addCommand;
 
 public class FreeformAnswerFX {
 
@@ -21,13 +22,12 @@ public class FreeformAnswerFX {
         answerTextAreaInput.setWrapText(true);
         HBox answerTextAreaInputBox = new HBox(answerTextAreaInput);
 
-        Button questionTextAreaButton = new Button("Answer");
-        questionTextAreaButton.setOnAction(actionEvent -> {
-            // generate command - inform backend that client has answered and what the answer was - and and invoke it
-            Command buttonPressedCommand = new Command(201, new String[] {answerTextAreaInput.getText()});
-            frontEnd.addCommandAndInvoke(buttonPressedCommand);
+        Button answerButton = new Button("Answer");
+        answerButton.setOnAction(actionEvent -> {
+            // Inform back-end about user's answer
+            addCommand(201, new String[] {answerTextAreaInput.getText()}, 0);
         });
-        HBox answerTextAreaButtonBox = new HBox(questionTextAreaButton);
+        HBox answerTextAreaButtonBox = new HBox(answerButton);
 
 
         mainBox.getChildren().addAll(answerTextAreaInputBox, answerTextAreaButtonBox);
