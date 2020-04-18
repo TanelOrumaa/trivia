@@ -25,7 +25,7 @@ public class ChoiceAnswerFX {
 
             final String answerNumber = Integer.toString(i);
             answerButton.setOnAction(actionEvent -> {
-                // generate command - inform backend which button was pressed - and and invoke it
+                // inform back-end about client's answer
                 Command buttonPressedCommand = new Command(201, new String[] {answerNumber});
                 frontEnd.addCommandAndInvoke(buttonPressedCommand);
             });
