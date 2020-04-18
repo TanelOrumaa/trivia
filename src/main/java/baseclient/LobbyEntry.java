@@ -1,7 +1,5 @@
 package baseclient;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -11,9 +9,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
-import static baseclient.BaseClientBackEnd.addCommand;
+import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
 public class LobbyEntry {
 
@@ -37,8 +34,7 @@ public class LobbyEntry {
         Button lobbyEntryButton = new Button("Enter to lobby");
         //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
         lobbyEntryButton.setOnAction(actionEvent -> {
-            addCommand(131, new String[]{lobbyEntryCodeInput.getText()}, 0);
-
+            addCommandToBackEnd(131, new String[]{lobbyEntryCodeInput.getText()}, 0);
             //if exists lobby with this code
 //                if (true) {
 //                    primaryStage.setScene(LobbyFX.change(primaryStage, frontEnd));
@@ -49,7 +45,7 @@ public class LobbyEntry {
 
         Button lobbyCreationButton = new Button("Create lobby");
         lobbyCreationButton.setOnMouseReleased(mouseEvent -> {
-            addCommand(133, new String[] {"Test lobby name"}, 0);
+            addCommandToBackEnd(133, new String[] {"Test lobby name"}, 0);
         });
 
         HBox lobbyEntryButtons = new HBox(lobbyEntryButton);

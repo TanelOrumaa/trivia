@@ -5,7 +5,10 @@ import com.google.gson.GsonBuilder;
 import configuration.Config;
 import exceptions.MixedServerMessageException;
 import general.*;
+import general.commands.Command;
+import general.commands.CommandQueue;
 import general.questions.Question;
+import general.questions.QuestionDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,17 +101,14 @@ public class BaseClientBackEnd implements Runnable {
                         }
                     } else {
                         LOG.trace("No commands right now. Trying to fetch messages from server.");
-                        // Try to read commands from server for sleep time. Since this is internal, we don't need to use
-                        // servertime here.
-                        long sleepUntil = System.currentTimeMillis() + Config.POLL_INTERVAL_MS;
-                        while (System.currentTimeMillis() < sleepUntil) {
-                            if (dataInputStream.available() > 0) {
-                                LOG.debug("There's a message incoming.");
-                                code = dataInputStream.readInt();
-                                handleIncoming(code);
-                            }
-                            // Wait for a small amount so we don't waste CPU resources for nothing.
-                            Thread.sleep(100);
+                        // See if server has sent any messages.
+                        if (dataInputStream.available() > 0) {
+                            LOG.debug("There's a message incoming.");
+                            code = dataInputStream.readInt();
+                            handleIncoming(code);
+                        } else {
+                            // Otherwise wait for a small amount of time to save CPU resources.
+                            Thread.sleep(Config.SOCKET_POLL_INTERVAL);
                         }
                     }
                 }
@@ -127,7 +127,7 @@ public class BaseClientBackEnd implements Runnable {
         }
     }
 
-    public static void addCommand(int code, String[] commands, int delay) {
+    public static void addCommandToBackEnd(int code, String[] commands, int delay) {
         commandQueue.add(new Command(code, commands, now() + delay));
         LOG.debug("Added a new command " + code + " to queue.");
     }
@@ -143,6 +143,11 @@ public class BaseClientBackEnd implements Runnable {
                     login(command.args[0], command.args[1]);
                 }
                 break;
+            case 123: // Register new user
+                if (command.args != null && command.args.length == 3) {
+                    registerUser(command.args[0], command.args[1], command.args[2]);
+
+                }
             case 131: // Connect to lobby
                 if (command.args != null && command.args.length == 1) {
                     connectToLobby(Integer.parseInt(command.args[0]));
@@ -155,10 +160,17 @@ public class BaseClientBackEnd implements Runnable {
                 }
                 createLobby(lobbyName);
                 break;
-            case 123: // Register new user
-                if (command.args != null && command.args.length == 3) {
-                    registerUser(command.args[0], command.args[1], command.args[2]);
-
+            case 138: // Display next question
+                if (command.args != null && command.args.length == 0){
+                    frontEnd.addCommandToFrontEnd(new Command(138, new String[0]));
+                }
+            case 201: // Inform server about user's answer
+                if (command.args != null && command.args.length == 1) {
+                    // TODO
+                }
+            case 202: // Ask server for next question
+                if (command.args != null && command.args.length == 0) {
+                    requestQuestion();
                 }
             default:
                 // For testing.
@@ -198,7 +210,7 @@ public class BaseClientBackEnd implements Runnable {
                 currentLobby = gson.fromJson(lobbyAsJson, Lobby.class);
 
                 LOG.debug("New lobby version received " + currentLobby.getCode());
-                this.frontEnd.addCommandAndInvoke(new Command(132, currentLobby.getConnectedUserNamesAsArray(), System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(132, currentLobby.getConnectedUserNamesAsArray(), System.currentTimeMillis()));
 
                 dataOutputStream.writeInt(137);
                 dataOutputStream.writeUTF(hash);
@@ -236,7 +248,7 @@ public class BaseClientBackEnd implements Runnable {
             case 424:
                 LOG.debug("New user registration failed because username already exists");
                 // Send error code to front-end to display error to user
-                this.frontEnd.addCommandAndInvoke(new Command(424, new String[0], System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(424, new String[0], System.currentTimeMillis()));
                 break;
             case 432:
                 LOG.debug("Lobby does not exist.");
@@ -245,6 +257,9 @@ public class BaseClientBackEnd implements Runnable {
             case 434:
                 LOG.debug("Lobby is full.");
                 this.frontEnd.addCommandAndInvoke(new Command(434, new String[0], System.currentTimeMillis()));
+                break;
+            case 436:
+                LOG.debug("Server failed to send us next question");
                 break;
         }
     }
@@ -279,7 +294,7 @@ public class BaseClientBackEnd implements Runnable {
         }
 
         // Queue next sync
-        addCommand(111, new String[0], 60000);
+        addCommandToBackEnd(111, new String[0], 60000);
     }
 
     private void login(String username, String password) throws IOException {
@@ -303,7 +318,7 @@ public class BaseClientBackEnd implements Runnable {
                 user = gson.fromJson(userJson, User.class);
 
                 // Add the command to front end.
-                this.frontEnd.addCommandAndInvoke(new Command(122, new String[]{user.getUsername(), user.getFirstName(), user.getLastName()}, System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(122, new String[]{user.getUsername(), user.getFirstName(), user.getLastName()}, System.currentTimeMillis()));
 
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
@@ -338,7 +353,7 @@ public class BaseClientBackEnd implements Runnable {
                 currentLobby = gson.fromJson(lobbyJson, Lobby.class);
                 LOG.debug("Connected to lobby " + currentLobby.getCode());
 
-                this.frontEnd.addCommandAndInvoke(new Command(132, currentLobby.getConnectedUserNamesAsArray(), System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(132, currentLobby.getConnectedUserNamesAsArray(), System.currentTimeMillis()));
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }
@@ -355,7 +370,7 @@ public class BaseClientBackEnd implements Runnable {
         dataOutputStream.writeInt(133);
         dataOutputStream.writeUTF(hash);
         dataOutputStream.writeUTF(lobbyName);
-
+        LOG.debug("Create lobby message sent.");
         // Read the response.
         int responseCode = dataInputStream.readInt();
         if (responseCode == 134) {
@@ -368,7 +383,7 @@ public class BaseClientBackEnd implements Runnable {
                 currentLobby = gson.fromJson(lobbyAsJson, Lobby.class);
                 LOG.debug("Created lobby with code " + currentLobby.getCode());
 
-                this.frontEnd.addCommandAndInvoke(new Command(134, currentLobby.getConnectedUserNamesAsArray(), System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(134, currentLobby.getConnectedUserNamesAsArray(), System.currentTimeMillis()));
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }
@@ -377,6 +392,10 @@ public class BaseClientBackEnd implements Runnable {
         } else {
             handleIncoming(responseCode);
         }
+    }
+
+    public int getLobbyCode() {
+        return currentLobby.getCode();
     }
 
     private void registerUser(String username, String password, String nickname) throws IOException {
@@ -394,7 +413,7 @@ public class BaseClientBackEnd implements Runnable {
             LOG.debug("Server responded positively - registration successful");
             String responseHash = dataInputStream.readUTF();
             if (hash.equals(responseHash)){
-                this.frontEnd.addCommandAndInvoke(new Command(124, new String[0], System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(124, new String[0], System.currentTimeMillis()));
 
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
@@ -406,6 +425,36 @@ public class BaseClientBackEnd implements Runnable {
             handleIncoming(responseCode);
         }
     }
+
+    private void requestQuestion() throws IOException {
+        // Send request question message
+        LOG.debug("Sending a request next question message");
+        dataOutputStream.writeInt(202);
+        dataOutputStream.writeUTF(hash);
+
+        // Read the response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 203){
+            LOG.debug("Server responded positively and sent next question");
+            String responseHash = dataInputStream.readUTF();
+            if (hash.equals(responseHash)){
+                // Read the Question object and deserialize it
+                String questionJson = dataInputStream.readUTF();
+                Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionDeserializer()).create();
+                Question nextQuestion = gson.fromJson(questionJson, Question.class);
+
+                // Add the question to question queue but wait for server's message before displaying it
+                questions.add(nextQuestion);
+                // also send confirmation to server that we have received the question?
+            }
+
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+    }
+
 
     private static long now() {
         return System.currentTimeMillis() + serverTimeDelta;

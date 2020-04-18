@@ -32,7 +32,7 @@
 - Example: 122 hash User_object_as_json
 
 #####123: Client - Server "Register"
-- Example: 123 hash username password nickanme
+- Example: 123 hash username password nickname
 
 #####124: Server -> Client "Registration successful"
 - Example: 124 hash
@@ -43,20 +43,20 @@
 #####132: Server -> Client "Connection to lobby successful"
 - Example: 132 hash Lobby_object_as_json
 
-#####134: Server -> Client ""
-- Example: 132 hash 
+#####133: Client -> Server "Create lobby"
+- Example: 133 hash lobbyName
 
-#####135: Switching scene to LogIn
-- Example: 135 
+#####134: Server -> Client "Lobby creation successful"
+- Example: 134 hash lobbyCode
 
-#####136: Switching scene to RegistrationScreen
-- Example: 136
+#####136: Server -> Client "Update lobby"
+- Example: 136 hash Lobby_object_as_json
 
-#####137: Switching scene to WaitingAfterQuestion
-- Example: 137 
+#####137: Client -> Server "Lobby updated"
+- Example: 137 hash
 
-#####138: Server -> Client "Display next question"
-- Example: 138 hash
+#####140: Server -> Client "Display next question"
+- Example: 140 hash questionId
 
 #####199: Client -> Server "Quitting, please close socket."
 - Example: 199 hash 

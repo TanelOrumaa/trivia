@@ -1,4 +1,4 @@
-package general;
+package general.commands;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
