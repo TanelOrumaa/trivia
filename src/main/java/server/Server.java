@@ -4,6 +4,7 @@ import configuration.Config;
 import exceptions.LobbyDoesNotExistException;
 import general.Lobby;
 import general.User;
+import general.commands.LobbyUpdateBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +24,6 @@ public class Server {
 
     // Logger
     static final Logger LOG = LoggerFactory.getLogger(Server.class);
-
-    private static List<PlayerClientConnection> playerClientConnections;
 
     private static final String hashAllowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@£$€&%";
     private static HashSet<String> allHashes = new HashSet<>();
@@ -63,9 +62,7 @@ public class Server {
                                     executorService.submit(new PresenterClientConnection(socket, dataInputStream, generateUniqueHash()));
                                     break;
                                 case 2:
-                                    PlayerClientConnection playerClientConnection = new PlayerClientConnection(socket, dataInputStream, generateUniqueHash());
-//                                    playerClientConnections.add(playerClientConnection);
-                                    executorService.submit(playerClientConnection);
+                                    executorService.submit(new PlayerClientConnection(socket, dataInputStream, generateUniqueHash()));
                                     break;
                                 case 3:
                                     executorService.submit(new HostClientConnection(socket, dataInputStream, generateUniqueHash()));
@@ -145,11 +142,6 @@ public class Server {
         }
     }
 
-    public static void subscribeToUpdates(PlayerClientConnection playerClientConnection) {
-        playerClientConnections.add(playerClientConnection);
-        LOG.debug("Added a new client to listeners, now " + playerClientConnections.size() + " listeners in the list.");
-    }
-
     private static Lobby getLobbyByCode(int lobbyCode) {
         Lobby lobby = null;
         for (Lobby lobbyFromList : lobbies) {
@@ -158,18 +150,6 @@ public class Server {
             }
         }
         return lobby;
-    }
-
-    public static void sendLobbyUpdates(Lobby lobby) {
-        LOG.debug("Sending lobby updates for lobby " + lobby.getCode());
-        synchronized (monitor) {
-            for (int i = 0; i < playerClientConnections.size(); i++) {
-                if (playerClientConnections.get(i).getLobbyCode() == lobby.getCode()) {
-                    // This client is in this lobby, notify the user of new lobby members.
-                    playerClientConnections.get(i).notifyClient(136);
-                }
-            }
-        }
     }
 
     private static String generateHash() {

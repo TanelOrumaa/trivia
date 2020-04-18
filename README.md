@@ -37,6 +37,18 @@
 #####132: Server -> Client "Connection to lobby successful"
 - Example: 132 hash Lobby_object_as_json
 
+#####133: Client -> Server "Create lobby"
+- Example: 133 hash lobbyName
+
+#####134: Server -> Client "Lobby creation successful"
+- Example: 134 hash lobbyCode
+
+#####136: Server -> Client "Update lobby"
+- Example: 136 hash Lobby_object_as_json
+
+#####137: Client -> Server "Lobby updated"
+- Example: 137 hash
+
 #####199: Client -> Server "Quitting, please close socket."
 - Example: 199 hash 
 

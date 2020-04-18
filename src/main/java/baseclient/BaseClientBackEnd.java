@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import configuration.Config;
 import exceptions.MixedServerMessageException;
 import general.*;
+import general.commands.Command;
+import general.commands.CommandQueue;
 import general.questions.Question;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,17 +100,14 @@ public class BaseClientBackEnd implements Runnable {
                         }
                     } else {
                         LOG.trace("No commands right now. Trying to fetch messages from server.");
-                        // Try to read commands from server for sleep time. Since this is internal, we don't need to use
-                        // servertime here.
-                        long sleepUntil = System.currentTimeMillis() + Config.POLL_INTERVAL_MS;
-                        while (System.currentTimeMillis() < sleepUntil) {
-                            if (dataInputStream.available() > 0) {
-                                LOG.debug("There's a message incoming.");
-                                code = dataInputStream.readInt();
-                                handleIncoming(code);
-                            }
-                            // Wait for a small amount so we don't waste CPU resources for nothing.
-                            Thread.sleep(100);
+                        // See if server has sent any messages.
+                        if (dataInputStream.available() > 0) {
+                            LOG.debug("There's a message incoming.");
+                            code = dataInputStream.readInt();
+                            handleIncoming(code);
+                        } else {
+                            // Otherwise wait for a small amount of time to save CPU resources.
+                            Thread.sleep(Config.SOCKET_POLL_INTERVAL);
                         }
                     }
                 }
@@ -348,7 +347,7 @@ public class BaseClientBackEnd implements Runnable {
         dataOutputStream.writeInt(133);
         dataOutputStream.writeUTF(hash);
         dataOutputStream.writeUTF(lobbyName);
-
+        LOG.debug("Create lobby message sent.");
         // Read the response.
         int responseCode = dataInputStream.readInt();
         if (responseCode == 134) {
@@ -370,6 +369,10 @@ public class BaseClientBackEnd implements Runnable {
         } else {
             handleIncoming(responseCode);
         }
+    }
+
+    public int getLobbyCode() {
+        return currentLobby.getCode();
     }
 
     private static long now() {
