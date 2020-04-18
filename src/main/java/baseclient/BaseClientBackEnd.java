@@ -218,7 +218,7 @@ public class BaseClientBackEnd implements Runnable {
         }
     }
 
-    private void handleError(int errorCode) {
+    private void handleError(int errorCode) throws IOException {
         // TODO: WIP
         System.out.println("ERROR: " + errorCode);
         // TODO: Currently just for testing, need to implement actual events for different errors.
@@ -231,6 +231,11 @@ public class BaseClientBackEnd implements Runnable {
                 break;
             case 422:
                 LOG.debug("Invalid login data.");
+                break;
+            case 423:
+                LOG.debug("New user registration failed because username already exists");
+                // Send error code to front-end to display error to user
+                dataOutputStream.writeInt(423);
                 break;
             case 432:
                 LOG.debug("Lobby does not exist.");
