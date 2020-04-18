@@ -1,6 +1,6 @@
 package baseclient;
 
-import general.Command;
+import general.commands.Command;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -24,10 +24,7 @@ public class RegistrationSuccessfulScreen {
         successLabel.setFont(font);
 
         Button loginButton = new Button("Login");
-        loginButton.setOnAction(actionEvent -> {
-            //changing to LogInScreen
-            frontEnd.addCommandAndInvoke(new Command(135, new String[0]));
-        });
+        loginButton.setOnAction(actionEvent -> frontEnd.guiStage.setScene(LogInScreen.change(frontEnd)));
 
         HBox loginButtonBox = new HBox(loginButton);
         mainBox.getChildren().addAll(successLabel, loginButtonBox);

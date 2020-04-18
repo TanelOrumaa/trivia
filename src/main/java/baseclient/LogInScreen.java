@@ -1,8 +1,5 @@
 package baseclient;
 
-import general.Command;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,7 +9,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import static baseclient.BaseClientBackEnd.addCommand;
+import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
 public class LogInScreen {
 
@@ -43,7 +40,7 @@ public class LogInScreen {
         logInButton.setOnAction(actionEvent -> {
             // Send the command to client backend.
             // TODO: For some reason this gets called twice.
-            addCommand(121, new String[]{usernameInput.getText(), passwordInput.getText()}, 0);
+            addCommandToBackEnd(121, new String[]{usernameInput.getText(), passwordInput.getText()}, 0);
             // Wait for result
 
 //                //if username and password match
@@ -58,10 +55,7 @@ public class LogInScreen {
         if (frontEnd.type != ClientType.PRESENTER) {
             Button registrationButton = new Button("Register");
             //Event handler: clicking on "register" button
-            registrationButton.setOnAction(actionEvent -> {
-                // command: change to Register
-                frontEnd.addCommandAndInvoke(new Command(136, new String[0], System.currentTimeMillis()));
-            });
+            registrationButton.setOnAction(actionEvent -> frontEnd.guiStage.setScene(RegistrationScreen.change(frontEnd)));
             logInScreenButtons = new HBox(20, logInButton, registrationButton);
         }
         else {
