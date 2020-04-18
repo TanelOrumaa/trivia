@@ -25,9 +25,9 @@ public class TriviaTest {
         questions.add(videoQuestion);
 
         TriviaSet triviaSet = new TriviaSet("Ülo Remmelgas", questions);
-        System.out.println(triviaSet.getQuestionListManager().toString());
+        System.out.println(triviaSet.getQuestionMap().toString());
         triviaSet.reorderQuestion(2, 2);
-        System.out.println(triviaSet.getQuestionListManager().toString());
+        System.out.println(triviaSet.getQuestionMap().toString());
 
     }
 
