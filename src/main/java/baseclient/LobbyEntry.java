@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -32,10 +33,12 @@ public class LobbyEntry {
         final TextField lobbyEntryCodeInput = new TextField("Enter the code");
         HBox lobbyEntryCode = new HBox(lobbyEntryCodeInput);
 
+
         Button lobbyEntryButton = new Button("Enter to lobby");
         //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
         lobbyEntryButton.setOnAction(actionEvent -> {
             addCommand(131, new String[]{lobbyEntryCodeInput.getText()}, 0);
+
             //if exists lobby with this code
 //                if (true) {
 //                    primaryStage.setScene(LobbyFX.change(primaryStage, frontEnd));
