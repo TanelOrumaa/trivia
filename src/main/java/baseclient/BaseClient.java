@@ -5,6 +5,7 @@ import general.CommandQueue;
 import general.questions.Question;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +95,11 @@ public class BaseClient extends Application {
                     guiStage.setScene(LobbyEntry.change(this));
                 });
                 break;
+            case 124:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to RegistrationSuccessfulScreen");
+                    guiStage.setScene(RegistrationSuccessfulScreen.change(this));
+                });
             case 132:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");
@@ -128,6 +134,12 @@ public class BaseClient extends Application {
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to QuestionFX");
                     guiStage.setScene(QuestionScene.change(this, questions.poll()));
+                });
+            case 424:
+                Platform.runLater(() -> {
+                    LOG.debug("User registration failed - username already exists");
+                    Popup errorMessage = RegistrationFailedPopUp.getPopup();
+                    errorMessage.show(guiStage);
                 });
         }
     }
