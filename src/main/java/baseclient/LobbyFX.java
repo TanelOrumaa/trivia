@@ -11,7 +11,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
@@ -79,7 +78,7 @@ public class LobbyFX {
         sendCommand.setOnMousePressed(event -> {
             int code = Integer.parseInt(command.getText());
             String[] parameters = params.getText().split(" ");
-            BaseClientBackEnd.addCommand(code, parameters, 0);
+            BaseClientBackEnd.addCommandToBackEnd(code, parameters, 0);
         });
 
         lobbyRoot.setTop(lobby);

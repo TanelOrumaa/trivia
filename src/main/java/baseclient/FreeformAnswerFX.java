@@ -21,13 +21,13 @@ public class FreeformAnswerFX {
         answerTextAreaInput.setWrapText(true);
         HBox answerTextAreaInputBox = new HBox(answerTextAreaInput);
 
-        Button questionTextAreaButton = new Button("Answer");
-        questionTextAreaButton.setOnAction(actionEvent -> {
+        Button answerButton = new Button("Answer");
+        answerButton.setOnAction(actionEvent -> {
             // generate command - inform backend that client has answered and what the answer was - and and invoke it
             Command buttonPressedCommand = new Command(201, new String[] {answerTextAreaInput.getText()});
-            frontEnd.addCommandAndInvoke(buttonPressedCommand);
+            frontEnd.addCommandToFrontEnd(buttonPressedCommand);
         });
-        HBox answerTextAreaButtonBox = new HBox(questionTextAreaButton);
+        HBox answerTextAreaButtonBox = new HBox(answerButton);
 
 
         mainBox.getChildren().addAll(answerTextAreaInputBox, answerTextAreaButtonBox);

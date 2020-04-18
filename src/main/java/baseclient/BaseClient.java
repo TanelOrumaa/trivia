@@ -114,7 +114,7 @@ public class BaseClient extends Application {
                 break;
             case 140:
                 Platform.runLater(() -> {
-                    LOG.debug("Switching scene to QuestionFX");
+                    LOG.debug("Switching scene to QuestionScene");
                     guiStage.setScene(QuestionScene.change(this, questions.poll()));
                 });
                 break;
@@ -127,7 +127,7 @@ public class BaseClient extends Application {
         }
     }
 
-    public void addCommandAndInvoke(Command command) {
+    public void addCommandToFrontEnd(Command command) {
         incomingCommands.add(command);
         this.listenEvent();
 

@@ -8,9 +8,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
-import static baseclient.BaseClientBackEnd.addCommand;
+import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
 public class RegistrationScreen {
 
@@ -73,7 +72,7 @@ public class RegistrationScreen {
             }
 
             // ask back-end to send the registration info to server
-            addCommand(144, new String[] {newUsername, newPassword, newNickname}, 0);
+            addCommandToBackEnd(144, new String[] {newUsername, newPassword, newNickname}, 0);
         });
 
         HBox registerButtonBox = new HBox(20, registerButton);
