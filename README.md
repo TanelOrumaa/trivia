@@ -76,6 +76,8 @@
 #####404 - Server -> Client "Invalid hash"
 
 #####422 - Server -> Client "Invalid login data"
+
+#####423 - Server -> Client "Registration failed - username already exists"
  
 #####432 - Server -> Client "Lobby does not exist"
 
