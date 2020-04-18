@@ -66,6 +66,11 @@
 #####201: Client - > Server "User answered question"
 - Example: 201 hash question_nr
 
+#####202: Client -> Server "Request next question"
+- Example: 202 hash
+
+#####203: Server -> Client "Next question sent"
+- Example: 203 hash Question_object_as_json
 
 
 
@@ -82,3 +87,5 @@
 #####432 - Server -> Client "Lobby does not exist"
 
 #####434 - Server -> Client "Lobby is full"
+
+#####436 - Server -> Client "Failed to send next question"
