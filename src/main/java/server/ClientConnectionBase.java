@@ -255,11 +255,13 @@ public class ClientConnectionBase implements Runnable {
             } else {
                 LOG.warn(clientId + "This lobby (" + userSubmittedLobbyCode + ") is full.");
                 dataOutputStream.writeInt(434); // Lobby is full.
+                dataOutputStream.writeUTF(hash);
             }
 
         } catch (LobbyDoesNotExistException e) {
             LOG.warn(clientId + "This lobby (" + userSubmittedLobbyCode + ") does not exist.");
             dataOutputStream.writeInt(432); // Lobby does not exist.
+            dataOutputStream.writeUTF(hash);
         }
 
     }
