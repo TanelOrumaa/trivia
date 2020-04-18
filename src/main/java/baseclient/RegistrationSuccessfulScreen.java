@@ -1,6 +1,6 @@
 package baseclient;
 
-import general.Command;
+import general.commands.Command;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

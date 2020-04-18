@@ -1,7 +1,7 @@
 package baseclient;
 
-import general.Command;
-import general.CommandQueue;
+import general.commands.Command;
+import general.commands.CommandQueue;
 import general.questions.Question;
 import javafx.application.Application;
 import javafx.application.Platform;
