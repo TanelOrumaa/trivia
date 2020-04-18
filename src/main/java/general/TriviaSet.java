@@ -8,15 +8,17 @@ import java.util.List;
 public class TriviaSet {
 
     private String name;
-    private LinkedHashMap<Integer, Question> questionListManager;
+    private int numberOfQuestions;
+    private LinkedHashMap<Integer, Question> questionMap;
 
     public TriviaSet(String name, List<Question> questions) {
 
         this.name = name;
-        this.questionListManager = new LinkedHashMap<>();
+        this.numberOfQuestions = questions.size();
+        this.questionMap = new LinkedHashMap<>();
         if (questions != null) {
 
-            questions.forEach(question -> questionListManager.put(questions.indexOf(question), question));
+            questions.forEach(question -> questionMap.put(questions.indexOf(question), question));
 
         }
 
@@ -27,24 +29,24 @@ public class TriviaSet {
 
         if (oldIndex < 0) {
 
-        } else if (oldIndex >= questionListManager.size()) {
+        } else if (oldIndex >= questionMap.size()) {
 
 
         } else if (newIndex > oldIndex) {
 
-            if (newIndex >= questionListManager.size() - 1) {
+            if (newIndex >= questionMap.size() - 1) {
 
-                newIndex = questionListManager.size() - 1;
+                newIndex = questionMap.size() - 1;
 
             }
 
-            Question questionAtOldIndex = questionListManager.get(oldIndex);
-            Question questionAtNewIndex = questionListManager.get(newIndex);
-            questionListManager.put(newIndex, questionAtOldIndex);
+            Question questionAtOldIndex = questionMap.get(oldIndex);
+            Question questionAtNewIndex = questionMap.get(newIndex);
+            questionMap.put(newIndex, questionAtOldIndex);
             for (int i = newIndex - 1; i > oldIndex - 1; i--) {
 
-                questionAtOldIndex = questionListManager.get(i);
-                questionListManager.put(i, questionAtNewIndex);
+                questionAtOldIndex = questionMap.get(i);
+                questionMap.put(i, questionAtNewIndex);
                 questionAtNewIndex = questionAtOldIndex;
 
             }
@@ -57,13 +59,13 @@ public class TriviaSet {
 
             }
 
-            Question questionAtOldIndex = questionListManager.get(oldIndex);
-            Question questionAtNewIndex = questionListManager.get(newIndex);
-            questionListManager.put(newIndex, questionAtOldIndex);
+            Question questionAtOldIndex = questionMap.get(oldIndex);
+            Question questionAtNewIndex = questionMap.get(newIndex);
+            questionMap.put(newIndex, questionAtOldIndex);
             for (int i = newIndex + 1; i < oldIndex + 1; i++) {
 
-                questionAtOldIndex = questionListManager.get(i);
-                questionListManager.put(i, questionAtNewIndex);
+                questionAtOldIndex = questionMap.get(i);
+                questionMap.put(i, questionAtNewIndex);
                 questionAtNewIndex = questionAtOldIndex;
 
             }
@@ -74,19 +76,20 @@ public class TriviaSet {
 
     void addQuestion(Question question) {
 
-        questionListManager.put(questionListManager.size(), question);
+        questionMap.put(questionMap.size(), question);
+        numberOfQuestions++;
 
     }
 
     boolean hasNextQuestion(int previousQuestionIndex) {
 
-        return previousQuestionIndex >= questionListManager.size();
+        return previousQuestionIndex >= questionMap.size();
 
     }
 
     Question getNextQuestion(int previousQuestionIndex) {
 
-        return questionListManager.get(previousQuestionIndex + 1);
+        return questionMap.get(previousQuestionIndex + 1);
 
     }
 
@@ -94,8 +97,12 @@ public class TriviaSet {
         return name;
     }
 
-    public LinkedHashMap<Integer, Question> getQuestionListManager() {
-        return questionListManager;
+    public LinkedHashMap<Integer, Question> getQuestionMap() {
+        return questionMap;
+    }
+
+    public int getNumberOfQuestions() {
+        return numberOfQuestions;
     }
 
     public void setName(String name) {
