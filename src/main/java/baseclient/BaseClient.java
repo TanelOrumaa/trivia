@@ -140,7 +140,7 @@ public class BaseClient extends Application {
                     LOG.debug("Received next question. Will wait for server's message to display the question");
 
                 });
-            case 423:
+            case 424:
                 Platform.runLater(() -> {
                     LOG.debug("User registration failed - username already exists");
                     Popup errorMessage = RegistrationFailedPopUp.getPopup();

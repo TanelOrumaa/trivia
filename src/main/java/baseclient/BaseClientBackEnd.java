@@ -246,10 +246,10 @@ public class BaseClientBackEnd implements Runnable {
             case 422:
                 LOG.debug("Invalid login data.");
                 break;
-            case 423:
+            case 424:
                 LOG.debug("New user registration failed because username already exists");
                 // Send error code to front-end to display error to user
-                this.frontEnd.addCommandAndInvoke(new Command(423, new String[0], System.currentTimeMillis()));
+                this.frontEnd.addCommandAndInvoke(new Command(424, new String[0], System.currentTimeMillis()));
                 break;
             case 432:
                 LOG.debug("Lobby does not exist.");
