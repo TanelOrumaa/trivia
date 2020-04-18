@@ -15,5 +15,4 @@ public class PlayerClientConnection extends ClientConnectionBase {
         super(socket, dataInputStream, hash, "[PlayerClient: " + socket.getInetAddress() + ":" + socket.getPort() + "] ");
     }
 
-
 }

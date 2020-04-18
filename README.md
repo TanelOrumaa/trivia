@@ -31,6 +31,12 @@
 #####122: Server -> Client "Login successful"
 - Example: 122 hash User_object_as_json
 
+#####123: Client - Server "Register"
+- Example: 123 hash username password nickname
+
+#####124: Server -> Client "Registration successful"
+- Example: 124 hash
+
 #####131: Client -> Server "Connecting to lobby"
 - Example: 131 hash lobbyCode
 
@@ -49,12 +55,22 @@
 #####137: Client -> Server "Lobby updated"
 - Example: 137 hash
 
+#####140: Server -> Client "Display next question"
+- Example: 140 hash questionId
+
 #####199: Client -> Server "Quitting, please close socket."
 - Example: 199 hash 
 
 ####2xx codes are for transferring data.
 
+#####201: Client - > Server "User answered question"
+- Example: 201 hash question_nr
 
+#####202: Client -> Server "Request next question"
+- Example: 202 hash
+
+#####203: Server -> Client "Next question sent"
+- Example: 203 hash Question_object_as_json
 
 
 
@@ -65,7 +81,11 @@
 #####404 - Server -> Client "Invalid hash"
 
 #####422 - Server -> Client "Invalid login data"
+
+#####423 - Server -> Client "Registration failed - username already exists"
  
 #####432 - Server -> Client "Lobby does not exist"
 
 #####434 - Server -> Client "Lobby is full"
+
+#####436 - Server -> Client "Failed to send next question"
