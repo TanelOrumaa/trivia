@@ -31,11 +31,32 @@
 #####122: Server -> Client "Login successful"
 - Example: 122 hash User_object_as_json
 
+#####123: Client - Server "Register"
+- Example: 123 hash username password nickanme
+
+#####124: Server -> Client "Registration successful"
+- Example: 124 hash
+
 #####131: Client -> Server "Connecting to lobby"
 - Example: 131 hash lobbyCode
 
 #####132: Server -> Client "Connection to lobby successful"
 - Example: 132 hash Lobby_object_as_json
+
+#####134: Server -> Client ""
+- Example: 132 hash 
+
+#####135: Switching scene to LogIn
+- Example: 135 
+
+#####136: Switching scene to RegistrationScreen
+- Example: 136
+
+#####137: Switching scene to WaitingAfterQuestion
+- Example: 137 
+
+#####138: Switchign scene to QuestionFX
+- Example: 138
 
 #####199: Client -> Server "Quitting, please close socket."
 - Example: 199 hash 
