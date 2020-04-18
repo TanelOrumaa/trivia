@@ -82,7 +82,9 @@
 
 #####422 - Server -> Client "Invalid login data"
 
-#####423 - Server -> Client "Registration failed - username already exists"
+#####424 - Server -> Client "Registration failed - username already exists"
+
+#####426 - Server -> Client "Registration failed - try again"
  
 #####432 - Server -> Client "Lobby does not exist"
 
