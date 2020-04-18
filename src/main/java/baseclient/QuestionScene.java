@@ -15,7 +15,7 @@ public class QuestionScene {
 
     public static Scene change(BaseClient frontEnd, Question question){
 
-        Label questionText = new Label("question.getQuestion() võiks olla siin");
+        Label questionText = new Label(question.getQuestion());
         questionText.setWrapText(true);
         HBox questionBox = new HBox(questionText);
         questionBox.setPadding(new Insets(15));
@@ -24,7 +24,7 @@ public class QuestionScene {
         VBox mainBox = new VBox(100);
         mainBox.getChildren().add(questionBox);
 
-        QuestionType questionType = QuestionType.TEXT;
+        QuestionType questionType = question.getQuestionType();
 
         switch (questionType){
             case IMAGE:

@@ -94,6 +94,11 @@ public class BaseClient extends Application {
                     guiStage.setScene(LobbyEntry.change(this));
                 });
                 break;
+            case 124:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to RegistrationSuccessfulScreen");
+                    guiStage.setScene(RegistrationSuccessfulScreen.change(this));
+                });
             case 132:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");

@@ -155,10 +155,9 @@ public class BaseClientBackEnd implements Runnable {
                 }
                 createLobby(lobbyName);
                 break;
-            case 144:
-                if (command.args != null && command.args.length == 2) {
-                    String username = command.args[0];
-                    String password = command.args[1];
+            case 123: // Register new user
+                if (command.args != null && command.args.length == 3) {
+                    registerUser(command.args[0], command.args[1], command.args[2]);
 
                 }
             default:
@@ -365,6 +364,34 @@ public class BaseClientBackEnd implements Runnable {
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+    }
+
+    private void registerUser(String username, String password, String nickname) throws IOException {
+        // Send register new user message.
+        LOG.debug("Sending a register new user message");
+        dataOutputStream.writeInt(123);
+        dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeUTF(username);
+        dataOutputStream.writeUTF(password);
+        dataOutputStream.writeUTF(nickname);
+
+        //Receive response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 124){
+            LOG.debug("Server responded positively - registration successful");
+            String responseHash = dataInputStream.readUTF();
+            if (hash.equals(responseHash)){
+                this.frontEnd.addCommandAndInvoke(new Command(124, new String[0], System.currentTimeMillis()));
+
+            } else {
+                throw new MixedServerMessageException(hash, responseHash);
+            }
+
         } else if (responseCode >= 400 && responseCode < 500) {
             handleError(responseCode);
         } else {
