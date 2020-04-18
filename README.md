@@ -63,6 +63,8 @@
 
 ####2xx codes are for transferring data.
 
+#####201: Client - > Server "User answered question"
+- Example: 201 hash question_nr
 
 
 
