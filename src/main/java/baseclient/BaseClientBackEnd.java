@@ -231,34 +231,42 @@ public class BaseClientBackEnd implements Runnable {
     }
 
     private void handleError(int errorCode) throws IOException {
-        // TODO: WIP
         System.out.println("ERROR: " + errorCode);
-        // TODO: Currently just for testing, need to implement actual events for different errors.
-        switch (errorCode) {
-            case 402:
-                LOG.debug("Unexpected message code.");
-                break;
-            case 404:
-                LOG.debug("We sent an incorrect hash.");
-                break;
-            case 422:
-                LOG.debug("Invalid login data.");
-                break;
-            case 424:
-                LOG.debug("New user registration failed because username already exists");
-                // Send error code to front-end to display error to user
-                this.frontEnd.addCommandToFrontEnd(new Command(424, new String[0], System.currentTimeMillis()));
-                break;
-            case 432:
-                LOG.debug("Lobby does not exist.");
-                break;
-            case 434:
-                LOG.debug("Lobby is full.");
-                break;
-            case 436:
-                LOG.debug("Server failed to send us next question");
-                break;
+
+        String receivedHash = dataInputStream.readUTF();
+        if (hash.equals(receivedHash)) {
+            switch (errorCode) {
+                case 402:
+                    LOG.debug("Unexpected message code.");
+                    break;
+                case 404:
+                    LOG.debug("We sent an incorrect hash.");
+                    break;
+                case 422:
+                    LOG.debug("Invalid login data.");
+                    this.frontEnd.addCommandToFrontEnd(new Command(422, new String[0], System.currentTimeMillis()));
+                    break;
+                case 424:
+                    LOG.debug("New user registration failed because username already exists");
+                    // Send error code to front-end to display error to user
+                    this.frontEnd.addCommandToFrontEnd(new Command(424, new String[0], System.currentTimeMillis()));
+                    break;
+                case 432:
+                    LOG.debug("Lobby does not exist.");
+                    this.frontEnd.addCommandToFrontEnd(new Command(432, new String[0], System.currentTimeMillis()));
+                    break;
+                case 434:
+                    LOG.debug("Lobby is full.");
+                    this.frontEnd.addCommandToFrontEnd(new Command(434, new String[0], System.currentTimeMillis()));
+                    break;
+                case 436:
+                    LOG.debug("Server failed to send us next question");
+                    break;
+            }
+        } else {
+            throw new MixedServerMessageException(hash, receivedHash);
         }
+
     }
 
     private void sync() throws IOException {
