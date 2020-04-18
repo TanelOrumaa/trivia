@@ -231,6 +231,7 @@ public class BaseClientBackEnd implements Runnable {
                 break;
             case 422:
                 LOG.debug("Invalid login data.");
+                this.frontEnd.addCommandAndInvoke(new Command(422, new String[0], System.currentTimeMillis()));
                 break;
             case 424:
                 LOG.debug("New user registration failed because username already exists");
@@ -239,9 +240,11 @@ public class BaseClientBackEnd implements Runnable {
                 break;
             case 432:
                 LOG.debug("Lobby does not exist.");
+                this.frontEnd.addCommandAndInvoke(new Command(432, new String[0], System.currentTimeMillis()));
                 break;
             case 434:
                 LOG.debug("Lobby is full.");
+                this.frontEnd.addCommandAndInvoke(new Command(434, new String[0], System.currentTimeMillis()));
                 break;
         }
     }

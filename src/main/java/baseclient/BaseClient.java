@@ -5,7 +5,6 @@ import general.CommandQueue;
 import general.questions.Question;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +39,6 @@ public class BaseClient extends Application {
         return 580;
     }
 
-
-
-
     @Override
     public void start(final Stage primaryStage) {
         guiStage = primaryStage;
@@ -71,9 +67,6 @@ public class BaseClient extends Application {
         Thread backEndThread = new Thread(baseClientBackEnd);
         backEndThread.start();
 
-
-
-        //Already have logInScreen, lobbyEntryScreen, lobbyScreen, registerScreen, questionChoiceScreen, questionTextAreaScreen, waitingAfterQuestionScreen
 
         guiStage.setScene(LogInScreen.change(this));
         guiStage.show();
@@ -135,12 +128,30 @@ public class BaseClient extends Application {
                     LOG.debug("Switching scene to QuestionFX");
                     guiStage.setScene(QuestionScene.change(this, questions.poll()));
                 });
+            case 422:
+                Platform.runLater(() -> {
+                   LOG.debug("Invalid login data");
+                   ErrorMessage.popUp("Incorrect username or password.");
+                });
+                break;
             case 424:
                 Platform.runLater(() -> {
                     LOG.debug("User registration failed - username already exists");
-                    Popup errorMessage = RegistrationFailedPopUp.getPopup();
-                    errorMessage.show(guiStage);
+                    ErrorMessage.popUp("Registration failed - username already exists!");
                 });
+                break;
+            case 432:
+                Platform.runLater(() -> {
+                    LOG.debug("Lobby does not exist");
+                    ErrorMessage.popUp("Lobby with this code does not exist.");
+                });
+                break;
+            case 434:
+                Platform.runLater(() -> {
+                   LOG.debug("Lobby server is full");
+                   ErrorMessage.popUp("Lobby server is full.");
+                });
+                break;
         }
     }
 

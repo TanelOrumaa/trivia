@@ -26,7 +26,10 @@ public class RegistrationScreen {
         register.setStyle("-fx-background-color: ROYALBLUE;");
 
         //If registration failed, then player will see text with error
-        Label registerError = new Label("");
+        Label conditions = new Label("Username must be at least 6 symbols long.\n" +
+                "Password must: \n" +
+                "be at least 8 symbols long.\n" +
+                "have lower and uppercase letters.\n");
 
         TextField newUsernameInput = new TextField("Enter username:");
         newUsernameInput.setPrefSize(width/4*3,height/10);
@@ -47,7 +50,7 @@ public class RegistrationScreen {
             String newPassword = newPasswordInput.getText();
             String newNickname = newNicknameInput.getText();
             if (newPassword.length() < 8){
-                registerError.setText("Password must be at least 8 symbols long!");
+                ErrorMessage.popUp("Password must be at least 8 symbols long!");
                 return;
             }
 
@@ -58,17 +61,17 @@ public class RegistrationScreen {
                 if (Character.isLowerCase(symbol)) hasLower = true;
             }
             if (!hasUpper || !hasLower){
-                registerError.setText("Password should have both lower and uppercase letters!");
+                ErrorMessage.popUp("Password should have both lower and uppercase letters!");
                 return;
             }
 
             if (newUsername.length() < 6){
-                registerError.setText("Username must be at least 6 symbols long!");
+                ErrorMessage.popUp("Username must be at least 6 symbols long!");
                 return;
             }
 
             if (newNickname.length() < 1){
-                registerError.setText("Nickname can't be empty!");
+                ErrorMessage.popUp("Nickname can't be empty!");
                 return;
             }
 
@@ -84,7 +87,7 @@ public class RegistrationScreen {
         newNicknameBox.setAlignment(Pos.CENTER);
         register.setAlignment(Pos.CENTER);
         registerButtonBox.setAlignment(Pos.CENTER);
-        register.getChildren().addAll(registerError, newUsernameBox, newPasswordBox, newNicknameBox, registerButtonBox);
+        register.getChildren().addAll(conditions, newUsernameBox, newPasswordBox, newNicknameBox, registerButtonBox);
 
         registerRoot.setCenter(register);
 

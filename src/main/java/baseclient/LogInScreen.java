@@ -60,7 +60,7 @@ public class LogInScreen {
             //Event handler: clicking on "register" button
             registrationButton.setOnAction(actionEvent -> {
                 // command: change to Register
-                frontEnd.addCommandAndInvoke(new Command(136, new String[0]));
+                frontEnd.addCommandAndInvoke(new Command(136, new String[0], System.currentTimeMillis()));
             });
             logInScreenButtons = new HBox(20, logInButton, registrationButton);
         }
