@@ -1,8 +1,6 @@
 package baseclient;
 
-import general.Command;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import general.commands.Command;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

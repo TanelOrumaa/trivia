@@ -1,6 +1,6 @@
 package baseclient;
 
-import general.Command;
+import general.commands.Command;
 import general.questions.Answer;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
