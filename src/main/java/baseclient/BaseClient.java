@@ -135,7 +135,7 @@ public class BaseClient extends Application {
                     LOG.debug("Switching scene to QuestionFX");
                     guiStage.setScene(QuestionScene.change(this, questions.poll()));
                 });
-            case 423:
+            case 424:
                 Platform.runLater(() -> {
                     LOG.debug("User registration failed - username already exists");
                     Popup errorMessage = RegistrationFailedPopUp.getPopup();
