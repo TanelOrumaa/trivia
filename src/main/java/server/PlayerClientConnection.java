@@ -191,7 +191,7 @@ public class PlayerClientConnection extends ServerRunnableBase {
                                 LOG.debug(clientId + "Invalid hash from client.");
                                 dataOutputStream.writeInt(404); // Invalid hash.
                             }
-
+                        
                         case 201: // Request a question
                             // The client requests a question from the server
                             break;
