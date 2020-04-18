@@ -2,6 +2,7 @@ package baseclient;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -28,6 +29,7 @@ public class LobbyEntry {
 
         final TextField lobbyEntryCodeInput = new TextField("Enter the code");
         HBox lobbyEntryCode = new HBox(lobbyEntryCodeInput);
+
 
         Button lobbyEntryButton = new Button("Enter to lobby");
         //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
