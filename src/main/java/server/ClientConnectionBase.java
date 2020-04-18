@@ -7,12 +7,15 @@ import database.DatabaseConnection;
 import database.UsersDatabaseLayer;
 import exceptions.IncorrectLoginInformationException;
 import exceptions.LobbyDoesNotExistException;
+import exceptions.UserAlreadyExistsError;
+import exceptions.UserRegistrationError;
 import general.Lobby;
 import general.LobbySerializer;
 import general.User;
 import general.UserSerializer;
 import general.commands.LobbyUpdateBase;
 import general.commands.NewUserConnectedUpdate;
+import general.questions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientConnectionBase implements Runnable {
 
@@ -141,6 +146,10 @@ public class ClientConnectionBase implements Runnable {
                     login();
                     break;
 
+                case 123: // Register new user message
+                    registerUser();
+                    break;
+
                 case 131: // Connecting to lobby message.
                     // Reads the lobby code and checks if lobby exists and if it does, can the user join the
                     // lobby. Returns 132 if lobby exists and the user has joined it, 432 if the lobby does not
@@ -155,8 +164,11 @@ public class ClientConnectionBase implements Runnable {
                     createALobby();
                     break;
 
-                case 201: // Request a question
-                    // The client requests a question from the server
+                case 201: // User answered question
+                    // Check answer
+                case 202: // Client requests next question
+
+                    sendQuestion();
                     break;
                 default:
                     // For testing different messages.
@@ -288,6 +300,50 @@ public class ClientConnectionBase implements Runnable {
         } catch (IncorrectLoginInformationException e) {
             LOG.warn(clientId + "Incorrect login data.");
             dataOutputStream.writeInt(422); // Incorrect login information.
+            dataOutputStream.writeUTF(this.hash);
+        }
+    }
+
+    private void registerUser() throws IOException {
+        LOG.debug(clientId + " wants to register new user");
+
+        String username = dataInputStream.readUTF();
+        String password = dataInputStream.readUTF();
+        String nickname = dataInputStream.readUTF();
+
+        try {
+            UsersDatabaseLayer.registerUser(databaseConnection, username, password, nickname);
+            dataOutputStream.writeInt(124);
+            dataOutputStream.writeUTF(this.hash);
+
+        } catch (UserRegistrationError e) {
+            LOG.warn(clientId + "Failed to register user");
+            dataOutputStream.writeInt(426); // User registration failed - try again
+            dataOutputStream.writeUTF(this.hash);
+        } catch (UserAlreadyExistsError e) {
+            LOG.warn(clientId + "Failed to register user because username already exists in database");
+            dataOutputStream.writeInt(424); // User already exists error code
+            dataOutputStream.writeUTF(this.hash);
+        }
+    }
+
+    private void sendQuestion() throws IOException {
+        LOG.debug(clientId + " requests next question");
+
+        try {
+            // For testing
+            TextQuestion testQuestion = new TextQuestion(AnswerType.FREEFORM, 69, false, "Nimeta riik Lõuna-Ameerikas", List.of(new Answer("Aafrika", false), new Answer("Ameerika", true)), 1000, 60);
+
+            Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionSerializer()).create();
+            String questionAsJson = gson.toJson(testQuestion);
+
+            dataOutputStream.writeInt(203);
+            dataOutputStream.writeUTF(this.hash);
+            dataOutputStream.writeUTF(questionAsJson);
+        } catch (IOException e) {
+            // TODO: FetchingQuestionFromDatabaseError or something
+            LOG.warn(clientId + "Failed to send next question");
+            dataOutputStream.writeInt(436);
             dataOutputStream.writeUTF(this.hash);
         }
     }
