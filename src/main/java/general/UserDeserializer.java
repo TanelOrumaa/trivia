@@ -10,9 +10,8 @@ public class UserDeserializer implements JsonDeserializer<User> {
         JsonObject userObject = jsonElement.getAsJsonObject();
         int id = userObject.get("id").getAsInt();
         String username = userObject.get("username").getAsString();
-        String firstName = userObject.get("firstName").getAsString();
-        String lastName = userObject.get("lastName").getAsString();
+        String nickname = userObject.get("nickname").getAsString();
 
-        return new User(id, username, firstName, lastName);
+        return new User(id, username, nickname);
     }
 }

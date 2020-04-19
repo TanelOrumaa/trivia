@@ -23,11 +23,10 @@ public class LobbyDeserializer implements JsonDeserializer<Lobby> {
         JsonArray users = lobbyObject.get("users").getAsJsonArray();
         for (int i = 0; i < users.size(); i++) {
             JsonObject user = users.get(i).getAsJsonObject();
-            String firstName = user.get("firstName").getAsString();
-            String lastName = user.get("lastName").getAsString();
+            String nickname = user.get("nickname").getAsString();
 
             // Create simplified User objects for displaying in clients.
-            User lobbyUser = new User(firstName, lastName);
+            User lobbyUser = new User(nickname);
 
             // If this user is the lobby owner, mark it as so.
             boolean isLobbyOwner = user.get("isLobbyOwner").getAsBoolean();
