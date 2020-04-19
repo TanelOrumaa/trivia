@@ -1,18 +1,18 @@
 package database;
 
 import exceptions.IncorrectLoginInformationException;
+import exceptions.UserAlreadyExistsError;
+import exceptions.UserRegistrationError;
 import general.User;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 public class UsersDatabaseLayer {
 
@@ -112,6 +112,35 @@ public class UsersDatabaseLayer {
             }
         }
         return false;
+    }
+
+
+    public static void registerUser(DatabaseConnection dbConnection, String username, String password, String nickname) throws UserRegistrationError, UserAlreadyExistsError {
+        // Check if user exists
+        int id = getUserIdFromDatabase(dbConnection, username);
+        if (id == -1){
+            // Generate new salt for registering this user
+            String salt = generateSalt();
+
+            // Add new user to database
+            try {
+                // WIP: need to change database aswell
+                String query = "INSERT INTO users(username, password, salt, nickname) VALUES (?, ?, ?, ?);";
+                int updatesDone = dbConnection.runQuery(query);
+                if (updatesDone == 0){
+                    throw new UserRegistrationError();
+                }
+                // If not 0, then registration was successful
+
+            } catch (SQLException e) {
+                throw new UserRegistrationError();
+            }
+
+        } else {
+            // User with this username already exists in database
+            throw new UserAlreadyExistsError(username);
+
+        }
     }
 
     /**
