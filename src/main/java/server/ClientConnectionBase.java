@@ -11,6 +11,7 @@ import general.Lobby;
 import general.LobbySerializer;
 import general.User;
 import general.UserSerializer;
+import general.commands.DisplayNextQuestionUpdate;
 import general.commands.LobbyUpdateBase;
 import general.commands.NewUserConnectedUpdate;
 import org.slf4j.Logger;
@@ -84,6 +85,8 @@ public class ClientConnectionBase implements Runnable {
                             if (lobbyUpdateBase instanceof NewUserConnectedUpdate) {
                                 updateLobby((NewUserConnectedUpdate) lobbyUpdateBase);
                                 LOG.debug("Updated lobby for this client.");
+                            } else if (lobbyUpdateBase instanceof DisplayNextQuestionUpdate) {
+                                sendNextQuestionToLobbyClients((DisplayNextQuestionUpdate) lobbyUpdateBase);
                             }
                         } else {
                             // If no updates from lobby either, sleep for a small amount of time to save CPU resources.
@@ -155,6 +158,12 @@ public class ClientConnectionBase implements Runnable {
                     createALobby();
                     break;
 
+                case 139: // Start game for this lobby
+                    // Notifies all clients in currentLobby that game started and sends the first question id.
+
+                    startGameForLobby();
+                    break;
+
                 case 201: // Request a question
                     // The client requests a question from the server
                     break;
@@ -208,6 +217,25 @@ public class ClientConnectionBase implements Runnable {
             } else {
                 LOG.error(clientId + "was unable to update lobby with error code " + responseCode);
             }
+        }
+    }
+
+    private void sendNextQuestionToLobbyClients(DisplayNextQuestionUpdate update) throws IOException {
+        LOG.debug("Sending next question message for client " + clientId);
+
+        long questionId = update.getQuestionId();
+        dataOutputStream.writeInt(140);
+        dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeLong(questionId);
+
+        LOG.debug(clientId + "received next question message.");
+
+        // Wait for the response from the client.
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 141 && dataInputStream.readUTF().equals(hash)) {
+            LOG.debug(clientId + "received next question message.");
+        } else {
+            LOG.error(clientId + "was not able to show next question with error code " + responseCode);
         }
     }
 
@@ -266,9 +294,19 @@ public class ClientConnectionBase implements Runnable {
 
     }
 
-    private void login() throws IOException {
-        LOG.debug(clientId + "Sent a login message.");
+    private void startGameForLobby() throws IOException {
+        LOG.debug(clientId + "sent a start game message.");
 
+        currentLobby.addNewLobbyUpdate(new DisplayNextQuestionUpdate(0L));
+
+        // Send response to client.
+        dataOutputStream.writeInt(138);
+        dataOutputStream.writeUTF(hash);
+        LOG.debug("Sent response to " + clientId);
+    }
+
+    private void login() throws IOException {
+        LOG.debug(clientId + "sent a login message.");
 
         String username = dataInputStream.readUTF();
         String password = dataInputStream.readUTF();
