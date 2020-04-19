@@ -49,17 +49,13 @@ public class TriviaSet {
 
             }
 
-            if (oldIndex > newIndex) {
-
                 questionBuffer = questionMap.get(oldIndex);
-                for (int i = oldIndex; i >= newIndex; i--) {
+                for (int i = oldIndex + 1; i <= newIndex; i++) {
 
-                    questionMap.put(i, questionMap.get(i - 1));
+                    questionMap.put(i - 1, questionMap.get(i));
 
                 }
                 questionMap.put(newIndex, questionBuffer);
-
-            }
 
         } else if (newIndex <= oldIndex) {
 
@@ -70,9 +66,9 @@ public class TriviaSet {
             }
 
             questionBuffer = questionMap.get(oldIndex);
-            for (int i = oldIndex + 1; i < newIndex; i++) {
+            for (int i = oldIndex; i >= newIndex; i--) {
 
-                questionMap.put(i - 1, questionMap.get(i));
+                questionMap.put(i, questionMap.get(i - 1));
 
             }
             questionMap.put(newIndex, questionBuffer);
