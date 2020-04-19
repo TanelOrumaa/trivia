@@ -97,8 +97,8 @@ public class Lobby {
             String[] names = new String[connectedUsers.size() + 1];
             names[0] = String.valueOf(getCode());
             for (int i = 1; i < names.length; i++) {
-                names[i] = connectedUsers.get(i - 1).getNickName(); // At one point makes sense to have something smarter here perhaps.
-
+                names[i] = connectedUsers.get(i - 1).getNickname(); // At one point makes sense to have something smarter here perhaps.
+            }
             return names;
         }
     }
