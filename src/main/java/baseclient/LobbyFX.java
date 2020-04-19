@@ -35,13 +35,12 @@ public class LobbyFX {
         Label lobbyStart = new Label("THE GAME WILL START SOON ;)");
         lobbyStart.setFont(textFont);
 
-        Label lobbyCodeLabel = new Label("" + lobbyCode);
+        Label lobbyCodeLabel = new Label(lobbyCode);
         lobbyCodeLabel.setFont(textFont);
 
         Label lobbyPlayers = new Label("Players that are already ready:");
         System.out.println(Font.getFamilies());
 
-        //How to update, when new players join?
         participantsList = FXCollections.observableArrayList(names);
         final ArrayList<Label> participantsLabels = new ArrayList<>();
         for (String participant : participantsList) {

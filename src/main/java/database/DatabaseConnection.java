@@ -38,7 +38,7 @@ public class DatabaseConnection {
     }
 
     /**
-     * Runs input query with this database connection object.
+     * Runs select query with this database connection object.
      * @param query An SQL query with correct syntax.
      * @return ResultSet object with resulting data.
      * @throws SQLException If the SQL query is invalid or there's a problem with database connection.
