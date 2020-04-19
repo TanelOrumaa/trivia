@@ -1,6 +1,7 @@
 package database;
 
 import configuration.Config;
+import exceptions.DatabaseConnectionInactiveError;
 
 import java.sql.*;
 
@@ -37,33 +38,75 @@ public class DatabaseConnection {
         }
     }
 
+
     /**
-     * Runs select query with this database connection object.
-     * @param query An SQL query with correct syntax.
+     *
      * @return ResultSet object with resulting data.
-     * @throws SQLException If the SQL query is invalid or there's a problem with database connection.
+     * @throws SQLException If SQL query fails
+     * @throws DatabaseConnectionInactiveError If this database connection is no longer active
      */
-    public ResultSet runSelectQuery(String query) throws SQLException {
+    public ResultSet selectUserIdByUsername(String username) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
-            return this.databaseConnection.createStatement().executeQuery(query);
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.id FROM users u WHERE username = '?';");
+            ps.setString(1, username);
+            return ps.executeQuery();
+
+
         } else {
-            // TODO: Should we create a new connection?
-            return null;
+            throw new DatabaseConnectionInactiveError();
         }
     }
 
-    /**
-     * Runs input query with this database connection object.
-     * @param query An SQL query with correct syntax.
-     * @return 0 if nothing was done and a number indicating the number of updated/inserted/deleted rows otherwise.
-     * @throws SQLException If the SQL query is invalid or there's a problem with database connection.
-     */
-    public int runQuery(String query) throws SQLException {
+
+    public ResultSet selectSaltByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
-            return this.databaseConnection.createStatement().executeUpdate(query);
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.salt FROM users u WHERE u.id = '?';");
+            ps.setString(1, Integer.toString(userId));
+            return ps.executeQuery();
         } else {
-            // TODO: Should we create a new connection?
-            return -1;
+            throw new DatabaseConnectionInactiveError();
+        }
+    }
+
+
+    public ResultSet selectPasswordByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
+        if (this.isActive()) {
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.password FROM users u WHERE u.id = '?';");
+            ps.setString(1, Integer.toString(userId));
+            return ps.executeQuery();
+        } else {
+            throw new DatabaseConnectionInactiveError();
+        }
+    }
+
+
+    public ResultSet selectUserInfoByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
+        if (this.isActive()) {
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.username, u.nickname FROM users u WHERE u.id = '?';");
+            ps.setString(1, Integer.toString(userId));
+            return ps.executeQuery();
+        } else {
+            throw new DatabaseConnectionInactiveError();
+        }
+    }
+
+
+    /**
+     * Adds new user to database
+     * @throws SQLException If SQL query fails
+     * @throws DatabaseConnectionInactiveError If this database connection is no longer active
+     */
+    public void registerUser(String username, String password, String salt, String nickname) throws SQLException, DatabaseConnectionInactiveError {
+        if (this.isActive()) {
+            PreparedStatement ps = this.databaseConnection.prepareStatement("INSERT INTO users(id, username, password, salt, nickname) VALUES (?, ?, ?, ?, ?);");
+            //ps.setString(1, id);
+            ps.setString(2, username);
+            ps.setString(3, password);
+            ps.setString(4, salt);
+            ps.setString(5, nickname);
+            ps.executeUpdate();
+        } else {
+            throw new DatabaseConnectionInactiveError();
         }
     }
 }
