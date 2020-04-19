@@ -13,12 +13,18 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import server.PlayerClientConnection;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class QuestionScene {
 
-    public static Scene change(BaseClient frontEnd, Question question) throws Exception{
+    static final Logger LOG = LoggerFactory.getLogger(PlayerClientConnection.class);
+
+    public static Scene change(BaseClient frontEnd, Question question) {
 
         ScrollPane scroller = new ScrollPane();
         scroller.setFitToWidth(true);
@@ -38,16 +44,20 @@ public class QuestionScene {
 
         switch (questionType){
             case IMAGE:
-                ImageView imageView = new ImageView(new Image(new FileInputStream(question.getMediaPath())));
+                try {
+                    ImageView imageView = new ImageView(new Image(new FileInputStream(question.getMediaPath())));
+                    HBox imageBox = new HBox(imageView);
+                    imageBox.setPadding(new Insets(15));
+                    imageBox.setAlignment(Pos.CENTER);
 
-                HBox imageBox = new HBox(imageView);
-                imageBox.setPadding(new Insets(15));
-                imageBox.setAlignment(Pos.CENTER);
+                    imageView.setPreserveRatio(true);
+                    imageView.fitWidthProperty().bind(imageBox.widthProperty());
 
-                imageView.setPreserveRatio(true);
-                imageView.fitWidthProperty().bind(imageBox.widthProperty());
-
-                mainBox.getChildren().add(imageBox);
+                    mainBox.getChildren().add(imageBox);
+                } catch (FileNotFoundException e) {
+                    // Handle this situation.
+                    LOG.error("File not found.");
+                }
                 break;
             case AUDIO:
                 // play music
