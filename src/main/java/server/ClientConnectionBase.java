@@ -13,6 +13,7 @@ import general.Lobby;
 import general.LobbySerializer;
 import general.User;
 import general.UserSerializer;
+import general.commands.DisplayNextQuestionUpdate;
 import general.commands.LobbyUpdateBase;
 import general.commands.NewUserConnectedUpdate;
 import general.questions.*;
@@ -24,7 +25,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClientConnectionBase implements Runnable {
@@ -89,6 +89,8 @@ public class ClientConnectionBase implements Runnable {
                             if (lobbyUpdateBase instanceof NewUserConnectedUpdate) {
                                 updateLobby((NewUserConnectedUpdate) lobbyUpdateBase);
                                 LOG.debug("Updated lobby for this client.");
+                            } else if (lobbyUpdateBase instanceof DisplayNextQuestionUpdate) {
+                                sendNextQuestionToLobbyClients((DisplayNextQuestionUpdate) lobbyUpdateBase);
                             }
                         } else {
                             // If no updates from lobby either, sleep for a small amount of time to save CPU resources.
@@ -164,11 +166,21 @@ public class ClientConnectionBase implements Runnable {
                     createALobby();
                     break;
 
-                case 201: // User answered question
-                    // Check answer
-                case 202: // Client requests next question
+                case 139: // Start game for this lobby
+                    // Notifies all clients in currentLobby that game started and sends the first question id.
 
+                    startGameForLobby();
+                    break;
+
+                case 201: // Request a question
+                    // The client requests a question from the server
                     sendQuestion();
+                    break;
+                case 203: // User answered question
+                    // Check answer.
+                    break;
+                case 211: // Fetching triviasets for user
+                    sendTriviasets();
                     break;
                 default:
                     // For testing different messages.
@@ -223,12 +235,31 @@ public class ClientConnectionBase implements Runnable {
         }
     }
 
+    private void sendNextQuestionToLobbyClients(DisplayNextQuestionUpdate update) throws IOException {
+        LOG.debug("Sending next question message for client " + clientId);
+
+        long questionId = update.getQuestionId();
+        dataOutputStream.writeInt(140);
+        dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeLong(questionId);
+
+        LOG.debug(clientId + "received next question message.");
+
+        // Wait for the response from the client.
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 141 && dataInputStream.readUTF().equals(hash)) {
+            LOG.debug(clientId + "received next question message.");
+        } else {
+            LOG.error(clientId + "was not able to show next question with error code " + responseCode);
+        }
+    }
+
     private void createALobby() throws IOException {
 
         LOG.debug(clientId + "Sent a lobby creation message.");
-        String lobbyName = dataInputStream.readUTF();
-        LOG.debug("Creating a lobby with name \"" + lobbyName + "\" for user: " + user.getUsername());
-        Lobby lobby = new Lobby(lobbyName, this.user);
+        int triviasetId = dataInputStream.readInt();
+        LOG.debug("Creating a lobby for triviaset " + triviasetId + "\" for user: " + user.getUsername());
+        Lobby lobby = new Lobby(triviasetId, this.user);
 
         Gson gson = new GsonBuilder().registerTypeAdapter(Lobby.class, new LobbySerializer()).create();
         String lobbyAsJson = gson.toJson(lobby);
@@ -278,9 +309,19 @@ public class ClientConnectionBase implements Runnable {
 
     }
 
-    private void login() throws IOException {
-        LOG.debug(clientId + "Sent a login message.");
+    private void startGameForLobby() throws IOException {
+        LOG.debug(clientId + "sent a start game message.");
 
+        currentLobby.addNewLobbyUpdate(new DisplayNextQuestionUpdate(0L));
+
+        // Send response to client.
+        dataOutputStream.writeInt(138);
+        dataOutputStream.writeUTF(hash);
+        LOG.debug("Sent response to " + clientId);
+    }
+
+    private void login() throws IOException {
+        LOG.debug(clientId + "sent a login message.");
 
         String username = dataInputStream.readUTF();
         String password = dataInputStream.readUTF();
@@ -329,15 +370,20 @@ public class ClientConnectionBase implements Runnable {
 
     private void sendQuestion() throws IOException {
         LOG.debug(clientId + " requests next question");
+        long previousQuestionId = dataInputStream.readLong();
+
+        if (previousQuestionId == -1) { // There was no previous question.
+            // Return first question from trivia set.
+        }
 
         try {
             // For testing
-            TextQuestion testQuestion = new TextQuestion(AnswerType.FREEFORM, 69, false, "Nimeta riik Lõuna-Ameerikas", List.of(new Answer("Aafrika", false), new Answer("Ameerika", true)), 1000, 60);
+            TextQuestion testQuestion = new TextQuestion(AnswerType.FREEFORM, 0, false, "Nimeta riik Lõuna-Ameerikas", List.of(new Answer("Aafrika", false, 1), new Answer("Ameerika", true, 2)), 1000, 60);
 
             Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionSerializer()).create();
             String questionAsJson = gson.toJson(testQuestion);
 
-            dataOutputStream.writeInt(203);
+            dataOutputStream.writeInt(202);
             dataOutputStream.writeUTF(this.hash);
             dataOutputStream.writeUTF(questionAsJson);
         } catch (IOException e) {
@@ -346,6 +392,16 @@ public class ClientConnectionBase implements Runnable {
             dataOutputStream.writeInt(436);
             dataOutputStream.writeUTF(this.hash);
         }
+    }
+
+    private void sendTriviasets() throws IOException {
+        LOG.debug(clientId + "requests trivia sets.");
+
+        // For testing
+        dataOutputStream.writeInt(212);
+        dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeUTF("12;13;14");
+
     }
 
     private void sync() throws IOException {

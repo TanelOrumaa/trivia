@@ -39,23 +39,14 @@ public class LogInScreen {
         //Event handler: clicking on log in button. Checking if username and password match.
         logInButton.setOnAction(actionEvent -> {
             // Send the command to client backend.
-            // TODO: For some reason this gets called twice.
             addCommandToBackEnd(121, new String[]{usernameInput.getText(), passwordInput.getText()}, 0);
-            // Wait for result
-
-//                //if username and password match
-//                if (true) {
-//                    primaryStage.setScene(LobbyEntry.change(primaryStage, frontEnd));
-//                } else {
-//                    logInError.setText("Incorrect username/password");
-//                }
         });
 
         HBox logInScreenButtons;
         if (frontEnd.type != ClientType.PRESENTER) {
             Button registrationButton = new Button("Register");
             //Event handler: clicking on "register" button
-            registrationButton.setOnAction(actionEvent -> frontEnd.guiStage.setScene(RegistrationScreen.change(frontEnd)));
+            registrationButton.setOnAction(actionEvent -> BaseClient.guiStage.setScene(RegistrationScreen.change(frontEnd)));
             logInScreenButtons = new HBox(20, logInButton, registrationButton);
         }
         else {

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+// TODO: Add Triviaset reference and modify serializer/deserializer.
 public class Lobby {
 
     private static final Logger LOG = LoggerFactory.getLogger(Lobby.class);
@@ -33,18 +34,13 @@ public class Lobby {
     }
 
     // Constructor for creating a new lobby with a name.
-    public Lobby(String name, User user) {
-        this.name = name;
+    public Lobby(int triviasetId, User user) {
+        this.name = "Triviaset name"; // TODO:
         this.connectedUsers = new ArrayList<>();
         this.connectedUsers.add(user);
         this.lobbyOwner = user;
         this.code = Server.addLobby(this);
         this.lobbyUpdates = new TreeMap<Integer, LobbyUpdateBase>();
-    }
-
-    // Constructor for creating a new lobby without a name.
-    public Lobby(User user) {
-        new Lobby("", user);
     }
 
     /**
@@ -95,11 +91,13 @@ public class Lobby {
         return connectedUsers;
     }
 
-    public String[] getConnectedUserNamesAsArray() {
+    // TODO: Temporary solution.
+    public String[] getLobbyCodeAndConnectedUserNamesAsArray() {
         synchronized (monitor) {
-            String[] names = new String[connectedUsers.size()];
-            for (int i = 0; i < connectedUsers.size(); i++) {
-                names[i] = connectedUsers.get(i).getNickname(); // At one point makes sense to have something smarter here perhaps.
+            String[] names = new String[connectedUsers.size() + 1];
+            names[0] = String.valueOf(getCode());
+            for (int i = 1; i < names.length; i++) {
+                names[i] = connectedUsers.get(i - 1).getNickname(); // At one point makes sense to have something smarter here perhaps.
             }
             return names;
         }
