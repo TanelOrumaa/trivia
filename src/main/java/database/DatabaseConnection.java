@@ -47,7 +47,7 @@ public class DatabaseConnection {
      */
     public ResultSet selectUserIdByUsername(String username) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
-            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.id FROM users u WHERE username = '?';");
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.id FROM users u WHERE username = ?;");
             ps.setString(1, username);
             return ps.executeQuery();
 
@@ -60,7 +60,7 @@ public class DatabaseConnection {
 
     public ResultSet selectSaltByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
-            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.salt FROM users u WHERE u.id = '?';");
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.salt FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
             return ps.executeQuery();
         } else {
@@ -71,7 +71,7 @@ public class DatabaseConnection {
 
     public ResultSet selectPasswordByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
-            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.password FROM users u WHERE u.id = '?';");
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.password FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
             return ps.executeQuery();
         } else {
@@ -82,7 +82,7 @@ public class DatabaseConnection {
 
     public ResultSet selectUserInfoByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
-            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.username, u.nickname FROM users u WHERE u.id = '?';");
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.username, u.nickname FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
             return ps.executeQuery();
         } else {
