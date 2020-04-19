@@ -55,8 +55,17 @@
 #####137: Client -> Server "Lobby updated"
 - Example: 137 hash
 
+#####138: Server -> Client "Game started for everyone" (response to 139)
+- Example: 138 hash
+
+#####139: Client -> Server "Start game for this lobby"
+- Example: 139 hash
+
 #####140: Server -> Client "Display next question"
 - Example: 140 hash questionId
+
+#####141: Client -> Server "Displaying next question"
+- Example: 141 hash
 
 #####199: Client -> Server "Quitting, please close socket."
 - Example: 199 hash 

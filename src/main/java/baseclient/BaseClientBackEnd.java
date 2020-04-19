@@ -4,11 +4,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import configuration.Config;
 import exceptions.MixedServerMessageException;
-import general.*;
+import general.Lobby;
+import general.LobbyDeserializer;
+import general.User;
+import general.UserDeserializer;
 import general.commands.Command;
 import general.commands.CommandQueue;
 import general.questions.Question;
 import general.questions.QuestionDeserializer;
+import general.questions.QuestionQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +20,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
 
 public class BaseClientBackEnd implements Runnable {
 
@@ -24,7 +27,7 @@ public class BaseClientBackEnd implements Runnable {
 
     protected BaseClient frontEnd;
     protected ClientType clientType;
-    protected BlockingQueue<Question> questions;
+    protected QuestionQueue questionQueue;
 
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
@@ -40,9 +43,9 @@ public class BaseClientBackEnd implements Runnable {
     private static long serverTimeDelta;
     private static long smallestPing;
 
-    public BaseClientBackEnd(BaseClient frontEnd, BlockingQueue<Question> questions) {
+    public BaseClientBackEnd(BaseClient frontEnd, QuestionQueue questionQueue) {
         this.frontEnd = frontEnd;
-        this.questions = questions;
+        this.questionQueue = questionQueue;
         this.clientType = frontEnd.type;
 
         smallestPing = Long.MAX_VALUE;
@@ -160,10 +163,9 @@ public class BaseClientBackEnd implements Runnable {
                 }
                 createLobby(lobbyName);
                 break;
-            case 138: // Display next question
-                if (command.args != null && command.args.length == 0){
-                    frontEnd.addCommandToFrontEnd(new Command(138, new String[0]));
-                }
+            case 139: // Start game.
+                startGame();
+                break;
             case 201: // Inform server about user's answer
                 if (command.args != null && command.args.length == 1) {
                     // TODO
@@ -202,31 +204,31 @@ public class BaseClientBackEnd implements Runnable {
     private void handleIncoming(int commandCode) throws IOException {
         // TODO: WIP
         LOG.debug("Incoming message code: " + commandCode);
-        if (commandCode == 136) {
-            String receivedHash = dataInputStream.readUTF();
-            if (hash.equals(receivedHash)) {
-                String lobbyAsJson = dataInputStream.readUTF();
-                Gson gson = new GsonBuilder().registerTypeAdapter(Lobby.class, new LobbyDeserializer()).create();
-                currentLobby = gson.fromJson(lobbyAsJson, Lobby.class);
 
-                LOG.debug("New lobby version received " + currentLobby.getCode());
-                this.frontEnd.addCommandToFrontEnd(new Command(132, currentLobby.getConnectedUserNamesAsArray(), System.currentTimeMillis()));
+        String receivedHash = dataInputStream.readUTF();
+        if (hash.equals(receivedHash)) {
+            switch (commandCode) {
+                case 136:
 
-                dataOutputStream.writeInt(137);
-                dataOutputStream.writeUTF(hash);
-            } else {
-                throw new MixedServerMessageException(hash, receivedHash);
+                    updateLobby();
+                    break;
+
+                case 140: // Display next question
+                    nextQuestion();
+                    break;
+                default:
+                    // Just for testing.
+                    int paramsAmount = dataInputStream.readInt();
+                    String[] params = new String[paramsAmount];
+                    for (int i = 0; i < paramsAmount; i++) {
+                        params[i] = dataInputStream.readUTF();
+                    }
+                    this.frontEnd.incomingCommands.add(new Command(commandCode, params, System.currentTimeMillis()));
+                    LOG.debug("Added a new command to incoming queue.");
+                    this.frontEnd.listenEvent();
             }
         } else {
-            // Just for testing.
-            int paramsAmount = dataInputStream.readInt();
-            String[] params = new String[paramsAmount];
-            for (int i = 0; i < paramsAmount; i++) {
-                params[i] = dataInputStream.readUTF();
-            }
-            this.frontEnd.incomingCommands.add(new Command(commandCode, params, System.currentTimeMillis()));
-            LOG.debug("Added a new command to incoming queue.");
-            this.frontEnd.listenEvent();
+            throw new MixedServerMessageException(hash, receivedHash);
         }
     }
 
@@ -370,7 +372,7 @@ public class BaseClientBackEnd implements Runnable {
     }
 
     private void createLobby(String lobbyName) throws IOException {
-        // Send lobby creation mesage.
+        // Send lobby creation message.
         LOG.debug("Sending a create lobby message.");
         dataOutputStream.writeInt(133);
         dataOutputStream.writeUTF(hash);
@@ -399,6 +401,26 @@ public class BaseClientBackEnd implements Runnable {
         }
     }
 
+    private void startGame() throws IOException {
+        // Send "Start game" message to server.
+        LOG.debug("Sending \"Start game\" message to server.");
+        dataOutputStream.writeInt(139);
+        dataOutputStream.writeUTF(hash);
+
+        LOG.debug("Start game message sent.");
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 138) { // Game started for everyone.
+            String responseHash = dataInputStream.readUTF();
+            if (!responseHash.equals(hash)) {
+                throw new MixedServerMessageException(hash, responseHash);
+            }
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+    }
+
     public int getLobbyCode() {
         return currentLobby.getCode();
     }
@@ -414,10 +436,10 @@ public class BaseClientBackEnd implements Runnable {
 
         //Receive response
         int responseCode = dataInputStream.readInt();
-        if (responseCode == 124){
+        if (responseCode == 124) {
             LOG.debug("Server responded positively - registration successful");
             String responseHash = dataInputStream.readUTF();
-            if (hash.equals(responseHash)){
+            if (hash.equals(responseHash)) {
                 this.frontEnd.addCommandToFrontEnd(new Command(124, new String[0], System.currentTimeMillis()));
 
             } else {
@@ -431,6 +453,28 @@ public class BaseClientBackEnd implements Runnable {
         }
     }
 
+    private void updateLobby() throws IOException {
+        String lobbyAsJson = dataInputStream.readUTF();
+        Gson gson = new GsonBuilder().registerTypeAdapter(Lobby.class, new LobbyDeserializer()).create();
+        currentLobby = gson.fromJson(lobbyAsJson, Lobby.class);
+
+        LOG.debug("New lobby version received " + currentLobby.getCode());
+        this.frontEnd.addCommandToFrontEnd(new Command(136, currentLobby.getConnectedUserNamesAsArray(), System.currentTimeMillis()));
+
+        dataOutputStream.writeInt(137);
+        dataOutputStream.writeUTF(hash);
+    }
+
+    private void nextQuestion() throws IOException {
+        Long questionId = dataInputStream.readLong();
+        LOG.debug("Server said to display next question with id " + questionId);
+        frontEnd.addCommandToFrontEnd(new Command(140, new String[]{String.valueOf(questionId)}));
+
+        // Respond to server.
+        dataOutputStream.writeInt(141);
+        dataOutputStream.writeUTF(hash);
+    }
+
     private void requestQuestion() throws IOException {
         // Send request question message
         LOG.debug("Sending a request next question message");
@@ -439,17 +483,17 @@ public class BaseClientBackEnd implements Runnable {
 
         // Read the response
         int responseCode = dataInputStream.readInt();
-        if (responseCode == 203){
+        if (responseCode == 203) {
             LOG.debug("Server responded positively and sent next question");
             String responseHash = dataInputStream.readUTF();
-            if (hash.equals(responseHash)){
+            if (hash.equals(responseHash)) {
                 // Read the Question object and deserialize it
                 String questionJson = dataInputStream.readUTF();
                 Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionDeserializer()).create();
                 Question nextQuestion = gson.fromJson(questionJson, Question.class);
 
                 // Add the question to question queue but wait for server's message before displaying it
-                questions.add(nextQuestion);
+                questionQueue.addQuestion(nextQuestion);
                 // also send confirmation to server that we have received the question?
             }
 
