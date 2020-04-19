@@ -20,10 +20,11 @@ public class TriviaSetDeserializerFull implements JsonDeserializer<TriviaSet> {
 
         List<Question> questionList = new ArrayList<>();
         Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionDeserializer()).create();
+
         for (JsonElement element : questionListArray) {
 
             JsonObject questionObject = element.getAsJsonObject();
-            questionList.add(gson.fromJson(gson.toJson(questionObject), Question.class));
+            questionList.add(gson.fromJson(gson.toJson(element.getAsJsonObject()), Question.class));
 
         }
 

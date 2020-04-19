@@ -16,13 +16,13 @@ public class TriviaSetSerializerFull implements JsonSerializer<TriviaSet> {
 
         triviaSetObject.addProperty("name", triviaSet.getName());
 
-        JsonArray questionListObject = new JsonArray();
+        JsonArray questionListArray = new JsonArray();
         LinkedHashMap<Integer, Question> questionMap = triviaSet.getQuestionMap();
 
         Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionSerializer()).create();
-        questionMap.forEach((integer, question) -> questionListObject.add(gson.toJson(question)));
-        triviaSetObject.add("questionList", questionListObject);
-
+        questionMap.forEach((integer, question) -> {
+            questionListArray.add(gson.toJsonTree(question)); });
+        triviaSetObject.add("questionList", questionListArray);
         return triviaSetObject;
 
     }
