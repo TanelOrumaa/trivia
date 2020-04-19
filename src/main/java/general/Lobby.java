@@ -99,7 +99,7 @@ public class Lobby {
         synchronized (monitor) {
             String[] names = new String[connectedUsers.size()];
             for (int i = 0; i < connectedUsers.size(); i++) {
-                names[i] = connectedUsers.get(i).getFirstName() + " " + connectedUsers.get(i).getLastName(); // At one point makes sense to have something smarter here perhaps.
+                names[i] = connectedUsers.get(i).getNickname(); // At one point makes sense to have something smarter here perhaps.
             }
             return names;
         }

@@ -323,7 +323,7 @@ public class BaseClientBackEnd implements Runnable {
                 user = gson.fromJson(userJson, User.class);
 
                 // Add the command to front end.
-                this.frontEnd.addCommandToFrontEnd(new Command(122, new String[]{user.getUsername(), user.getFirstName(), user.getLastName()}, System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(122, new String[]{user.getUsername(), user.getNickname()}, System.currentTimeMillis()));
 
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
