@@ -11,6 +11,14 @@ public class TriviaSet {
     private int numberOfQuestions;
     private LinkedHashMap<Integer, Question> questionMap;
 
+    public TriviaSet(String name, int numberOfQuestions) {
+        //Constructor for creating a TriviaSet just for display.
+
+        this.name = name;
+        this.numberOfQuestions = numberOfQuestions;
+
+    }
+
     public TriviaSet(String name, List<Question> questions) {
 
         this.name = name;
@@ -27,27 +35,29 @@ public class TriviaSet {
     void reorderQuestion(int oldIndex, int newIndex) {
         //Method for rearranging a question and shifting the other questions correctly
 
-        if (oldIndex < 0) {
+        if (oldIndex >= numberOfQuestions || oldIndex < 0) {
 
-        } else if (oldIndex >= questionMap.size()) {
+        }
 
+        Question questionBuffer;
 
-        } else if (newIndex > oldIndex) {
+        if (newIndex > oldIndex) {
 
-            if (newIndex >= questionMap.size() - 1) {
+            if (newIndex >= numberOfQuestions - 1) {
 
-                newIndex = questionMap.size() - 1;
+                newIndex = numberOfQuestions - 1;
 
             }
 
-            Question questionAtOldIndex = questionMap.get(oldIndex);
-            Question questionAtNewIndex = questionMap.get(newIndex);
-            questionMap.put(newIndex, questionAtOldIndex);
-            for (int i = newIndex - 1; i > oldIndex - 1; i--) {
+            if (oldIndex > newIndex) {
 
-                questionAtOldIndex = questionMap.get(i);
-                questionMap.put(i, questionAtNewIndex);
-                questionAtNewIndex = questionAtOldIndex;
+                questionBuffer = questionMap.get(oldIndex);
+                for (int i = oldIndex; i >= newIndex; i--) {
+
+                    questionMap.put(i, questionMap.get(i - 1));
+
+                }
+                questionMap.put(newIndex, questionBuffer);
 
             }
 
@@ -59,37 +69,58 @@ public class TriviaSet {
 
             }
 
-            Question questionAtOldIndex = questionMap.get(oldIndex);
-            Question questionAtNewIndex = questionMap.get(newIndex);
-            questionMap.put(newIndex, questionAtOldIndex);
-            for (int i = newIndex + 1; i < oldIndex + 1; i++) {
+            questionBuffer = questionMap.get(oldIndex);
+            for (int i = oldIndex + 1; i < newIndex; i++) {
 
-                questionAtOldIndex = questionMap.get(i);
-                questionMap.put(i, questionAtNewIndex);
-                questionAtNewIndex = questionAtOldIndex;
+                questionMap.put(i - 1, questionMap.get(i));
 
             }
+            questionMap.put(newIndex, questionBuffer);
 
         }
 
     }
 
+    void changeQuestionTime(int questionIndex, int newTime) {
+
+        questionMap.get(questionIndex).setTime(newTime);
+
+    }
+
+    void changeQuestionPoints(int questionIndex, int newPotentialPoints) {
+
+        questionMap.get(questionIndex).setPotentialPoints(newPotentialPoints);
+
+    }
+
+    void changeQuestionText(int questionIndex, String newquestionText) {
+
+        questionMap.get(questionIndex).setQuestion(newquestionText);
+
+    }
+
     void addQuestion(Question question) {
 
-        questionMap.put(questionMap.size(), question);
+        questionMap.put(numberOfQuestions, question);
         numberOfQuestions++;
 
     }
 
     boolean hasNextQuestion(int previousQuestionIndex) {
 
-        return previousQuestionIndex >= questionMap.size();
+        return previousQuestionIndex < numberOfQuestions - 1;
 
     }
 
     Question getNextQuestion(int previousQuestionIndex) {
 
-        return questionMap.get(previousQuestionIndex + 1);
+        if (hasNextQuestion(previousQuestionIndex)) {
+
+            return questionMap.get(previousQuestionIndex + 1);
+
+        }
+
+        return null;
 
     }
 

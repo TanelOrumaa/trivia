@@ -30,4 +30,16 @@ public interface Question {
 
     int getMaxTime();
 
+    void setTime(int time);
+
+    void setQuestionType(QuestionType questionType);
+
+    void setAnswerType(AnswerType answerType);
+
+    void setScoreDegradation(boolean scoreDegradation);
+
+    void setQuestion(String question);
+
+    void setPotentialPoints(int potentialPoints);
+
 }
