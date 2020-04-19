@@ -2,7 +2,6 @@ package baseclient;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -31,29 +30,28 @@ public class LobbyEntry {
         HBox lobbyEntryCode = new HBox(lobbyEntryCodeInput);
 
 
-        Button lobbyEntryButton = new Button("Enter to lobby");
+        Button lobbyEntryButton = new Button("Enter lobby");
         //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
         lobbyEntryButton.setOnAction(actionEvent -> {
             addCommandToBackEnd(131, new String[]{lobbyEntryCodeInput.getText()}, 0);
-            //if exists lobby with this code
-//                if (true) {
-//                    primaryStage.setScene(LobbyFX.change(primaryStage, frontEnd));
-//                } else {
-//                    lobbyEntryError.setText("Something went wrong");
-//                }
         });
 
-        Button lobbyCreationButton = new Button("Create lobby");
-        lobbyCreationButton.setOnMouseReleased(mouseEvent -> {
-            addCommandToBackEnd(133, new String[] {"Test lobby name"}, 0);
-        });
 
         HBox lobbyEntryButtons = new HBox(lobbyEntryButton);
+
+        Button backButton = new Button("Back");
+        backButton.setOnMouseReleased(mouseEvent -> {
+            BaseClient.guiStage.setScene(UserMainPage.change(frontEnd));
+        });
+
+        HBox backButtons = new HBox(backButton);
 
         lobbyEntryButtons.setAlignment(Pos.CENTER);
         lobbyEntryCode.setAlignment(Pos.CENTER);
         lobbyEntry.setAlignment(Pos.CENTER);
-        lobbyEntry.getChildren().addAll(lobbyEntryError, lobbyEntryCode, lobbyEntryButtons, lobbyCreationButton);
+        backButtons.setAlignment(Pos.CENTER);
+
+        lobbyEntry.getChildren().addAll(lobbyEntryError, lobbyEntryCode, lobbyEntryButtons, backButtons);
 
         lobbyEntryRoot.setCenter(lobbyEntry);
 

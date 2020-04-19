@@ -2,7 +2,7 @@ package baseclient;
 
 import general.commands.Command;
 import general.commands.CommandQueue;
-import general.questions.Question;
+import general.questions.QuestionQueue;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 public class BaseClient extends Application {
 
@@ -19,10 +17,14 @@ public class BaseClient extends Application {
 
     protected ClientType type;
     protected static Stage guiStage;
-    protected BlockingQueue<Question> questions = new ArrayBlockingQueue<>(10);
     protected BaseClientBackEnd baseClientBackEnd;
 
+    protected static String username;
+    protected static String[] triviasets = new String[0];
+
     protected CommandQueue incomingCommands = new CommandQueue();
+    protected QuestionQueue questionQueue = new QuestionQueue();
+
 
 
     public double getWidth() {
@@ -63,7 +65,7 @@ public class BaseClient extends Application {
         }
 
 
-        this.baseClientBackEnd = new BaseClientBackEnd(this, questions);
+        this.baseClientBackEnd = new BaseClientBackEnd(this, questionQueue);
         Thread backEndThread = new Thread(baseClientBackEnd);
         backEndThread.start();
 
@@ -85,7 +87,8 @@ public class BaseClient extends Application {
             case 122:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyEntry");
-                    guiStage.setScene(LobbyEntry.change(this));
+                    username = command.args[0];
+                    guiStage.setScene(UserMainPage.change(this));
                 });
                 break;
             case 124:
@@ -96,20 +99,46 @@ public class BaseClient extends Application {
             case 132:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");
-                    guiStage.setScene(LobbyFX.change(this, command.args));
+                    // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
+                    String[] names = new String[command.args.length - 1];
+                    System.arraycopy(command.args, 1, names, 0, names.length);
+                    guiStage.setScene(LobbyFX.change(this, false, command.args[0], names));
                 });
                 break;
             case 134:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to LobbyFX");
-                    guiStage.setScene(LobbyFX.change(this, command.args));
+                    // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
+                    String[] names = new String[command.args.length - 1];
+                    System.arraycopy(command.args, 1, names, 0, names.length);
+                    guiStage.setScene(LobbyFX.change(this, true, command.args[0], names));
                 });
                 break;
-            case 140:
+            case 136:
+                Platform.runLater(() -> {
+                    LOG.debug("Updating participants list for lobby.");
+                    // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
+                    String[] names = new String[command.args.length - 1];
+                    System.arraycopy(command.args, 1, names, 0, names.length);
+                    LobbyFX.updateParticipantsList(names);
+                });
+                break;
+            case 138: // Start game
+                LOG.error("Where is this coming from?!?!");
+                break;
+            case 140: // Next question
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to QuestionScene");
-                    guiStage.setScene(QuestionScene.change(this, questions.poll()));
+                    guiStage.setScene(QuestionScene.change(this, questionQueue.getQuestion(Long.parseLong(command.args[0]))));
                 });
+                break;
+            case 212:
+                Platform.runLater(() -> {
+                    LOG.debug("Updating triviasets list.");
+                    triviasets = command.args;
+                    UserTriviasetPage.updateTriviasetsList();
+                });
+                break;
             case 422:
                 Platform.runLater(() -> {
                    LOG.debug("Invalid login data");
