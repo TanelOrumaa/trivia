@@ -45,7 +45,7 @@ public class BaseQuestion {
 
     boolean validateQuestion() {
 
-        if     (question == null ||
+        if (question == null ||
                 question.length() < 1 ||
                 question.length() > 600 ||
                 potentialPoints < 0 ||
@@ -66,7 +66,7 @@ public class BaseQuestion {
         // which is specified in a specific type of question
         // and can be modified when creating the question.
 
-        return potentialPoints * (1 - timeSpent/time);
+        return potentialPoints * (1 - timeSpent / time);
 
     }
 
