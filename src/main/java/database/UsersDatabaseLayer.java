@@ -1,5 +1,6 @@
 package database;
 
+import exceptions.DatabaseConnectionInactiveError;
 import exceptions.IncorrectLoginInformationException;
 import exceptions.UserAlreadyExistsError;
 import exceptions.UserRegistrationError;
@@ -31,9 +32,16 @@ public class UsersDatabaseLayer {
             // Check if passwords match.
             if (isPasswordValidForUser(dbConnection, id, password)) {
                 try {
-                    ResultSet resultSet = dbConnection.runSelectQuery(String.format("SELECT u.username, u.first_name, u.last_name FROM users u WHERE u.id = '%d';", id));
-                    resultSet.next();
-                    return new User(id, resultSet.getString(1), resultSet.getString(2), resultSet.getString(3));
+                    ResultSet resultSet = dbConnection.selectUserInfoByUserId(id);
+                    if (resultSet.next()){
+                        String nickname = resultSet.getString("nickname");
+
+                        return new User(id, username, nickname);
+
+                    } else {
+                        throw new IncorrectLoginInformationException();
+                    }
+
                 } catch (SQLException e) {
                     // TODO: Something wrong here with exception catching, as this error is never thrown.
                     System.out.println("Unable to fetch user data.");
@@ -54,10 +62,12 @@ public class UsersDatabaseLayer {
     public static int getUserIdFromDatabase(DatabaseConnection dbConnection, String username) {
         try {
             // Get the results from the database.
-            ResultSet resultSet = dbConnection.runSelectQuery(String.format("SELECT u.id FROM users u WHERE u.username = '%s';", username));
+            ResultSet resultSet = dbConnection.selectUserIdByUsername(username);
+
             // If there's at least one result, get the id.
             if (resultSet.next()) {
                 int id = resultSet.getInt("id");
+
                 // If there's another row, we've somehow fetched too many (data invalid) so we return -1.
                 if (resultSet.next()) {
                     return -1;
@@ -70,7 +80,7 @@ public class UsersDatabaseLayer {
                 return -1;
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | DatabaseConnectionInactiveError e) {
             return -1;
         }
     }
@@ -87,18 +97,31 @@ public class UsersDatabaseLayer {
 
             try {
                 // Get salt value from db.
-                ResultSet saltResult = dbConnection.runSelectQuery(String.format("SELECT u.salt FROM users u WHERE u.id = %d;", user_id));
+                ResultSet saltResult = dbConnection.selectSaltByUserId(user_id);
                 if (saltResult.next()) {
                     String salt = saltResult.getString("salt");
 
                     try {
                         // Use salt to generate hash.
-                        String hash = hashPassword(password, salt);
+                        String hashedPassword = hashPassword(password, salt);
 
                         // Compare generated hash against user password hash in db.
-                        ResultSet passwordMatchResult = dbConnection.runSelectQuery(String.format("SELECT '%s'=u.password AS valid_password FROM users u WHERE u.id = %d;", hash, user_id));
-                        if (passwordMatchResult.next()) {
-                            return passwordMatchResult.getBoolean("valid_password");
+                        ResultSet passwordResult = dbConnection.selectPasswordByUserId(user_id);
+
+                        if (passwordResult.next()) {
+                            String correctPassword = passwordResult.getString("password");
+
+                            // If there's another row, we've somehow fetched too many (data invalid) so we return false
+                            if (passwordResult.next()) {
+                                return false;
+                            }
+
+                            // Otherwise check if passwords match
+                            return hashedPassword.equals(correctPassword);
+
+                        } else {
+                            // In case of no results return false
+                            return false;
                         }
                     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                         throw new RuntimeException("Hashing password failed!", e);
@@ -107,8 +130,9 @@ public class UsersDatabaseLayer {
 
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
+                throw new RuntimeException("SQL query failed!");
+            } catch (DatabaseConnectionInactiveError e){
+                throw new RuntimeException("Database connection is inactive!");
             }
         }
         return false;
@@ -118,30 +142,32 @@ public class UsersDatabaseLayer {
     public static void registerUser(DatabaseConnection dbConnection, String username, String password, String nickname) throws UserRegistrationError, UserAlreadyExistsError {
         // Check if user exists
         int id = getUserIdFromDatabase(dbConnection, username);
-        if (id == -1){
+        if (id == -1){ // No such username in database
             // Generate new salt for registering this user
             String salt = generateSalt();
 
-            // Add new user to database
             try {
-                // WIP: need to change database aswell
-                String query = "INSERT INTO users(username, password, salt, nickname) VALUES (?, ?, ?, ?);";
-                int updatesDone = dbConnection.runQuery(query);
-                if (updatesDone == 0){
+                String hashedPassword = hashPassword(password, salt);
+
+                // Add new user to database
+                try {
+                    dbConnection.registerUser(username, hashedPassword, salt, nickname);
+
+                } catch (SQLException e) {
                     throw new UserRegistrationError();
                 }
-                // If not 0, then registration was successful
 
-            } catch (SQLException e) {
-                throw new UserRegistrationError();
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                throw new RuntimeException("Hashing password failed!");
             }
+
 
         } else {
             // User with this username already exists in database
             throw new UserAlreadyExistsError(username);
-
         }
     }
+
 
     /**
      * Generates a hash for input password and salt.
