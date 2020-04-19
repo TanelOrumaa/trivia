@@ -72,16 +72,23 @@
 
 ####2xx codes are for transferring data.
 
-#####201: Client - > Server "User answered question"
-- Example: 201 hash question_nr
+#####201: Client - > Server "Request new question"
+- Example: 201 hash previousQuestionId
 
-#####202: Client -> Server "Request next question"
-- Example: 202 hash
+#####202: Server -> Client "Send next question"
+- Example: 202 hash Question_object_as_json
 
-#####203: Server -> Client "Next question sent"
-- Example: 203 hash Question_object_as_json
+#####203: Client -> Server "Answer for question"
+- Example: 203 hash questionId, answerId
 
+#####204: Server -> Client "Answer received"
+- Example: 204 hash
 
+#####211: Client -> Server "Request triviasets list for user"
+- Example: 211 hash
+
+#####212: Server -> Client "Send user's triviasets"
+- Example: 212 hash Triviasets_as_json
 
 ####4xx codes are for errors.
 
@@ -91,7 +98,9 @@
 
 #####422 - Server -> Client "Invalid login data"
 
-#####423 - Server -> Client "Registration failed - username already exists"
+#####424 - Server -> Client "Registration failed - username already exists"
+
+#####426 - Server -> Client "Registration failed - try again"
  
 #####432 - Server -> Client "Lobby does not exist"
 

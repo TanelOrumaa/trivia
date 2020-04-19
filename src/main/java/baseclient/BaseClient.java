@@ -2,7 +2,6 @@ package baseclient;
 
 import general.commands.Command;
 import general.commands.CommandQueue;
-import general.questions.Question;
 import general.questions.QuestionQueue;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -19,6 +18,9 @@ public class BaseClient extends Application {
     protected ClientType type;
     protected static Stage guiStage;
     protected BaseClientBackEnd baseClientBackEnd;
+
+    protected static String username;
+    protected static String[] triviasets = new String[0];
 
     protected CommandQueue incomingCommands = new CommandQueue();
     protected QuestionQueue questionQueue = new QuestionQueue();
@@ -85,7 +87,8 @@ public class BaseClient extends Application {
             case 122:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyEntry");
-                    guiStage.setScene(LobbyEntry.change(this));
+                    username = command.args[0];
+                    guiStage.setScene(UserMainPage.change(this));
                 });
                 break;
             case 124:
@@ -96,6 +99,7 @@ public class BaseClient extends Application {
             case 132:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");
+                    // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
                     String[] names = new String[command.args.length - 1];
                     System.arraycopy(command.args, 1, names, 0, names.length);
                     guiStage.setScene(LobbyFX.change(this, false, command.args[0], names));
@@ -104,6 +108,7 @@ public class BaseClient extends Application {
             case 134:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to LobbyFX");
+                    // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
                     String[] names = new String[command.args.length - 1];
                     System.arraycopy(command.args, 1, names, 0, names.length);
                     guiStage.setScene(LobbyFX.change(this, true, command.args[0], names));
@@ -112,14 +117,26 @@ public class BaseClient extends Application {
             case 136:
                 Platform.runLater(() -> {
                     LOG.debug("Updating participants list for lobby.");
-                    LobbyFX.updateParticipantsList(command.args);
+                    // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
+                    String[] names = new String[command.args.length - 1];
+                    System.arraycopy(command.args, 1, names, 0, names.length);
+                    LobbyFX.updateParticipantsList(names);
                 });
                 break;
             case 138: // Start game
+                LOG.error("Where is this coming from?!?!");
+                break;
             case 140: // Next question
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to QuestionScene");
-                    guiStage.setScene(QuestionScene.change(this, questionQueue.getQuestion(Long.getLong(command.args[0]))));
+                    guiStage.setScene(QuestionScene.change(this, questionQueue.getQuestion(Long.parseLong(command.args[0]))));
+                });
+                break;
+            case 212:
+                Platform.runLater(() -> {
+                    LOG.debug("Updating triviasets list.");
+                    triviasets = command.args;
+                    UserTriviasetPage.updateTriviasetsList();
                 });
                 break;
             case 422:
