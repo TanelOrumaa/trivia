@@ -7,4 +7,5 @@ trivia.iml
 target
 target/
 src/main/resources/static/keys/trivia.ppk
+src/main/java/configuration/Config.java
 
