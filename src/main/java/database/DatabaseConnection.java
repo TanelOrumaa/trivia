@@ -45,12 +45,11 @@ public class DatabaseConnection {
      * @throws SQLException If SQL query fails
      * @throws DatabaseConnectionInactiveError If this database connection is no longer active
      */
-    public ResultSet selectUserIdByUsername(String username) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement userIdByUsernameStatement(String username) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.id FROM users u WHERE username = ?;");
             ps.setString(1, username);
-            return ps.executeQuery();
-
+            return ps;
 
         } else {
             throw new DatabaseConnectionInactiveError();
@@ -58,33 +57,33 @@ public class DatabaseConnection {
     }
 
 
-    public ResultSet selectSaltByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement saltByUserIdStatement(int userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.salt FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
-            return ps.executeQuery();
+            return ps;
         } else {
             throw new DatabaseConnectionInactiveError();
         }
     }
 
 
-    public ResultSet selectPasswordByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement passwordByUserIdStatement(int userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.password FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
-            return ps.executeQuery();
+            return ps;
         } else {
             throw new DatabaseConnectionInactiveError();
         }
     }
 
 
-    public ResultSet selectUserInfoByUserId(int userId) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement userInfoByUserIdStatement(int userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.username, u.nickname FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
-            return ps.executeQuery();
+            return ps;
         } else {
             throw new DatabaseConnectionInactiveError();
         }
@@ -96,15 +95,14 @@ public class DatabaseConnection {
      * @throws SQLException If SQL query fails
      * @throws DatabaseConnectionInactiveError If this database connection is no longer active
      */
-    public void registerUser(String username, String password, String salt, String nickname) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement registerUserStatement(String username, String password, String salt, String nickname) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
             PreparedStatement ps = this.databaseConnection.prepareStatement("INSERT INTO users(id, username, password, salt, nickname) VALUES (?, ?, ?, ?, ?);");
-            //ps.setString(1, id);
             ps.setString(2, username);
             ps.setString(3, password);
             ps.setString(4, salt);
             ps.setString(5, nickname);
-            ps.executeUpdate();
+            return ps;
         } else {
             throw new DatabaseConnectionInactiveError();
         }
