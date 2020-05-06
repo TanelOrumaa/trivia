@@ -11,16 +11,13 @@ import javafx.scene.layout.VBox;
 
 import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
-public class LobbyEntry {
+public class LobbyEntry extends Scene {
 
-    public static Scene change(BaseClient frontEnd) {
-
-        double width = frontEnd.getWidth();
-        double height = frontEnd.getHeight();
+    public LobbyEntry(BaseClient baseClient) {
+        super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
 
         //It is a scene, where player has to enter code to join a lobby.
         BorderPane lobbyEntryRoot = new BorderPane();
-        final Scene lobbyEntryScreen = new Scene(lobbyEntryRoot, width, height);
         VBox lobbyEntry = new VBox(20);
         lobbyEntry.setStyle("-fx-background-color: ROYALBLUE;");
 
@@ -41,7 +38,7 @@ public class LobbyEntry {
 
         Button backButton = new Button("Back");
         backButton.setOnMouseReleased(mouseEvent -> {
-            BaseClient.guiStage.setScene(UserMainPage.change(frontEnd));
+            BaseClient.guiStage.setScene(new UserMainPage(baseClient));
         });
 
         HBox backButtons = new HBox(backButton);
@@ -55,7 +52,7 @@ public class LobbyEntry {
 
         lobbyEntryRoot.setCenter(lobbyEntry);
 
-        return lobbyEntryScreen;
+        super.setRoot(lobbyEntryRoot);
     }
 
 

@@ -1,13 +1,17 @@
 package baseclient;
 
+import general.commands.Command;
+import general.questions.Answer;
 import general.questions.AnswerType;
 import general.questions.Question;
 import general.questions.QuestionType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -15,16 +19,21 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import server.PlayerClientConnection;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class QuestionScene {
+import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
-    static final Logger LOG = LoggerFactory.getLogger(PlayerClientConnection.class);
+public class QuestionScene extends Scene {
 
-    public static Scene change(BaseClient frontEnd, Question question) {
+    static final Logger LOG = LoggerFactory.getLogger(QuestionScene.class);
+
+    public QuestionScene(BaseClient baseClient, Question question) {
+        super(new ScrollPane(), baseClient.getWidth(), baseClient.getHeight());
+
 
         ScrollPane scroller = new ScrollPane();
         scroller.setFitToWidth(true);
@@ -71,11 +80,59 @@ public class QuestionScene {
 
         // add answer GUI
         AnswerType answerType = question.getAnswerType();
-        if (answerType == AnswerType.CHOICE) ChoiceAnswerFX.addAnswerGraphics(mainBox, question.getAnswerList(), frontEnd);
-        if (answerType == AnswerType.FREEFORM) FreeformAnswerFX.addAnswerGraphics(mainBox, question.getAnswerList(), frontEnd);
+        if (answerType == AnswerType.CHOICE) addMultipleChoiceAnswer(mainBox, question.getAnswerList(), baseClient);
+        if (answerType == AnswerType.FREEFORM) addFreeFormAnswer(mainBox, question.getAnswerList(), baseClient);
 
         scroller.setContent(mainBox);
 
-        return new Scene(scroller, frontEnd.getWidth(), frontEnd.getHeight());
+        super.setRoot(scroller);
+    }
+
+    private static void addFreeFormAnswer(VBox mainBox, List<Answer> answers, BaseClient frontEnd) {
+
+        VBox answerTextArea = new VBox(20);
+
+        TextArea answerTextAreaInput = new TextArea();
+        answerTextAreaInput.setPrefSize(frontEnd.getWidth() / 4 * 3,frontEnd.getHeight() / 5);
+        answerTextAreaInput.setWrapText(true);
+        HBox answerTextAreaInputBox = new HBox(answerTextAreaInput);
+        // TODO: Answers missing?
+        Button answerButton = new Button("Answer");
+        answerButton.setOnAction(actionEvent -> {
+            // generate command - inform backend that client has answered and what the answer was - and and invoke it
+            Command buttonPressedCommand = new Command(201, new String[] {answerTextAreaInput.getText()});
+            frontEnd.addCommandToFrontEnd(buttonPressedCommand);
+        });
+        HBox answerTextAreaButtonBox = new HBox(answerButton);
+
+
+        mainBox.getChildren().addAll(answerTextAreaInputBox, answerTextAreaButtonBox);
+
+        answerTextAreaInputBox.setAlignment(Pos.CENTER);
+        answerTextAreaButtonBox.setAlignment(Pos.CENTER);
+        answerTextArea.setAlignment(Pos.CENTER);
+
+    }
+
+    private static void addMultipleChoiceAnswer(VBox mainBox, List<Answer> answers, BaseClient frontEnd) {
+
+        //Multiple-choice question. Player choose one correct answer.
+        ArrayList<Button> answerButtons = new ArrayList<>();
+        for (int i = 0; i < answers.size(); i++) {
+            Button answerButton = new Button(answers.get(i).getAnswerText());
+            answerButton.setPrefSize(frontEnd.getWidth() / 4 * 3, frontEnd.getHeight() / 10);
+
+            final String answerNumber = Integer.toString(i);
+            answerButton.setOnAction(actionEvent -> {
+                // Inform back-end about user's answer
+                addCommandToBackEnd(201, new String[] {answerNumber}, 0);
+            });
+            answerButtons.add(answerButton);
+        }
+
+        VBox answerBox = new VBox();
+        answerButtons.forEach((button -> answerBox.getChildren().add(button)));
+
+        mainBox.getChildren().add(answerBox);
     }
 }

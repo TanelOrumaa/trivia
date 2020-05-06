@@ -11,16 +11,16 @@ import javafx.scene.layout.VBox;
 
 import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
-public class RegistrationScreen {
+public class RegistrationScreen extends Scene {
 
-    public static Scene change(BaseClient frontEnd) {
+    public RegistrationScreen(BaseClient baseClient) {
+        super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
 
-        double width = frontEnd.getWidth();
-        double height = frontEnd.getHeight();
+        double width = baseClient.getWidth();
+        double height = baseClient.getHeight();
 
         //Registration scene
         BorderPane registerRoot = new BorderPane();
-        Scene registerScreen = new Scene(registerRoot, width, height);
         VBox register = new VBox(20);
         register.setStyle("-fx-background-color: ROYALBLUE;");
 
@@ -90,7 +90,7 @@ public class RegistrationScreen {
 
         registerRoot.setCenter(register);
 
-        return registerScreen;
+        super.setRoot(registerRoot);
 
     }
 }

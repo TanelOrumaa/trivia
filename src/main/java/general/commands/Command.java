@@ -21,11 +21,11 @@ public class Command {
     }
 
     public Command(int code, long time) {
-        new Command(code, null, time);
+        this(code, null, time);
     }
 
     public Command(int code, String[] params) {
-        new Command(code, params, System.currentTimeMillis());
+        this(code, params, System.currentTimeMillis());
     }
 
     @Override

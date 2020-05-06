@@ -11,16 +11,16 @@ import javafx.scene.layout.VBox;
 
 import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
-public class LogInScreen {
+public class LogInScreen extends Scene {
 
-    public static Scene change(BaseClient frontEnd) {
+    public LogInScreen(BaseClient baseClient) {
+        super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
 
-        double width = frontEnd.getWidth();
-        double height = frontEnd.getHeight();
+        double width = baseClient.getWidth();
+        double height = baseClient.getHeight();
 
         //Log in scene. Player has option to log in or register.
         BorderPane logInRoot = new BorderPane();
-        Scene logInScreen = new Scene(logInRoot, width, height);
         VBox logIn = new VBox(20);
         logIn.setStyle("-fx-background-color: ROYALBLUE;");
 
@@ -32,7 +32,7 @@ public class LogInScreen {
         HBox username = new HBox(usernameInput);
 
         TextField passwordInput = new TextField("Password");
-        passwordInput.setPrefSize(logInScreen.getWidth()/4*3,logInScreen.getHeight()/10);
+        passwordInput.setPrefSize(super.getWidth()/4*3,super.getHeight()/10);
         HBox password = new HBox(passwordInput);
 
         Button logInButton = new Button("Log In");
@@ -43,10 +43,10 @@ public class LogInScreen {
         });
 
         HBox logInScreenButtons;
-        if (frontEnd.type != ClientType.PRESENTER) {
+        if (baseClient.type != ClientType.PRESENTER) {
             Button registrationButton = new Button("Register");
             //Event handler: clicking on "register" button
-            registrationButton.setOnAction(actionEvent -> BaseClient.guiStage.setScene(RegistrationScreen.change(frontEnd)));
+            registrationButton.setOnAction(actionEvent -> BaseClient.guiStage.setScene(new RegistrationScreen(baseClient)));
             logInScreenButtons = new HBox(20, logInButton, registrationButton);
         }
         else {
@@ -62,7 +62,7 @@ public class LogInScreen {
 
         logInRoot.setCenter(logIn);
 
-        return logInScreen;
+        super.setRoot(logInRoot);
 
     }
 
