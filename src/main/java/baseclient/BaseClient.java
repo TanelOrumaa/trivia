@@ -70,7 +70,7 @@ public class BaseClient extends Application {
         backEndThread.start();
 
 
-        guiStage.setScene(LogInScreen.change(this));
+        guiStage.setScene(new LogInScreen(this));
         guiStage.show();
 
     }
@@ -88,7 +88,7 @@ public class BaseClient extends Application {
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyEntry");
                     username = command.args[0];
-                    guiStage.setScene(UserMainPage.change(this));
+                    guiStage.setScene(new UserMainPage(this));
                 });
                 break;
             case 124:
@@ -96,22 +96,13 @@ public class BaseClient extends Application {
                     LOG.debug("Switching scene to RegistrationSuccessfulScreen");
                     guiStage.setScene(RegistrationSuccessfulScreen.change(this));
                 });
-            case 132:
+            case 132: case 134:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");
                     // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
                     String[] names = new String[command.args.length - 1];
                     System.arraycopy(command.args, 1, names, 0, names.length);
-                    guiStage.setScene(LobbyFX.change(this, false, command.args[0], names));
-                });
-                break;
-            case 134:
-                Platform.runLater(() -> {
-                    LOG.debug("Switching scene to LobbyFX");
-                    // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
-                    String[] names = new String[command.args.length - 1];
-                    System.arraycopy(command.args, 1, names, 0, names.length);
-                    guiStage.setScene(LobbyFX.change(this, true, command.args[0], names));
+                    guiStage.setScene(new LobbyFX(this, command.code == 134, command.args[0], names));
                 });
                 break;
             case 136:
@@ -129,7 +120,7 @@ public class BaseClient extends Application {
             case 140: // Next question
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to QuestionScene");
-                    guiStage.setScene(QuestionScene.change(this, questionQueue.getQuestion(Long.parseLong(command.args[0]))));
+                    guiStage.setScene(new QuestionScene(this, questionQueue.getQuestion(Long.parseLong(command.args[0]))));
                 });
                 break;
             case 212:

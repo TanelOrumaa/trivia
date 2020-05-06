@@ -12,18 +12,17 @@ import javafx.scene.text.Font;
 
 import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
-public class UserMainPage {
+public class UserMainPage extends Scene {
 
     private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
 
-    public static Scene change(BaseClient frontEnd) {
-
-        double width = frontEnd.getWidth();
-        double height = frontEnd.getHeight();
+    public UserMainPage(BaseClient baseClient) {
+        super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
+        double width = baseClient.getWidth();
+        double height = baseClient.getHeight();
 
         //It is a scene, where player has to enter code to join a lobby.
         BorderPane userMainPageRoot = new BorderPane();
-        final Scene userMainPageScreen = new Scene(userMainPageRoot, width, height);
         VBox userMainPage = new VBox(20);
         userMainPage.setStyle("-fx-background-color: ROYALBLUE;");
 
@@ -38,7 +37,7 @@ public class UserMainPage {
         Button joinGameButton = new Button("Join a game");
         // User wants to join a game, display LobbyEntry scene.
         joinGameButton.setOnMouseReleased(actionEvent -> {
-            BaseClient.guiStage.setScene(LobbyEntry.change(frontEnd));
+            BaseClient.guiStage.setScene(new LobbyEntry(baseClient));
         });
 
 
@@ -47,7 +46,7 @@ public class UserMainPage {
             // Fetch triviasets from server.
             addCommandToBackEnd(211, new String[0], 0);
             // Display the triviaset page.
-            BaseClient.guiStage.setScene(UserTriviasetPage.change(frontEnd));
+            BaseClient.guiStage.setScene(new UserTriviasetPage(baseClient));
         });
 
         joinGameButton.setPadding(new Insets(width * 0.02));
@@ -65,7 +64,7 @@ public class UserMainPage {
 
         userMainPageRoot.setCenter(userMainPage);
 
-        return userMainPageScreen;
+        super.setRoot(userMainPageRoot);
     }
 
 

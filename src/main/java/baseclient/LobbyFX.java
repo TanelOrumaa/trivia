@@ -15,20 +15,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
-public class LobbyFX {
+public class LobbyFX extends Scene {
 
     static final Logger LOG = LoggerFactory.getLogger(LobbyFX.class);
 
     private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
     private static ObservableList<String> participantsList;
 
-    public static Scene change(BaseClient frontEnd, boolean asHost, String lobbyCode, String[] names) {
-        double width = frontEnd.getWidth();
-        double height = frontEnd.getHeight();
+    public LobbyFX(BaseClient baseClient, boolean asHost, String lobbyCode, String[] names) {
+        super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
+
+        double width = baseClient.getWidth();
+        double height = baseClient.getHeight();
 
         //Lobby scene, where player is waiting for start.
         BorderPane lobbyRoot = new BorderPane();
-        final Scene lobbyScreen = new Scene(lobbyRoot, width, height);
         final VBox lobby = new VBox(10);
         lobby.setStyle("-fx-background-color: ROYALBLUE; -fx-font-family: Berlin Sans FB Demi");
 
@@ -73,7 +74,7 @@ public class LobbyFX {
 
         lobbyRoot.setTop(lobby);
 
-        return lobbyScreen;
+        super.setRoot(lobbyRoot);
     }
 
     public static void updateParticipantsList(String[] list) {
