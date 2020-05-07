@@ -228,7 +228,7 @@ public class BaseClientBackEnd implements Runnable {
                     for (int i = 0; i < paramsAmount; i++) {
                         params[i] = dataInputStream.readUTF();
                     }
-                    this.frontEnd.incomingCommands.add(new Command(commandCode, params, System.currentTimeMillis()));
+                    this.frontEnd.incomingCommands.add(new Command(commandCode, params));
                     LOG.debug("Added a new command to incoming queue.");
                     this.frontEnd.listenEvent();
             }
@@ -251,20 +251,20 @@ public class BaseClientBackEnd implements Runnable {
                     break;
                 case 422:
                     LOG.debug("Invalid login data.");
-                    this.frontEnd.addCommandToFrontEnd(new Command(422, new String[0], System.currentTimeMillis()));
+                    this.frontEnd.addCommandToFrontEnd(new Command(422, new String[0]));
                     break;
                 case 424:
                     LOG.debug("New user registration failed because username already exists");
                     // Send error code to front-end to display error to user
-                    this.frontEnd.addCommandToFrontEnd(new Command(424, new String[0], System.currentTimeMillis()));
+                    this.frontEnd.addCommandToFrontEnd(new Command(424, new String[0]));
                     break;
                 case 432:
                     LOG.debug("Lobby does not exist.");
-                    this.frontEnd.addCommandToFrontEnd(new Command(432, new String[0], System.currentTimeMillis()));
+                    this.frontEnd.addCommandToFrontEnd(new Command(432, new String[0]));
                     break;
                 case 434:
                     LOG.debug("Lobby is full.");
-                    this.frontEnd.addCommandToFrontEnd(new Command(434, new String[0], System.currentTimeMillis()));
+                    this.frontEnd.addCommandToFrontEnd(new Command(434, new String[0]));
                     break;
                 case 436:
                     LOG.debug("Server failed to send us next question");
@@ -330,7 +330,7 @@ public class BaseClientBackEnd implements Runnable {
                 user = gson.fromJson(userJson, User.class);
 
                 // Add the command to front end.
-                this.frontEnd.addCommandToFrontEnd(new Command(122, new String[]{user.getUsername()}, System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(122, new String[]{user.getUsername()}));
 
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
@@ -365,7 +365,7 @@ public class BaseClientBackEnd implements Runnable {
                 currentLobby = gson.fromJson(lobbyJson, Lobby.class);
                 LOG.debug("Connected to lobby " + currentLobby.getCode());
 
-                this.frontEnd.addCommandToFrontEnd(new Command(132, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray(), System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(132, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray()));
 
                 // Request the first question
                 requestQuestion(-1);
@@ -398,7 +398,7 @@ public class BaseClientBackEnd implements Runnable {
                 currentLobby = gson.fromJson(lobbyAsJson, Lobby.class);
                 LOG.debug("Created lobby with code " + currentLobby.getCode());
 
-                this.frontEnd.addCommandToFrontEnd(new Command(134, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray(), System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(134, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray()));
 
                 // Ask for the first question.
                 requestQuestion(-1);
@@ -451,7 +451,7 @@ public class BaseClientBackEnd implements Runnable {
             LOG.debug("Server responded positively - registration successful");
             String responseHash = dataInputStream.readUTF();
             if (hash.equals(responseHash)) {
-                this.frontEnd.addCommandToFrontEnd(new Command(124, new String[0], System.currentTimeMillis()));
+                this.frontEnd.addCommandToFrontEnd(new Command(124, new String[0]));
 
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
@@ -470,7 +470,7 @@ public class BaseClientBackEnd implements Runnable {
         currentLobby = gson.fromJson(lobbyAsJson, Lobby.class);
 
         LOG.debug("New lobby version received " + currentLobby.getCode());
-        this.frontEnd.addCommandToFrontEnd(new Command(136, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray(), System.currentTimeMillis()));
+        this.frontEnd.addCommandToFrontEnd(new Command(136, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray()));
 
         dataOutputStream.writeInt(137);
         dataOutputStream.writeUTF(hash);
@@ -479,7 +479,7 @@ public class BaseClientBackEnd implements Runnable {
     private void displayNextQuestion() throws IOException {
         Long questionId = dataInputStream.readLong();
         LOG.debug("Server said to display next question with id " + questionId);
-        frontEnd.addCommandToFrontEnd(new Command(140, new String[]{String.valueOf(questionId)}, System.currentTimeMillis()));
+        frontEnd.addCommandToFrontEnd(new Command(140, new String[]{String.valueOf(questionId)}));
 
         // Respond to server.
         dataOutputStream.writeInt(141);
@@ -539,7 +539,7 @@ public class BaseClientBackEnd implements Runnable {
                 String[] triviasets = triviasetsAsJson.split(";");
 
                 // Update triviasets.
-                frontEnd.addCommandToFrontEnd(new Command(212, triviasets, System.currentTimeMillis()));
+                frontEnd.addCommandToFrontEnd(new Command(212, triviasets));
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }
