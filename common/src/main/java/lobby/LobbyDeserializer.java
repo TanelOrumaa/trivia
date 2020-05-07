@@ -26,7 +26,7 @@ public class LobbyDeserializer implements JsonDeserializer<Lobby> {
             JsonObject user = users.get(i).getAsJsonObject();
             String nickname = user.get("nickname").getAsString();
 
-            // Create simplified user.User objects for displaying in clients.
+            // Create simplified User objects for displaying in clients.
             User lobbyUser = new User(nickname);
 
             // If this user is the lobby owner, mark it as so.

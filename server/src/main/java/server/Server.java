@@ -75,7 +75,7 @@ public class Server {
                             }
 
                         } else {
-                            LOG.warn("server.Server expected 101 from client, received " + code);
+                            LOG.warn("Server expected 101 from client, received " + code);
                             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                             dataOutputStream.writeInt(402); // Unexpected message code.
                             dataOutputStream.close();

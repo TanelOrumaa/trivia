@@ -24,7 +24,7 @@ public class UsersDatabaseLayer {
      * @param username String for the username.
      * @param password String for the unhashed password.
      * @throws IncorrectLoginInformationException If the username doesn't exist in the database or if the password doesn't match.
-     * @return user.User object if user is valid.
+     * @return User object if user is valid.
      */
     public static User validateUser(DatabaseConnection dbConnection, String username, String password) throws IncorrectLoginInformationException {
         // Check if user exists.
@@ -166,7 +166,7 @@ public class UsersDatabaseLayer {
 
 
         } else {
-            // user.User with this username already exists in database
+            // User with this username already exists in database
             throw new UserAlreadyExistsError(username);
         }
     }
