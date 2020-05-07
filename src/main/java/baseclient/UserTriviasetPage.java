@@ -18,21 +18,21 @@ import java.util.ArrayList;
 
 import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
-public class UserTriviasetPage {
+public class UserTriviasetPage extends Scene {
 
-    static final Logger LOG = LoggerFactory.getLogger(LobbyFX.class);
+    static final Logger LOG = LoggerFactory.getLogger(UserTriviasetPage.class);
 
     private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
     private static ObservableList<String> triviasetsList;
 
-    public static Scene change(BaseClient frontEnd) {
+    public UserTriviasetPage(BaseClient baseClient) {
+        super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
 
-        double width = frontEnd.getWidth();
-        double height = frontEnd.getHeight();
+        double width = baseClient.getWidth();
+        double height = baseClient.getHeight();
 
         //It is a scene, where player has to enter code to join a lobby.
         BorderPane triviasetsPageRoot = new BorderPane();
-        final Scene triviasetsPage = new Scene(triviasetsPageRoot, width, height);
         VBox triviasetsPageLayout = new VBox(20);
         triviasetsPageLayout.setStyle("-fx-background-color: ROYALBLUE;");
 
@@ -62,7 +62,7 @@ public class UserTriviasetPage {
 
         Button back = new Button("Back");
         back.setOnMouseReleased(mouseEvent -> {
-            BaseClient.guiStage.setScene(UserMainPage.change(frontEnd));
+            BaseClient.guiStage.setScene(new UserMainPage(baseClient));
         });
 
         HBox buttonArea = new HBox(back);
@@ -72,10 +72,10 @@ public class UserTriviasetPage {
 
         triviasetsPageRoot.setTop(triviasetsPageLayout);
 
-        return triviasetsPage;
+        super.setRoot(triviasetsPageRoot);
     }
 
-    private static void updateTriviasetsArea(ArrayList<HBox> triviasetsRows) {
+    private void updateTriviasetsArea(ArrayList<HBox> triviasetsRows) {
         for (String triviaset : BaseClient.triviasets) {
             Label triviasetName = new Label(triviaset);
             // TODO: Remove hardcoded values.

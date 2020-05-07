@@ -6,16 +6,16 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
-public class WaitingAfterQuestionScreen {
+public class WaitingAfterQuestionScreen extends Scene {
 
-    public static Scene change(BaseClient frontEnd) {
+    public WaitingAfterQuestionScreen(BaseClient baseClient) {
+        super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
 
-        double width = frontEnd.getWidth();
-        double height = frontEnd.getHeight();
+        double width = baseClient.getWidth();
+        double height = baseClient.getHeight();
 
         //After answering question, player wait until others answered too.
         BorderPane waitingAfterQuestionRoot = new BorderPane();
-        final Scene waitingAfterQuestionScreen = new Scene(waitingAfterQuestionRoot, width, height);
         final VBox waitingAfterQuestion = new VBox(10);
         waitingAfterQuestion.setStyle("-fx-background-color: ROYALBLUE;");
 
@@ -27,6 +27,6 @@ public class WaitingAfterQuestionScreen {
 
         waitingAfterQuestionRoot.setCenter(waitingAfterQuestion);
 
-        return waitingAfterQuestionScreen;
+        super.setRoot(waitingAfterQuestionRoot);
     }
 }
