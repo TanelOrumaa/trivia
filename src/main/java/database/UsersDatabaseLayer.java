@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -31,8 +32,7 @@ public class UsersDatabaseLayer {
         if (id != -1) {
             // Check if passwords match.
             if (isPasswordValidForUser(dbConnection, id, password)) {
-                try {
-                    ResultSet resultSet = dbConnection.selectUserInfoByUserId(id);
+                try (ResultSet resultSet = dbConnection.userInfoByUserIdStatement(id).executeQuery()) {
                     if (resultSet.next()){
                         String nickname = resultSet.getString("nickname");
 
@@ -60,9 +60,8 @@ public class UsersDatabaseLayer {
      * @return Corresponding id from the db or -1 in case SQL statement fails, there's more than one result or the username doesn't exist.
      */
     public static int getUserIdFromDatabase(DatabaseConnection dbConnection, String username) {
-        try {
-            // Get the results from the database.
-            ResultSet resultSet = dbConnection.selectUserIdByUsername(username);
+        // Get the results from the database.
+        try (ResultSet resultSet = dbConnection.userIdByUsernameStatement(username).executeQuery()) {
 
             // If there's at least one result, get the id.
             if (resultSet.next()) {
@@ -95,9 +94,9 @@ public class UsersDatabaseLayer {
     public static boolean isPasswordValidForUser(DatabaseConnection dbConnection, int user_id, String password) {
         if (user_id != -1) {
 
-            try {
-                // Get salt value from db.
-                ResultSet saltResult = dbConnection.selectSaltByUserId(user_id);
+            // Get salt value from db.
+            try (ResultSet saltResult = dbConnection.saltByUserIdStatement(user_id).executeQuery()) {
+
                 if (saltResult.next()) {
                     String salt = saltResult.getString("salt");
 
@@ -106,23 +105,27 @@ public class UsersDatabaseLayer {
                         String hashedPassword = hashPassword(password, salt);
 
                         // Compare generated hash against user password hash in db.
-                        ResultSet passwordResult = dbConnection.selectPasswordByUserId(user_id);
-
-                        if (passwordResult.next()) {
-                            String correctPassword = passwordResult.getString("password");
-
-                            // If there's another row, we've somehow fetched too many (data invalid) so we return false
+                        try (ResultSet passwordResult = dbConnection.passwordByUserIdStatement(user_id).executeQuery()) {
                             if (passwordResult.next()) {
+                                String correctPassword = passwordResult.getString("password");
+
+                                // If there's another row, we've somehow fetched too many (data invalid) so we return false
+                                if (passwordResult.next()) {
+                                    return false;
+                                }
+
+                                // Otherwise check if passwords match
+                                return hashedPassword.equals(correctPassword);
+
+                            } else {
+                                // In case of no results return false
                                 return false;
                             }
 
-                            // Otherwise check if passwords match
-                            return hashedPassword.equals(correctPassword);
-
-                        } else {
-                            // In case of no results return false
-                            return false;
+                        } catch (SQLException e){
+                            throw new RuntimeException("SQL query failed!");
                         }
+
                     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                         throw new RuntimeException("Hashing password failed!", e);
                     }
@@ -150,8 +153,8 @@ public class UsersDatabaseLayer {
                 String hashedPassword = hashPassword(password, salt);
 
                 // Add new user to database
-                try {
-                    dbConnection.registerUser(username, hashedPassword, salt, nickname);
+                try (PreparedStatement ps = dbConnection.registerUserStatement(username, hashedPassword, salt, nickname)){
+                    ps.executeUpdate();
 
                 } catch (SQLException e) {
                     throw new UserRegistrationError();
