@@ -36,7 +36,7 @@ public class UserMainPage extends Scene {
         usernameLabelArea.setPadding(new Insets(width * 0.05, width * 0.05, width * 0.05, width * 0.05));
 
         Button joinGameButton = new Button("Join a game");
-        // user.User wants to join a game, display view.LobbyEntry scene.
+        // User wants to join a game, display LobbyEntry scene.
         joinGameButton.setOnMouseReleased(actionEvent -> {
             baseClient.setGuiStage(new LobbyEntry(baseClient));
         });

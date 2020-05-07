@@ -80,7 +80,7 @@ public class ClientConnectionBase implements Runnable {
 
                     // Check if there are any messages available from client.
                     if (dataInputStream.available() == 0) {
-                        // Check if current lobby.Lobby wants to send an update to client.
+                        // Check if current Lobby wants to send an update to client.
                         if (currentLobby != null && currentLobby.newUpdateAvailable(lastLobbyUpdateId)) {
                             LOG.debug("New update available for lobby.");
                             lastLobbyUpdateId++;
@@ -142,7 +142,7 @@ public class ClientConnectionBase implements Runnable {
                     break;
 
                 case 121: // Login message
-                    // The client sends a log in message with username and password. server.Server validates the logins and
+                    // The client sends a log in message with username and password. Server validates the logins and
                     // responds with 122 for successful login or 422 for invalid login data.
 
                     login();
@@ -176,7 +176,7 @@ public class ClientConnectionBase implements Runnable {
                     // The client requests a question from the server
                     sendQuestion();
                     break;
-                case 203: // user.User answered question
+                case 203: // User answered question
                     // Check answer.
                     break;
                 case 211: // Fetching triviasets for user
@@ -219,7 +219,7 @@ public class ClientConnectionBase implements Runnable {
             Gson gson = new GsonBuilder().registerTypeAdapter(Lobby.class, new LobbySerializer()).create();
             String lobbyAsJson = gson.toJson(currentLobby);
 
-            dataOutputStream.writeInt(136); // Update lobby.Lobby message
+            dataOutputStream.writeInt(136); // Update Lobby message
             dataOutputStream.writeUTF(hash);
             dataOutputStream.writeUTF(lobbyAsJson);
 
@@ -299,13 +299,13 @@ public class ClientConnectionBase implements Runnable {
                 currentLobby.addNewLobbyUpdate(new NewUserConnectedUpdate(user.getId()));
             } else {
                 LOG.warn(clientId + "This lobby (" + userSubmittedLobbyCode + ") is full.");
-                dataOutputStream.writeInt(434); // lobby.Lobby is full.
+                dataOutputStream.writeInt(434); // Lobby is full.
                 dataOutputStream.writeUTF(hash);
             }
 
         } catch (LobbyDoesNotExistException e) {
             LOG.warn(clientId + "This lobby (" + userSubmittedLobbyCode + ") does not exist.");
-            dataOutputStream.writeInt(432); // lobby.Lobby does not exist.
+            dataOutputStream.writeInt(432); // Lobby does not exist.
             dataOutputStream.writeUTF(hash);
         }
 
@@ -361,11 +361,11 @@ public class ClientConnectionBase implements Runnable {
 
         } catch (UserRegistrationError e) {
             LOG.warn(clientId + "Failed to register user");
-            dataOutputStream.writeInt(426); // user.User registration failed - try again
+            dataOutputStream.writeInt(426); // User registration failed - try again
             dataOutputStream.writeUTF(this.hash);
         } catch (UserAlreadyExistsError e) {
             LOG.warn(clientId + "Failed to register user because username already exists in database");
-            dataOutputStream.writeInt(424); // user.User already exists error code
+            dataOutputStream.writeInt(424); // User already exists error code
             dataOutputStream.writeUTF(this.hash);
         }
     }

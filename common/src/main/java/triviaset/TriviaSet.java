@@ -12,7 +12,7 @@ public class TriviaSet {
     private LinkedHashMap<Integer, Question> questionMap;
 
     public TriviaSet(String name, int numberOfQuestions) {
-        //Constructor for creating a triviasets.TriviaSet just for display.
+        //Constructor for creating a TriviaSet just for display.
 
         this.name = name;
         this.numberOfQuestions = numberOfQuestions;

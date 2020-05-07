@@ -96,7 +96,7 @@ public class BaseClient extends Application {
                 break;
             case 124:
                 Platform.runLater(() -> {
-                    LOG.debug("Switching scene to view.RegistrationSuccessfulScreen");
+                    LOG.debug("Switching scene to RegistrationSuccessfulScreen");
                     guiStage.setScene(RegistrationSuccessfulScreen.change(this));
                 });
             case 132: case 134:
@@ -141,20 +141,20 @@ public class BaseClient extends Application {
                 break;
             case 424:
                 Platform.runLater(() -> {
-                    LOG.debug("user.User registration failed - username already exists");
+                    LOG.debug("User registration failed - username already exists");
                     ErrorMessage.popUp("Registration failed - username already exists!");
                 });
                 break;
             case 432:
                 Platform.runLater(() -> {
-                    LOG.debug("lobby.Lobby does not exist");
-                    ErrorMessage.popUp("lobby.Lobby with this code does not exist.");
+                    LOG.debug("Lobby does not exist");
+                    ErrorMessage.popUp("Lobby with this code does not exist.");
                 });
                 break;
             case 434:
                 Platform.runLater(() -> {
-                   LOG.debug("lobby.Lobby server is full");
-                   ErrorMessage.popUp("lobby.Lobby server is full.");
+                   LOG.debug("Lobby server is full");
+                   ErrorMessage.popUp("Lobby server is full.");
                 });
                 break;
         }

@@ -30,7 +30,7 @@ public class LobbyFX extends Scene {
         double width = baseClient.getWidth();
         double height = baseClient.getHeight();
 
-        //lobby.Lobby scene, where player is waiting for start.
+        // Lobby scene, where player is waiting for start.
         BorderPane lobbyRoot = new BorderPane();
         final VBox lobby = new VBox(10);
         lobby.setStyle("-fx-background-color: ROYALBLUE; -fx-font-family: Berlin Sans FB Demi");
