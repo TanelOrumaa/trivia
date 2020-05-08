@@ -7,8 +7,6 @@
 
 2 - PlayerClient
 
-3 - HostClient
-
 
 ## Message codes
 ####1xx codes are for general server-client messages, like sync.
