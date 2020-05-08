@@ -50,15 +50,25 @@ public class UserMainPage extends Scene {
             baseClient.setGuiStage(new UserTriviasetPage(baseClient));
         });
 
+        Button triviaSetsButton = new Button("Trivia sets");
+        triviaSetsButton.setOnMouseReleased(mouseEvent -> {
+            // Display triviaset menu.
+            baseClient.setGuiStage(new TriviaSetMenu(baseClient));
+        });
+
         joinGameButton.setPadding(new Insets(width * 0.02));
         hostGameButton.setPadding(new Insets(width * 0.02));
+        triviaSetsButton.setPadding(new Insets(width * 0.02));
+
         VBox.setMargin(hostGameButton, new Insets(width * 0.05));
         VBox.setMargin(joinGameButton, new Insets(width * 0.05));
+        VBox.setMargin(triviaSetsButton, new Insets(width * 0.05));
 
         joinGameButton.setFont(textFont);
         hostGameButton.setFont(textFont);
+        triviaSetsButton.setFont(textFont);
 
-        VBox buttonsArea = new VBox(joinGameButton, hostGameButton);
+        VBox buttonsArea = new VBox(joinGameButton, hostGameButton, triviaSetsButton);
         buttonsArea.setAlignment(Pos.CENTER);
 
         userMainPage.getChildren().addAll(usernameLabelArea, buttonsArea);
