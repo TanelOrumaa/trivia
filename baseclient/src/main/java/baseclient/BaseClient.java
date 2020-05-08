@@ -2,6 +2,7 @@ package baseclient;
 
 import command.Command;
 import command.CommandQueue;
+import configuration.Configuration;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -12,7 +13,7 @@ import popup.ErrorMessage;
 import question.QuestionQueue;
 import view.*;
 
-import java.util.Scanner;
+import java.io.IOException;
 
 public class BaseClient extends Application {
 
@@ -29,6 +30,53 @@ public class BaseClient extends Application {
     protected QuestionQueue questionQueue = new QuestionQueue();
 
 
+    public BaseClient(ClientType type) {
+        this.type = type;
+
+    }
+
+    @Override
+    public void start(final Stage primaryStage) {
+        // First read the configuration.
+        try {
+            Configuration.readConfiguration();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to read configuration file, make sure you have one in resources/sensitive", e);
+        }
+
+        guiStage = primaryStage;
+
+        switch (type) {
+            case PRESENTER:
+                guiStage.setTitle("Presenter client");
+                break;
+            case PLAYER:
+                guiStage.setTitle("Player client");
+                break;
+        }
+
+
+        this.baseClientBackEnd = new BaseClientBackEnd(this, questionQueue);
+        Thread backEndThread = new Thread(baseClientBackEnd);
+        backEndThread.start();
+
+        switch (type) {
+            case PRESENTER:
+                guiStage.setScene(new LobbyEntry(this));
+                break;
+            case PLAYER:
+                guiStage.setScene(new LogInScreen(this));
+                break;
+        }
+
+        primaryStage.setOnCloseRequest(event -> {
+            baseClientBackEnd.stopBackend();
+            backEndThread.interrupt();
+        });
+
+        guiStage.show();
+
+    }
 
     public double getWidth() {
         if (type == ClientType.PRESENTER) {
@@ -42,44 +90,6 @@ public class BaseClient extends Application {
             return 720;
         }
         return 580;
-    }
-
-    @Override
-    public void start(final Stage primaryStage) {
-        guiStage = primaryStage;
-
-        try (Scanner in = new Scanner(System.in)) {
-            System.out.println("Enter client type: (1 - Presenter, 2 - Player , 3 - Host) :");
-            String answer = in.next();
-            switch (answer) {
-                case "1":
-                    type = ClientType.PRESENTER;
-                    guiStage.setTitle("Presenter client");
-                    break;
-                case "2":
-                    type = ClientType.PLAYER;
-                    guiStage.setTitle("Player client");
-                    break;
-                case "3":
-                    type = ClientType.HOST;
-                    guiStage.setTitle("Host client");
-                    break;
-            }
-        }
-
-
-        this.baseClientBackEnd = new BaseClientBackEnd(this, questionQueue);
-        Thread backEndThread = new Thread(baseClientBackEnd);
-        backEndThread.start();
-
-
-        guiStage.setScene(new LogInScreen(this));
-        guiStage.show();
-
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 
     public void listenEvent() {
@@ -99,7 +109,8 @@ public class BaseClient extends Application {
                     LOG.debug("Switching scene to RegistrationSuccessfulScreen");
                     guiStage.setScene(RegistrationSuccessfulScreen.change(this));
                 });
-            case 132: case 134:
+            case 132:
+            case 134:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");
                     // Since first argument is lobby code and next ones are the participants, we'll extract the first argument.
@@ -135,8 +146,8 @@ public class BaseClient extends Application {
                 break;
             case 422:
                 Platform.runLater(() -> {
-                   LOG.debug("Invalid login data");
-                   ErrorMessage.popUp("Incorrect username or password.");
+                    LOG.debug("Invalid login data");
+                    ErrorMessage.popUp("Incorrect username or password.");
                 });
                 break;
             case 424:
@@ -153,8 +164,8 @@ public class BaseClient extends Application {
                 break;
             case 434:
                 Platform.runLater(() -> {
-                   LOG.debug("Lobby server is full");
-                   ErrorMessage.popUp("Lobby server is full.");
+                    LOG.debug("Lobby server is full");
+                    ErrorMessage.popUp("Lobby server is full.");
                 });
                 break;
         }

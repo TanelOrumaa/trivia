@@ -7,8 +7,6 @@
 
 2 - PlayerClient
 
-3 - HostClient
-
 
 ## Message codes
 ####1xx codes are for general server-client messages, like sync.
@@ -84,10 +82,10 @@
 #####204: Server -> Client "Answer received"
 - Example: 204 hash
 
-#####211: Client -> Server "Request triviaset list for user"
+#####211: Client -> Server "Request triviasets list for user"
 - Example: 211 hash
 
-#####212: Server -> Client "Send user's triviaset"
+#####212: Server -> Client "Send user's triviasets"
 - Example: 212 hash Triviasets_as_json
 
 ####4xx codes are for errors.

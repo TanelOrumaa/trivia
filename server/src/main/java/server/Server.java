@@ -1,6 +1,6 @@
 package server;
 
-import configuration.Config;
+import configuration.Configuration;
 import exception.LobbyDoesNotExistException;
 import lobby.Lobby;
 import org.slf4j.Logger;
@@ -35,7 +35,14 @@ public class Server {
 
     public static void main(String[] args) {
 
-        int portNumber = Config.SERVER_LISTENING_PORT;
+        // Read the config first.
+        try {
+            Configuration.readConfiguration();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to read configuration file, make sure you have one in resources/sensitive", e);
+        }
+
+        int portNumber = Configuration.SERVER_LISTENING_PORT;
         final ExecutorService executorService = Executors.newCachedThreadPool();
 
         // Create a new serversocket.
@@ -64,9 +71,6 @@ public class Server {
                                     break;
                                 case 2:
                                     executorService.submit(new PlayerClientConnection(socket, dataInputStream, generateUniqueHash()));
-                                    break;
-                                case 3:
-                                    executorService.submit(new HostClientConnection(socket, dataInputStream, generateUniqueHash()));
                                     break;
                                 default:
                                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());

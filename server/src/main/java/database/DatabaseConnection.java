@@ -1,6 +1,6 @@
 package database;
 
-import configuration.Config;
+import configuration.Configuration;
 import exception.DatabaseConnectionInactiveError;
 
 import java.sql.*;
@@ -16,7 +16,7 @@ public class DatabaseConnection {
     // Creates a database connection object which can later be used to run queries.
     private Connection createDatabaseConnection() throws SQLException {
         // Return the database connection.
-        return DriverManager.getConnection(Config.DB_CONNECT_STRING, Config.DB_USERNAME, Config.DB_PASSWORD);
+        return DriverManager.getConnection(Configuration.DB_CONNECT_STRING, Configuration.DB_USERNAME, Configuration.DB_PASSWORD);
     }
 
     // Close this connection.
@@ -32,7 +32,7 @@ public class DatabaseConnection {
 
     public boolean isActive() {
         try {
-            return this.databaseConnection.isValid(Config.DB_CONNECTION_TIMEOUT_SECONDS);
+            return this.databaseConnection.isValid(Configuration.DB_CONNECTION_TIMEOUT_SECONDS);
         } catch (SQLException e) {
             return false;
         }

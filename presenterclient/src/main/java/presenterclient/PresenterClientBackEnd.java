@@ -1,3 +1,5 @@
+package presenterclient;
+
 import javafx.stage.Stage;
 
 import java.util.concurrent.BlockingQueue;

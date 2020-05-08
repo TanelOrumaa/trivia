@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import command.Command;
 import command.CommandQueue;
-import configuration.Config;
+import configuration.Configuration;
 import exception.MixedServerMessageException;
 import lobby.Lobby;
 import lobby.LobbyDeserializer;
@@ -54,7 +54,7 @@ public class BaseClientBackEnd implements Runnable {
 
     public void run() {
         // Create connection with backend.
-        try (Socket socket = new Socket(Config.SERVER_IP_ADDRESS, Config.SERVER_LISTENING_PORT)) {
+        try (Socket socket = new Socket(Configuration.SERVER_IP_ADDRESS, Configuration.SERVER_LISTENING_PORT)) {
             this.dataInputStream = new DataInputStream(socket.getInputStream());
             this.dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
@@ -65,9 +65,6 @@ public class BaseClientBackEnd implements Runnable {
                     break;
                 case PLAYER:
                     dataOutputStream.writeInt(2);
-                    break;
-                case HOST:
-                    dataOutputStream.writeInt(3);
                     break;
             }
 
@@ -111,12 +108,12 @@ public class BaseClientBackEnd implements Runnable {
                             handleIncoming(code);
                         } else {
                             // Otherwise wait for a small amount of time to save CPU resources.
-                            Thread.sleep(Config.SOCKET_POLL_INTERVAL);
+                            Thread.sleep(Configuration.SOCKET_POLL_INTERVAL);
                         }
                     }
                 }
             } catch (InterruptedException e) {
-                LOG.warn("Thread was interrupted.");
+                LOG.debug("Thread was interrupted mid-sleep.");
             }
         } catch (IOException e) {
             // TODO: Let the client know that connection to the server failed.
@@ -551,7 +548,22 @@ public class BaseClientBackEnd implements Runnable {
 
     }
 
+    private void sendGoodbye() throws IOException {
+        // Send goodbye message
+        LOG.debug("Sending goodbye message.");
+        dataOutputStream.writeInt(199);
+        dataOutputStream.writeUTF(hash);
+    }
+
     private static long now() {
         return System.currentTimeMillis() + serverTimeDelta;
+    }
+
+    public void stopBackend() {
+        try {
+            sendGoodbye();
+        } catch (IOException e) {
+            LOG.warn("Could not notify server of shutting down.");
+        }
     }
 }

@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import command.DisplayNextQuestionUpdate;
 import command.LobbyUpdateBase;
 import command.NewUserConnectedUpdate;
-import configuration.Config;
+import configuration.Configuration;
 import database.DatabaseConnection;
 import database.UsersDatabaseLayer;
 import exception.IncorrectLoginInformationException;
@@ -94,7 +94,7 @@ public class ClientConnectionBase implements Runnable {
                             }
                         } else {
                             // If no updates from lobby either, sleep for a small amount of time to save CPU resources.
-                            Thread.sleep(Config.SOCKET_POLL_INTERVAL);
+                            Thread.sleep(Configuration.SOCKET_POLL_INTERVAL);
                         }
                     } else {
                         LOG.debug("Reading the next message from " + clientId);
