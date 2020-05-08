@@ -13,8 +13,11 @@ import org.slf4j.LoggerFactory;
 import question.Question;
 import question.QuestionDeserializer;
 import question.QuestionQueue;
+import triviaset.TriviaSet;
+import triviaset.TriviaSetSerializerFull;
 import user.User;
 import user.UserDeserializer;
+import user.UserSerializer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -162,20 +165,26 @@ public class BaseClientBackEnd implements Runnable {
             case 139: // Start game.
                 startGame();
                 break;
-            case 201: // Request a question from backend
+            case 201: // Request a question from server.
                 if (command.args != null && command.args.length == 1) {
                     requestQuestion(Long.parseLong(command.args[0]));
                 }
                 break;
-            case 203: // Send question answer to backend.
+            case 203: // Send question answer to server.
                 if (command.args != null && command.args.length == 2) {
                 }
                 break;
-            case 211: // Request triviaset list from backend.
+            case 211: // Request triviaset list from server.
                 if (command.args != null && command.args.length == 0) {
                     fetchTriviasets();
                 }
                 break;
+            case 215: // Register new triviaset
+                if (command.args != null && command.args.length == 1) {
+                    sendTriviaSet(command.args[0]);
+                }
+
+
             default:
                 // For testing.
                 LOG.debug("Unknown command " + command + ". Sending to server.");
@@ -544,6 +553,31 @@ public class BaseClientBackEnd implements Runnable {
             handleError(responseCode);
         } else {
             handleIncoming(responseCode);
+        }
+
+    }
+
+    private void sendTriviaSet(String serializedTriviaSet) throws IOException {
+        // Send register triviaset message
+        LOG.debug("Sending register trivia set message");
+        dataOutputStream.writeInt(215);
+        dataOutputStream.writeUTF(hash);
+
+        Gson gson = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetSerializerFull()).create();
+        String triviaSetAsJson = gson.toJson(serializedTriviaSet);
+        dataOutputStream.writeUTF(triviaSetAsJson);
+
+        //Receive response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 126){
+            LOG.debug("Server responded positively - trivia set registration was successful");
+            String responseHash = dataInputStream.readUTF();
+            if (hash.equals(responseHash)) {
+                // display trivia set registration successful screen
+                //addCommandToBackEnd();
+            } else {
+                throw new MixedServerMessageException(hash, responseHash);
+            }
         }
 
     }
