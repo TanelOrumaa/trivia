@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -32,24 +33,39 @@ public class RegistrationScreen extends Scene {
                 "be at least 8 symbols long.\n" +
                 "have lower and uppercase letters.\n");
 
-        TextField newUsernameInput = new TextField("Enter username:");
-        newUsernameInput.setPrefSize(width/4*3,height/10);
-        HBox newUsernameBox = new HBox(newUsernameInput);
+        Label usernameLabel = new Label("Enter username:");
+        TextField newUsernameInput = new TextField();
+        newUsernameInput.setPrefSize(width/4*3,height/12);
+        VBox newUsernameBox = new VBox(usernameLabel, newUsernameInput);
 
-        TextField newPasswordInput = new TextField("Enter password:");
-        newPasswordInput.setPrefSize(width/4*3,height/10);
-        HBox newPasswordBox = new HBox(newPasswordInput);
+        Label passwordLabel = new Label("Enter password:");
+        PasswordField newPasswordInput = new PasswordField();
+        newPasswordInput.setPrefSize(width/4*3,height/12);
+        VBox newPasswordBox = new VBox(passwordLabel, newPasswordInput);
 
-        TextField newNicknameInput = new TextField("Enter nickname (visible to other players):");
-        newNicknameInput.setPrefSize(width/4*3, height/10);
-        HBox newNicknameBox = new HBox(newNicknameInput);
+        Label confirmPasswordLabel = new Label("Confirm password:");
+        PasswordField confirmPasswordInput = new PasswordField();
+        confirmPasswordInput.setPrefSize(width/4*3, height/12);
+        VBox confirmPasswordBox = new VBox(confirmPasswordLabel, confirmPasswordInput);
+
+        Label nicknameLabel = new Label("Enter nickname (visible to other players):");
+        TextField newNicknameInput = new TextField();
+        newNicknameInput.setPrefSize(width/4*3, height/12);
+        VBox newNicknameBox = new VBox(nicknameLabel, newNicknameInput);
 
         Button registerButton = new Button("Register");
         registerButton.setOnAction(actionEvent -> {
             //Firstly check if username, password and nickname match criteria
             String newUsername = newUsernameInput.getText();
             String newPassword = newPasswordInput.getText();
+            String confirmPassword = confirmPasswordInput.getText();
             String newNickname = newNicknameInput.getText();
+
+            if (!newPassword.equals(confirmPassword)){
+                ErrorMessage.popUp("Passwords don't match!");
+                return;
+            }
+
             if (newPassword.length() < 8){
                 ErrorMessage.popUp("Password must be at least 8 symbols long!");
                 return;
@@ -77,18 +93,22 @@ public class RegistrationScreen extends Scene {
             }
 
             // ask back-end to send the registration info to server
-            addCommandToBackEnd(144, new String[] {newUsername, newPassword, newNickname}, 0);
+            addCommandToBackEnd(123, new String[] {newUsername, newPassword, newNickname}, 0);
         });
 
-        HBox registerButtonBox = new HBox(20, registerButton);
+        Button backButton = new Button("Back");
+        backButton.setOnAction(actionEvent -> baseClient.setGuiStage(new LogInScreen(baseClient)));
+
+        HBox buttonsBox = new HBox(20, backButton, registerButton);
 
 
         newUsernameBox.setAlignment(Pos.CENTER);
         newPasswordBox.setAlignment(Pos.CENTER);
+        confirmPasswordBox.setAlignment(Pos.CENTER);
         newNicknameBox.setAlignment(Pos.CENTER);
         register.setAlignment(Pos.CENTER);
-        registerButtonBox.setAlignment(Pos.CENTER);
-        register.getChildren().addAll(conditions, newUsernameBox, newPasswordBox, newNicknameBox, registerButtonBox);
+        buttonsBox.setAlignment(Pos.CENTER);
+        register.getChildren().addAll(conditions, newUsernameBox, newPasswordBox, confirmPasswordBox, newNicknameBox, buttonsBox);
 
         registerRoot.setCenter(register);
 

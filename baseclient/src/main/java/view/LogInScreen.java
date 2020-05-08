@@ -6,7 +6,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -21,21 +23,25 @@ public class LogInScreen extends Scene {
         double width = baseClient.getWidth();
         double height = baseClient.getHeight();
 
-        //Log in scene. Player has option to log in or register.
         BorderPane logInRoot = new BorderPane();
         VBox logIn = new VBox(20);
         logIn.setStyle("-fx-background-color: ROYALBLUE;");
 
-        //If logging failed, then player will see text
-        final Label logInError = new Label("");
+        Label usernameLabel = new Label("Username:");
+        TextField usernameInput = new TextField();
+        usernameInput.setPrefSize(width/4*3,height/12);
+        VBox usernameBox = new VBox(usernameLabel, usernameInput);
 
-        TextField usernameInput = new TextField("Username");
-        usernameInput.setPrefSize(width/4*3,height/10);
-        HBox username = new HBox(usernameInput);
+        Label passwordLabel = new Label("Password:");
+        PasswordField passwordInput = new PasswordField();
+        passwordInput.setPrefSize(super.getWidth()/4*3,super.getHeight()/12);
+        VBox passwordBox = new VBox(passwordLabel, passwordInput);
 
-        TextField passwordInput = new TextField("Password");
-        passwordInput.setPrefSize(super.getWidth()/4*3,super.getHeight()/10);
-        HBox password = new HBox(passwordInput);
+        passwordInput.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER){
+                addCommandToBackEnd(121, new String[]{usernameInput.getText(), passwordInput.getText()}, 0);
+            }
+        });
 
         Button logInButton = new Button("Log In");
         //Event handler: clicking on log in button. Checking if username and password match.
@@ -57,10 +63,10 @@ public class LogInScreen extends Scene {
 
 
         logIn.setAlignment(Pos.CENTER);
-        username.setAlignment(Pos.CENTER);
-        password.setAlignment(Pos.CENTER);
+        usernameBox.setAlignment(Pos.CENTER);
+        passwordBox.setAlignment(Pos.CENTER);
         logInScreenButtons.setAlignment(Pos.CENTER);
-        logIn.getChildren().addAll(logInError, username, password, logInScreenButtons);
+        logIn.getChildren().addAll(usernameBox, passwordBox, logInScreenButtons);
 
         logInRoot.setCenter(logIn);
 
