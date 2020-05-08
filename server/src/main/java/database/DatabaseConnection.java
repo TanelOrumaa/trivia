@@ -97,11 +97,11 @@ public class DatabaseConnection {
      */
     public PreparedStatement registerUserStatement(String username, String password, String salt, String nickname) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
-            PreparedStatement ps = this.databaseConnection.prepareStatement("INSERT INTO users(id, username, password, salt, nickname) VALUES (?, ?, ?, ?, ?);");
-            ps.setString(2, username);
-            ps.setString(3, password);
-            ps.setString(4, salt);
-            ps.setString(5, nickname);
+            PreparedStatement ps = this.databaseConnection.prepareStatement("INSERT INTO users(username, password, salt, nickname) VALUES (?, ?, ?, ?);");
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, salt);
+            ps.setString(4, nickname);
             return ps;
         } else {
             throw new DatabaseConnectionInactiveError();
