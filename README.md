@@ -32,8 +32,11 @@
 #####123: Client - Server "Register"
 - Example: 123 hash username password nickname
 
-#####124: Server -> Client "Registration successful"
+#####124: Server -> Client "User registration successful"
 - Example: 124 hash
+
+#####126: Server -> Client "Triviaset including questions successfully registered"
+- Example: 126 hash
 
 #####131: Client -> Server "Connecting to lobby"
 - Example: 131 hash lobbyCode
@@ -82,11 +85,20 @@
 #####204: Server -> Client "Answer received"
 - Example: 204 hash
 
-#####211: Client -> Server "Request triviasets list for user"
+#####211: Client -> Server "Request list of triviasets for user"
 - Example: 211 hash
 
-#####212: Server -> Client "Send user's triviasets"
-- Example: 212 hash Triviasets_as_json
+#####212: Server -> Client "Send a list of user's triviasets"
+- Example: 212 hash TriviasetsList_as_json
+
+#####213: Client -> Server "Request triviaset"
+- Example: 213 hash
+
+#####214: Server -> Client "Send user's requested triviaset"
+- Example: 214 hash Triviaset_as_json
+
+#####215: Client -> Server "Register new triviaset"
+- Example: 215 hash Triviaset_as_json
 
 ####4xx codes are for errors.
 
@@ -105,3 +117,9 @@
 #####434 - Server -> Client "Lobby is full"
 
 #####436 - Server -> Client "Failed to send next question"
+
+#####442 - Server -> Client "Failed to register new triviaset"
+
+#####444 - Server -> Client "Failed to register new question"
+
+#####446 - Server -> Client "Failed to register new answer"

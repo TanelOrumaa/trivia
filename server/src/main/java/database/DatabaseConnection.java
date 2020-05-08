@@ -2,6 +2,9 @@ package database;
 
 import configuration.Configuration;
 import exception.DatabaseConnectionInactiveError;
+import question.Answer;
+import question.Question;
+import triviaset.TriviaSet;
 
 import java.sql.*;
 
@@ -107,4 +110,119 @@ public class DatabaseConnection {
             throw new DatabaseConnectionInactiveError();
         }
     }
+
+
+    public PreparedStatement registerQuestionStatement(Question question, int triviaSetId) throws SQLException, DatabaseConnectionInactiveError {
+
+        if (this.isActive()) {
+
+            String questionType = "";
+            String answerType = "";
+
+            switch (question.getQuestionType()) {
+
+                case TEXT:
+                    questionType = "text";
+                    break;
+                case IMAGE:
+                    questionType = "image";
+                    break;
+                case AUDIO:
+                    questionType = "audio";
+                    break;
+                case VIDEO:
+                    questionType = "video";
+                    break;
+
+            }
+
+            switch (question.getAnswerType()) {
+
+                case CHOICE:
+                    answerType = "choice";
+                    break;
+                case FREEFORM:
+                    answerType = "freeform";
+                    break;
+
+            }
+
+            PreparedStatement ps = this.databaseConnection.prepareStatement(
+                    "INSERT INTO questions(question_type, answer_type, score_degradation, potential_points, time, question_text, triviaset_id)" +
+                            " VALUES (?, ?, ?, ?, ?, ?, ?);");
+            ps.setString(1, questionType);
+            ps.setString(2, answerType);
+            ps.setBoolean(3, question.isScoreDegradation());
+            ps.setInt(4, question.getPotentialPoints());
+            ps.setInt(5, question.getTime());
+            ps.setString(6, question.getQuestion());
+            ps.setInt(7, triviaSetId);
+            return ps;
+
+        } else {
+
+            throw new DatabaseConnectionInactiveError();
+
+        }
+
+    }
+
+
+    public PreparedStatement lastQuestionIdStatement() throws SQLException, DatabaseConnectionInactiveError {
+
+        if(this.isActive()) {
+
+            return databaseConnection.prepareStatement("SELECT max(id) FROM questions");
+
+        }else throw new DatabaseConnectionInactiveError();
+
+    }
+
+
+    public PreparedStatement lastTriviaSetIdStatement() throws SQLException, DatabaseConnectionInactiveError {
+
+        if(this.isActive()) {
+
+            return databaseConnection.prepareStatement("SELECT max(id) FROM triviasets");
+
+        }else throw new DatabaseConnectionInactiveError();
+
+    }
+
+
+    public PreparedStatement registerAnswerStatement(Answer answer, long questionId) throws SQLException, DatabaseConnectionInactiveError {
+
+        if (this.isActive()) {
+
+            PreparedStatement ps = this.databaseConnection.prepareStatement(
+                    "INSERT INTO answers(question_id, answer_text, is_correct) VALUES (?, ?, ?);");
+            ps.setLong(1, questionId);
+            ps.setString(2, answer.getAnswerText());
+            ps.setBoolean(3, answer.isCorrect());
+            return ps;
+
+        } else throw new DatabaseConnectionInactiveError();
+
+    }
+
+
+    public PreparedStatement registerTriviaSetStatement(TriviaSet triviaSet, long userId) throws SQLException, DatabaseConnectionInactiveError {
+
+        if (this.isActive()) {
+
+            PreparedStatement ps = this.databaseConnection.prepareStatement("INSERT INTO triviasets(name, questions_count, user_id)" +
+                    " VALUES (?, ?, ?);");
+            ps.setString(1, triviaSet.getName());
+            ps.setInt(2, triviaSet.getNumberOfQuestions());
+            ps.setLong(3, userId);
+            return ps;
+
+        } else {
+
+            throw new DatabaseConnectionInactiveError();
+
+        }
+
+    }
+
 }

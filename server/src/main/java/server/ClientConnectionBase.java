@@ -7,16 +7,18 @@ import command.LobbyUpdateBase;
 import command.NewUserConnectedUpdate;
 import configuration.Configuration;
 import database.DatabaseConnection;
+import database.QuestionsDatabaseLayer;
+import database.TriviaSetsDatabaseLayer;
 import database.UsersDatabaseLayer;
-import exception.IncorrectLoginInformationException;
-import exception.LobbyDoesNotExistException;
-import exception.UserAlreadyExistsError;
-import exception.UserRegistrationError;
+import exception.*;
 import lobby.Lobby;
 import lobby.LobbySerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import question.*;
+import triviaset.TriviaSet;
+import triviaset.TriviaSetDeserializerFull;
+import triviaset.TriviaSetSerializerFull;
 import user.User;
 import user.UserSerializer;
 
@@ -25,6 +27,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class ClientConnectionBase implements Runnable {
@@ -179,8 +182,13 @@ public class ClientConnectionBase implements Runnable {
                 case 203: // User answered question
                     // Check answer.
                     break;
-                case 211: // Fetching triviasets for user
+                case 211: // Fetching list of triviasets for user
                     sendTriviasets();
+                    break;
+                case 213: // Fetching requested triviaset for user
+                    break;
+                case 215: // Registering a new triviaset
+                    registerTriviaSet();
                     break;
                 default:
                     // For testing different messages.
@@ -368,6 +376,45 @@ public class ClientConnectionBase implements Runnable {
             dataOutputStream.writeInt(424); // User already exists error code
             dataOutputStream.writeUTF(this.hash);
         }
+    }
+
+    private void registerTriviaSet() throws IOException {
+        LOG.debug(clientId + " wants to register new triviaset");
+
+        String triviaSetAsJson = dataInputStream.readUTF();
+        Gson gsonReceive = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetDeserializerFull()).create();
+        TriviaSet triviaSet = gsonReceive.fromJson(triviaSetAsJson, TriviaSet.class);
+
+        try {
+
+            int triviaSetId = TriviaSetsDatabaseLayer.registerTriviaSet(databaseConnection, triviaSet, user.getId());
+
+            LinkedHashMap<Integer, Question> questionList = triviaSet.getQuestionMap();
+            questionList.forEach(((integer, question) -> QuestionsDatabaseLayer.registerQuestion(databaseConnection, question, triviaSetId)));
+
+            dataOutputStream.writeInt(126);
+            dataOutputStream.writeUTF(this.hash);
+
+        } catch (AnswerRegistrationError e) {
+
+            LOG.warn(clientId + "Failed to register answer");
+            dataOutputStream.writeInt(446); // Answer registration failed
+            dataOutputStream.writeUTF(this.hash);
+
+        } catch (QuestionRegistrationError e) {
+
+            LOG.warn(clientId + "Failed to register question");
+            dataOutputStream.writeInt(444); // Question registration failed
+            dataOutputStream.writeUTF(this.hash);
+
+        } catch (TriviaSetRegistrationError e) {
+
+            LOG.warn(clientId + "Failed to register triviaset");
+            dataOutputStream.writeInt(442); // Triviaset registration failed
+            dataOutputStream.writeUTF(this.hash);
+
+        }
+
     }
 
     private void sendQuestion() throws IOException {
