@@ -6,6 +6,6 @@
 trivia.iml
 target
 target/
-*/*.iml
-*/target
-*/sensitive/*
+**/*.iml
+**/target
+**/sensitive/*
