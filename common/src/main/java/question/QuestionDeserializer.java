@@ -54,7 +54,8 @@ public class QuestionDeserializer implements JsonDeserializer<Question> {
             case "AUDIO":
                 return new AudioQuestion(answerTypeEnum, questionID, scoreDegradation, question, answerList, potentialPoints, time, questionObject.get("audioAddress").getAsString());
             case "VIDEO":
-                return new VideoQuestion(answerTypeEnum, questionID, scoreDegradation, question, answerList, potentialPoints, time, questionObject.get("videoAddress").getAsString());
+                String videoAadress = questionObject.get("videoAddress").getAsString();
+                return new VideoQuestion(answerTypeEnum, questionID, scoreDegradation, question, answerList, potentialPoints, time, videoAadress);
             default:
                 throw new RuntimeException("Questiontype does not exist!");
 

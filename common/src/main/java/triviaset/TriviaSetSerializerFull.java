@@ -14,6 +14,7 @@ public class TriviaSetSerializerFull implements JsonSerializer<TriviaSet> {
 
         JsonObject triviaSetObject = new JsonObject();
 
+        triviaSetObject.addProperty("id", triviaSet.getId());
         triviaSetObject.addProperty("name", triviaSet.getName());
 
         JsonArray questionListArray = new JsonArray();

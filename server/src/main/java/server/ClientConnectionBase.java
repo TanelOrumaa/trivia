@@ -19,6 +19,7 @@ import question.*;
 import triviaset.TriviaSet;
 import triviaset.TriviaSetDeserializerFull;
 import triviaset.TriviaSetSerializerFull;
+import triviaset.TriviaSetsSerializerBasic;
 import user.User;
 import user.UserSerializer;
 
@@ -382,7 +383,7 @@ public class ClientConnectionBase implements Runnable {
         LOG.debug(clientId + " wants to register new triviaset");
 
         String triviaSetAsJson = dataInputStream.readUTF();
-        LOG.debug(triviaSetAsJson);
+        LOG.debug("Trivia sets as Json received: " + triviaSetAsJson);
         Gson gsonReceive = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetDeserializerFull()).create();
         LOG.debug("gsonReceive done");
         TriviaSet triviaSet = gsonReceive.fromJson(triviaSetAsJson, TriviaSet.class);
@@ -449,10 +450,24 @@ public class ClientConnectionBase implements Runnable {
     private void sendTriviasets() throws IOException {
         LOG.debug(clientId + "requests trivia sets.");
 
-        // For testing
-        dataOutputStream.writeInt(212);
-        dataOutputStream.writeUTF(hash);
-        dataOutputStream.writeUTF("12;13;14");
+        try {
+            List<TriviaSet> usersTriviaSets = TriviaSetsDatabaseLayer.readUsersTriviaSets(databaseConnection, user.getId());
+            LOG.debug("User's trivia sets successfully read from database");
+            Gson gson = new GsonBuilder().registerTypeAdapter(List.class, new TriviaSetsSerializerBasic()).create();
+            LOG.debug("Gson element done");
+            String serializedTriviaSetList = gson.toJson(usersTriviaSets);
+            LOG.debug("Trivia sets serialized: " + serializedTriviaSetList);
+
+            dataOutputStream.writeInt(212);
+            dataOutputStream.writeUTF(this.hash);
+            dataOutputStream.writeUTF(serializedTriviaSetList);
+
+        } catch (TriviaSetsFetchingError e){
+            LOG.warn(clientId + "Failed to send trivia sets to user");
+            dataOutputStream.writeInt(438);
+            dataOutputStream.writeUTF(this.hash);
+        }
+
 
     }
 

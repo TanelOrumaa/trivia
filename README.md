@@ -118,7 +118,9 @@
 
 #####436 - Server -> Client "Failed to send next question"
 
-#####442 - Server -> Client "Failed to register new triviaset"
+#####438 - Server -> Client "Failed to send requested trivia sets"
+
+#####442 - Server -> Client "Failed to register new trivia set"
 
 #####444 - Server -> Client "Failed to register new question"
 

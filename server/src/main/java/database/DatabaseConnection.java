@@ -12,7 +12,7 @@ public class DatabaseConnection {
 
     private Connection databaseConnection;
 
-    public DatabaseConnection() throws SQLException{
+    public DatabaseConnection() throws SQLException {
         this.databaseConnection = createDatabaseConnection();
     }
 
@@ -43,9 +43,8 @@ public class DatabaseConnection {
 
 
     /**
-     *
      * @return ResultSet object with resulting data.
-     * @throws SQLException If SQL query fails
+     * @throws SQLException                    If SQL query fails
      * @throws DatabaseConnectionInactiveError If this database connection is no longer active
      */
     public PreparedStatement userIdByUsernameStatement(String username) throws SQLException, DatabaseConnectionInactiveError {
@@ -54,9 +53,8 @@ public class DatabaseConnection {
             ps.setString(1, username);
             return ps;
 
-        } else {
-            throw new DatabaseConnectionInactiveError();
-        }
+        } else throw new DatabaseConnectionInactiveError();
+
     }
 
 
@@ -65,9 +63,8 @@ public class DatabaseConnection {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.salt FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
             return ps;
-        } else {
-            throw new DatabaseConnectionInactiveError();
-        }
+        } else throw new DatabaseConnectionInactiveError();
+
     }
 
 
@@ -76,9 +73,8 @@ public class DatabaseConnection {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.password FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
             return ps;
-        } else {
-            throw new DatabaseConnectionInactiveError();
-        }
+        } else throw new DatabaseConnectionInactiveError();
+
     }
 
 
@@ -87,15 +83,15 @@ public class DatabaseConnection {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.username, u.nickname FROM users u WHERE u.id = ?;");
             ps.setString(1, Integer.toString(userId));
             return ps;
-        } else {
-            throw new DatabaseConnectionInactiveError();
-        }
+        } else throw new DatabaseConnectionInactiveError();
+
     }
 
 
     /**
      * Adds new user to database
-     * @throws SQLException If SQL query fails
+     *
+     * @throws SQLException                    If SQL query fails
      * @throws DatabaseConnectionInactiveError If this database connection is no longer active
      */
     public PreparedStatement registerUserStatement(String username, String password, String salt, String nickname) throws SQLException, DatabaseConnectionInactiveError {
@@ -106,9 +102,8 @@ public class DatabaseConnection {
             ps.setString(3, salt);
             ps.setString(4, nickname);
             return ps;
-        } else {
-            throw new DatabaseConnectionInactiveError();
-        }
+        } else throw new DatabaseConnectionInactiveError();
+
     }
 
 
@@ -118,6 +113,7 @@ public class DatabaseConnection {
 
             String questionType = "";
             String answerType = "";
+            String mediaPath = null;
 
             switch (question.getQuestionType()) {
 
@@ -126,12 +122,15 @@ public class DatabaseConnection {
                     break;
                 case IMAGE:
                     questionType = "image";
+                    mediaPath = question.getMediaPath();
                     break;
                 case AUDIO:
                     questionType = "audio";
+                    mediaPath = question.getMediaPath();
                     break;
                 case VIDEO:
                     questionType = "video";
+                    mediaPath = question.getMediaPath();
                     break;
 
             }
@@ -148,8 +147,8 @@ public class DatabaseConnection {
             }
 
             PreparedStatement ps = this.databaseConnection.prepareStatement(
-                    "INSERT INTO questions(question_type, answer_type, score_degradation, potential_points, time, question_text, triviaset_id)" +
-                            " VALUES (?, ?, ?, ?, ?, ?, ?);");
+                    "INSERT INTO questions(question_type, answer_type, score_degradation, potential_points, time, question_text, triviaset_id, media_path)" +
+                            " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
             ps.setString(1, questionType);
             ps.setString(2, answerType);
             ps.setBoolean(3, question.isScoreDegradation());
@@ -157,35 +156,33 @@ public class DatabaseConnection {
             ps.setInt(5, question.getTime());
             ps.setString(6, question.getQuestion());
             ps.setInt(7, triviaSetId);
+            ps.setString(8, mediaPath);
             return ps;
 
-        } else {
+        } else throw new DatabaseConnectionInactiveError();
 
-            throw new DatabaseConnectionInactiveError();
-
-        }
 
     }
 
 
     public PreparedStatement lastQuestionIdStatement() throws SQLException, DatabaseConnectionInactiveError {
 
-        if(this.isActive()) {
+        if (this.isActive()) {
 
             return databaseConnection.prepareStatement("SELECT max(id) as id FROM questions");
 
-        }else throw new DatabaseConnectionInactiveError();
+        } else throw new DatabaseConnectionInactiveError();
 
     }
 
 
     public PreparedStatement lastTriviaSetIdStatement() throws SQLException, DatabaseConnectionInactiveError {
 
-        if(this.isActive()) {
+        if (this.isActive()) {
 
             return databaseConnection.prepareStatement("SELECT max(id) as id FROM triviasets");
 
-        }else throw new DatabaseConnectionInactiveError();
+        } else throw new DatabaseConnectionInactiveError();
 
     }
 
@@ -217,11 +214,17 @@ public class DatabaseConnection {
             ps.setLong(3, userId);
             return ps;
 
-        } else {
+        } else throw new DatabaseConnectionInactiveError();
 
-            throw new DatabaseConnectionInactiveError();
 
-        }
+    }
+
+    public PreparedStatement usersTriviaSetsStatement(long userId) throws SQLException, DatabaseConnectionInactiveError {
+        if (this.isActive()){
+            PreparedStatement ps = this.databaseConnection.prepareStatement("SELECT id, name, questions_count FROM triviasets WHERE user_id = ?;");
+            ps.setLong(1, userId);
+            return ps;
+        } else throw new DatabaseConnectionInactiveError();
 
     }
 

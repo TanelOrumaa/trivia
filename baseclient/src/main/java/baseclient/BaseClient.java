@@ -106,10 +106,18 @@ public class BaseClient extends Application {
                 break;
             case 124:
                 Platform.runLater(() -> {
-                    LOG.debug("Switching scene to RegistrationSuccessfulScreen");
-                    guiStage.setScene(RegistrationSuccessfulScreen.change(this));
+                    LOG.debug("Switching scene to RegistrationSuccessfulScreen (user)");
+                    guiStage.setScene(new RegistrationSuccessfulScreen(this, "user"));
                 });
+                break;
+            case 126:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to RegistrationSuccessfulScreen (trivia set)");
+                    guiStage.setScene(new RegistrationSuccessfulScreen(this, "trivia set"));
+                });
+                break;
             case 132:
+                break;
             case 134:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");

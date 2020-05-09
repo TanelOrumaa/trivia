@@ -15,6 +15,7 @@ public class TriviaSetsSerializerBasic implements JsonSerializer<List<TriviaSet>
         for (TriviaSet triviaSet : triviaSetList) {
 
             JsonObject triviaSetObject = new JsonObject();
+            triviaSetObject.addProperty("id", triviaSet.getId());
             triviaSetObject.addProperty("name", triviaSet.getName());
             triviaSetObject.addProperty("numberOfQuestions", triviaSet.getNumberOfQuestions());
             triviaSetListArray.add(triviaSetObject);

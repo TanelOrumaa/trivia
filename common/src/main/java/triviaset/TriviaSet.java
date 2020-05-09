@@ -7,20 +7,22 @@ import java.util.List;
 
 public class TriviaSet {
 
+    private int id;
     private String name;
     private int numberOfQuestions;
     private LinkedHashMap<Integer, Question> questionMap;
 
-    public TriviaSet(String name, int numberOfQuestions) {
+    public TriviaSet(int id, String name, int numberOfQuestions) {
         //Constructor for creating a TriviaSet just for display.
-
+        this.id = id;
         this.name = name;
         this.numberOfQuestions = numberOfQuestions;
 
     }
 
-    public TriviaSet(String name, List<Question> questions) {
+    public TriviaSet(int id, String name, List<Question> questions) {
 
+        this.id = id;
         this.name = name;
         this.numberOfQuestions = questions.size();
         this.questionMap = new LinkedHashMap<>();
@@ -118,6 +120,10 @@ public class TriviaSet {
 
         return null;
 
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {

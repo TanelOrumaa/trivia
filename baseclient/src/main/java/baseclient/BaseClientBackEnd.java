@@ -14,7 +14,9 @@ import question.Question;
 import question.QuestionDeserializer;
 import question.QuestionQueue;
 import triviaset.TriviaSet;
+import triviaset.TriviaSetDeserializerFull;
 import triviaset.TriviaSetSerializerFull;
+import triviaset.TriviaSetsDeserializerBasic;
 import user.User;
 import user.UserDeserializer;
 import user.UserSerializer;
@@ -23,6 +25,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
+
+import static baseclient.BaseClient.triviasets;
 
 public class BaseClientBackEnd implements Runnable {
 
@@ -221,6 +226,9 @@ public class BaseClientBackEnd implements Runnable {
         String receivedHash = dataInputStream.readUTF();
         if (hash.equals(receivedHash)) {
             switch (commandCode) {
+                case 126:
+                    frontEnd.addCommandToFrontEnd(new Command(126, new String[0]));
+                    break;
                 case 136:
 
                     updateLobby();
@@ -541,13 +549,19 @@ public class BaseClientBackEnd implements Runnable {
             String responseHash = dataInputStream.readUTF();
             if (hash.equals(responseHash)) {
                 // Read the Triviasets list
-                String triviasetsAsJson = dataInputStream.readUTF();
+                String triviasetListAsJson = dataInputStream.readUTF();
 
-                // For testing, until serializers work.
-                String[] triviasets = triviasetsAsJson.split(";");
+                Gson gson = new GsonBuilder().registerTypeAdapter(List.class, new TriviaSetsDeserializerBasic()).create();
+                List<TriviaSet> triviaSetList = gson.fromJson(triviasetListAsJson, List.class);
 
-                // Update triviasets.
-                frontEnd.addCommandToFrontEnd(new Command(212, triviasets));
+                // Update triviasets - send command with trivia sets as command arguments
+                String[] args = new String[triviaSetList.size()];
+                for (int i = 0; i < triviaSetList.size(); i++) {
+                    System.out.println(triviaSetList.get(i).getClass());
+                    args[i] = triviaSetList.get(i).getName();
+                }
+                frontEnd.addCommandToFrontEnd(new Command(212, args));
+
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }

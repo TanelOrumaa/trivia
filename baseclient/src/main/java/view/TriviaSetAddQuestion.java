@@ -31,8 +31,6 @@ public class TriviaSetAddQuestion extends Scene {
     private List<Answer> answersList = new ArrayList<>();
 
     public TriviaSetAddQuestion(BaseClient baseClient, TriviaSet triviaSet) {
-        //TODO : ülevaade lisatud küsimustest
-
         super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
         double width = baseClient.getWidth();
         double height = baseClient.getHeight();
@@ -139,13 +137,19 @@ public class TriviaSetAddQuestion extends Scene {
                     question = new TextQuestion();
                     break;
                 case "Image":
-                    question = new ImageQuestion();
+                    ImageQuestion imageQuestion = new ImageQuestion();
+                    imageQuestion.setImagePath(path.getText());
+                    question = imageQuestion;
                     break;
                 case "Audio":
-                    question = new AudioQuestion();
+                    AudioQuestion audioQuestion = new AudioQuestion();
+                    audioQuestion.setMediaPath(path.getText());
+                    question = audioQuestion;
                     break;
                 case "Video":
-                    question = new VideoQuestion();
+                    VideoQuestion videoQuestion = new VideoQuestion();
+                    videoQuestion.setMediaPath(path.getText());
+                    question = videoQuestion;
                     break;
             }
             if (questionText.getText().equals("")) {
@@ -194,10 +198,7 @@ public class TriviaSetAddQuestion extends Scene {
         Button finishButton = new Button("Finish adding questions");
         finishButton.setOnMouseReleased(mouseEvent -> {
             //Finish adding questions.
-            Gson gson = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetSerializerFull()).create();
-            String triviaSetAsJson = gson.toJson(triviaSet);
-            System.out.println("TriviaSetAddQuestion " + triviaSetAsJson);
-            addCommandToBackEnd(215, new String[]{triviaSetAsJson}, 0);
+            baseClient.setGuiStage(new TriviaSetFinalOverview(baseClient, triviaSet));
         });
 
         Button backButton = new Button("Quit");
