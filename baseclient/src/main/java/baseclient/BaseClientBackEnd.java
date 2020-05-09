@@ -182,7 +182,9 @@ public class BaseClientBackEnd implements Runnable {
             case 215: // Register new triviaset
                 if (command.args != null && command.args.length == 1) {
                     sendTriviaSet(command.args[0]);
+                    System.out.println("BaseClientBackEnd " + command.args[0]);
                 }
+                break;
 
 
             default:
@@ -563,9 +565,7 @@ public class BaseClientBackEnd implements Runnable {
         dataOutputStream.writeInt(215);
         dataOutputStream.writeUTF(hash);
 
-        Gson gson = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetSerializerFull()).create();
-        String triviaSetAsJson = gson.toJson(serializedTriviaSet);
-        dataOutputStream.writeUTF(triviaSetAsJson);
+        dataOutputStream.writeUTF(serializedTriviaSet);
 
         //Receive response
         int responseCode = dataInputStream.readInt();
@@ -574,10 +574,14 @@ public class BaseClientBackEnd implements Runnable {
             String responseHash = dataInputStream.readUTF();
             if (hash.equals(responseHash)) {
                 // display trivia set registration successful screen
-                //addCommandToBackEnd();
+                frontEnd.addCommandToFrontEnd(new Command(124, new String[0], 0));
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
         }
 
     }

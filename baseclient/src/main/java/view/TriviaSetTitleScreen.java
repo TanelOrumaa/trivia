@@ -11,6 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import popup.ErrorMessage;
 import triviaset.TriviaSet;
 
 import java.util.ArrayList;
@@ -41,7 +42,11 @@ public class TriviaSetTitleScreen extends Scene {
         Button nextButton = new Button("Next");
         nextButton.setOnMouseReleased(mouseEvent -> {
             //Start adding questions.
-            baseClient.setGuiStage(new TriviaSetAddQuestion(baseClient, new TriviaSet(titleInput.getText(), new ArrayList<>())));
+            if (titleInput.getText().length() > 2) {
+                baseClient.setGuiStage(new TriviaSetAddQuestion(baseClient, new TriviaSet(titleInput.getText(), new ArrayList<>())));
+            } else {
+                ErrorMessage.popUp("Title should be longer than 2 characters");
+            }
         });
 
         Button backButton = new Button("Back");

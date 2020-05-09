@@ -382,16 +382,19 @@ public class ClientConnectionBase implements Runnable {
         LOG.debug(clientId + " wants to register new triviaset");
 
         String triviaSetAsJson = dataInputStream.readUTF();
+        LOG.debug(triviaSetAsJson);
         Gson gsonReceive = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetDeserializerFull()).create();
+        LOG.debug("gsonReceive done");
         TriviaSet triviaSet = gsonReceive.fromJson(triviaSetAsJson, TriviaSet.class);
+        LOG.debug("triviaset done");
 
         try {
 
             int triviaSetId = TriviaSetsDatabaseLayer.registerTriviaSet(databaseConnection, triviaSet, user.getId());
-
+            LOG.debug("Triviaset ID " + triviaSetId + " successfully registered");
             LinkedHashMap<Integer, Question> questionList = triviaSet.getQuestionMap();
             questionList.forEach(((integer, question) -> QuestionsDatabaseLayer.registerQuestion(databaseConnection, question, triviaSetId)));
-
+            LOG.debug("Questions successfully registered.");
             dataOutputStream.writeInt(126);
             dataOutputStream.writeUTF(this.hash);
 
