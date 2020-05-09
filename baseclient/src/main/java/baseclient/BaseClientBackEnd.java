@@ -230,10 +230,8 @@ public class BaseClientBackEnd implements Runnable {
                     frontEnd.addCommandToFrontEnd(new Command(126, new String[0]));
                     break;
                 case 136:
-
                     updateLobby();
                     break;
-
                 case 140: // Display next question
                     displayNextQuestion();
                     break;
@@ -284,6 +282,9 @@ public class BaseClientBackEnd implements Runnable {
                     break;
                 case 436:
                     LOG.debug("Server failed to send us next question");
+                    break;
+                case 440:
+                    LOG.debug("Server failed to send full trivia set");
                     break;
             }
         } else {
@@ -565,6 +566,27 @@ public class BaseClientBackEnd implements Runnable {
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+
+    }
+
+    private void fetchFullTriviaSet() throws IOException {
+        LOG.debug("Sending full trivia set request.");
+        dataOutputStream.writeInt(213);
+        dataOutputStream.writeUTF(hash);
+
+        // Read the response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 214) {
+
+            String triviaSetAsJson = dataInputStream.readUTF();
+
+            frontEnd.addCommandToFrontEnd(new Command(214, new String[]{triviaSetAsJson}, 0));
+
         } else if (responseCode >= 400 && responseCode < 500) {
             handleError(responseCode);
         } else {
