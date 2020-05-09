@@ -2,6 +2,7 @@ package triviaset;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import question.*;
 
 import java.util.ArrayList;
@@ -27,8 +28,8 @@ public class TriviaTest {
         questions2.add(audioQuestion);
         questions2.add(videoQuestion);
 
-        TriviaSet triviaSet1 = new TriviaSet("Ülo Remmelgas", questions1);
-        TriviaSet triviaSet2 = new TriviaSet("Alo Ritsing", questions2);
+        TriviaSet triviaSet1 = new TriviaSet(-1, "Ülo Remmelgas", questions1);
+        TriviaSet triviaSet2 = new TriviaSet(-1, "Alo Ritsing", questions2);
         List<TriviaSet> triviaSets = new ArrayList<>();
         triviaSets.add(triviaSet1);
         triviaSets.add(triviaSet2);
@@ -36,8 +37,11 @@ public class TriviaTest {
         Gson gsonSend = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetSerializerFull()).create();
         System.out.println("Triviaset" + gsonSend.toJson(triviaSet1));
         Gson gsonReceive = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetDeserializerFull()).create();
-        TriviaSet receivedSet = gsonReceive.fromJson(gsonSend.toJson(triviaSet1), TriviaSet.class);
+        String json = gsonSend.toJson(triviaSet2);
+        System.out.println(json);
+        TriviaSet receivedSet = gsonReceive.fromJson(json, TriviaSet.class);
         System.out.println(receivedSet.getQuestionMap().toString());
+        receivedSet.getQuestionMap().forEach(((integer, question) -> System.out.println(question.getQuestion())));
 
     }
 

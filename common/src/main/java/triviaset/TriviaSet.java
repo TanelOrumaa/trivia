@@ -7,20 +7,22 @@ import java.util.List;
 
 public class TriviaSet {
 
+    private int id;
     private String name;
     private int numberOfQuestions;
     private LinkedHashMap<Integer, Question> questionMap;
 
-    public TriviaSet(String name, int numberOfQuestions) {
+    public TriviaSet(int id, String name, int numberOfQuestions) {
         //Constructor for creating a TriviaSet just for display.
-
+        this.id = id;
         this.name = name;
         this.numberOfQuestions = numberOfQuestions;
 
     }
 
-    public TriviaSet(String name, List<Question> questions) {
+    public TriviaSet(int id, String name, List<Question> questions) {
 
+        this.id = id;
         this.name = name;
         this.numberOfQuestions = questions.size();
         this.questionMap = new LinkedHashMap<>();
@@ -32,7 +34,7 @@ public class TriviaSet {
 
     }
 
-    void reorderQuestion(int oldIndex, int newIndex) {
+    public void reorderQuestion(int oldIndex, int newIndex) {
         //Method for rearranging a question and shifting the other questions correctly
 
         if (oldIndex >= numberOfQuestions || oldIndex < 0) {
@@ -77,38 +79,38 @@ public class TriviaSet {
 
     }
 
-    void changeQuestionTime(int questionIndex, int newTime) {
+    public void changeQuestionTime(int questionIndex, int newTime) {
 
         questionMap.get(questionIndex).setTime(newTime);
 
     }
 
-    void changeQuestionPoints(int questionIndex, int newPotentialPoints) {
+    public void changeQuestionPoints(int questionIndex, int newPotentialPoints) {
 
         questionMap.get(questionIndex).setPotentialPoints(newPotentialPoints);
 
     }
 
-    void changeQuestionText(int questionIndex, String newquestionText) {
+    public void changeQuestionText(int questionIndex, String newquestionText) {
 
         questionMap.get(questionIndex).setQuestion(newquestionText);
 
     }
 
-    void addQuestion(Question question) {
+    public void addQuestion(Question question) {
 
         questionMap.put(numberOfQuestions, question);
         numberOfQuestions++;
 
     }
 
-    boolean hasNextQuestion(int previousQuestionIndex) {
+    public boolean hasNextQuestion(int previousQuestionIndex) {
 
         return previousQuestionIndex < numberOfQuestions - 1;
 
     }
 
-    Question getNextQuestion(int previousQuestionIndex) {
+    public Question getNextQuestion(int previousQuestionIndex) {
 
         if (hasNextQuestion(previousQuestionIndex)) {
 
@@ -118,6 +120,10 @@ public class TriviaSet {
 
         return null;
 
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {

@@ -7,16 +7,19 @@ import command.LobbyUpdateBase;
 import command.NewUserConnectedUpdate;
 import configuration.Configuration;
 import database.DatabaseConnection;
+import database.QuestionsDatabaseLayer;
+import database.TriviaSetsDatabaseLayer;
 import database.UsersDatabaseLayer;
-import exception.IncorrectLoginInformationException;
-import exception.LobbyDoesNotExistException;
-import exception.UserAlreadyExistsError;
-import exception.UserRegistrationError;
+import exception.*;
 import lobby.Lobby;
 import lobby.LobbySerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import question.*;
+import triviaset.TriviaSet;
+import triviaset.TriviaSetDeserializerFull;
+import triviaset.TriviaSetSerializerFull;
+import triviaset.TriviaSetsSerializerBasic;
 import user.User;
 import user.UserSerializer;
 
@@ -25,6 +28,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class ClientConnectionBase implements Runnable {
@@ -179,8 +183,14 @@ public class ClientConnectionBase implements Runnable {
                 case 203: // User answered question
                     // Check answer.
                     break;
-                case 211: // Fetching triviasets for user
+                case 211: // Fetching list of triviasets for user
                     sendTriviasets();
+                    break;
+                case 213: // Fetching requested triviaset for user
+                    sendFullTriviaSet();
+                    break;
+                case 215: // Registering a new triviaset
+                    registerTriviaSet();
                     break;
                 default:
                     // For testing different messages.
@@ -370,6 +380,48 @@ public class ClientConnectionBase implements Runnable {
         }
     }
 
+    private void registerTriviaSet() throws IOException {
+        LOG.debug(clientId + " wants to register new triviaset");
+
+        String triviaSetAsJson = dataInputStream.readUTF();
+        LOG.debug("Trivia sets as Json received: " + triviaSetAsJson);
+        Gson gsonReceive = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetDeserializerFull()).create();
+        LOG.debug("gsonReceive done");
+        TriviaSet triviaSet = gsonReceive.fromJson(triviaSetAsJson, TriviaSet.class);
+        LOG.debug("triviaset done");
+
+        try {
+
+            int triviaSetId = TriviaSetsDatabaseLayer.registerTriviaSet(databaseConnection, triviaSet, user.getId());
+            LOG.debug("Triviaset ID " + triviaSetId + " successfully registered");
+            LinkedHashMap<Integer, Question> questionList = triviaSet.getQuestionMap();
+            questionList.forEach(((integer, question) -> QuestionsDatabaseLayer.registerQuestion(databaseConnection, question, triviaSetId)));
+            LOG.debug("Questions successfully registered.");
+            dataOutputStream.writeInt(126);
+            dataOutputStream.writeUTF(this.hash);
+
+        } catch (AnswerRegistrationError e) {
+
+            LOG.warn(clientId + "Failed to register answer");
+            dataOutputStream.writeInt(446); // Answer registration failed
+            dataOutputStream.writeUTF(this.hash);
+
+        } catch (QuestionRegistrationError e) {
+
+            LOG.warn(clientId + "Failed to register question");
+            dataOutputStream.writeInt(444); // Question registration failed
+            dataOutputStream.writeUTF(this.hash);
+
+        } catch (TriviaSetRegistrationError e) {
+
+            LOG.warn(clientId + "Failed to register triviaset");
+            dataOutputStream.writeInt(442); // Triviaset registration failed
+            dataOutputStream.writeUTF(this.hash);
+
+        }
+
+    }
+
     private void sendQuestion() throws IOException {
         LOG.debug(clientId + " requests next question");
         long previousQuestionId = dataInputStream.readLong();
@@ -399,11 +451,50 @@ public class ClientConnectionBase implements Runnable {
     private void sendTriviasets() throws IOException {
         LOG.debug(clientId + "requests trivia sets.");
 
-        // For testing
-        dataOutputStream.writeInt(212);
-        dataOutputStream.writeUTF(hash);
-        dataOutputStream.writeUTF("12;13;14");
+        try {
+            List<TriviaSet> usersTriviaSets = TriviaSetsDatabaseLayer.readUsersTriviaSets(databaseConnection, user.getId());
+            LOG.debug("User's trivia sets successfully read from database");
+            Gson gson = new GsonBuilder().registerTypeAdapter(List.class, new TriviaSetsSerializerBasic()).create();
+            LOG.debug("Gson element done");
+            String serializedTriviaSetList = gson.toJson(usersTriviaSets);
+            LOG.debug("Trivia sets serialized: " + serializedTriviaSetList);
 
+            dataOutputStream.writeInt(212);
+            dataOutputStream.writeUTF(this.hash);
+            dataOutputStream.writeUTF(serializedTriviaSetList);
+
+        } catch (TriviaSetsFetchingError e){
+            LOG.warn(clientId + "Failed to send trivia sets to user");
+            dataOutputStream.writeInt(438);
+            dataOutputStream.writeUTF(this.hash);
+        }
+
+
+    }
+
+    private void sendFullTriviaSet() throws IOException {
+        LOG.debug(clientId + "requests full trivia set.");
+
+        int triviaSetId = dataInputStream.readInt();
+        String triviaSetName = dataInputStream.readUTF();
+
+        try {
+            TriviaSet triviaSet = TriviaSetsDatabaseLayer.readFullTriviaSet(databaseConnection, triviaSetId, triviaSetName);
+            LOG.debug("Successfully fetched trivia set from database");
+
+            Gson gson = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetSerializerFull()).create();
+            String serializedTriviaSet = gson.toJson(triviaSet);
+            LOG.debug("Serialized trivia set");
+
+            dataOutputStream.writeInt(214);
+            dataOutputStream.writeUTF(this.hash);
+            dataOutputStream.writeUTF(serializedTriviaSet);
+
+        } catch (QuestionsFetchingError e){
+            LOG.debug("Failed to fetch questions for the requested trivia set");
+            dataOutputStream.writeInt(440);
+            dataOutputStream.writeUTF(this.hash);
+        }
     }
 
     private void sync() throws IOException {

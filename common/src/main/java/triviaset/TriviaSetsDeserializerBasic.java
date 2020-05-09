@@ -17,7 +17,7 @@ public class TriviaSetsDeserializerBasic implements JsonDeserializer<List<Trivia
         for (JsonElement element : triviaSetListArray) {
 
             JsonObject triviaSetObject = element.getAsJsonObject();
-            triviaSetList.add(new TriviaSet(triviaSetObject.get("name").getAsString(),
+            triviaSetList.add(new TriviaSet(triviaSetObject.get("id").getAsInt(), triviaSetObject.get("name").getAsString(),
                     triviaSetObject.get("numberOfQuestions").getAsInt()));
 
         }

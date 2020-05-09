@@ -13,13 +13,21 @@ import org.slf4j.LoggerFactory;
 import question.Question;
 import question.QuestionDeserializer;
 import question.QuestionQueue;
+import triviaset.TriviaSet;
+import triviaset.TriviaSetDeserializerFull;
+import triviaset.TriviaSetSerializerFull;
+import triviaset.TriviaSetsDeserializerBasic;
 import user.User;
 import user.UserDeserializer;
+import user.UserSerializer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
+
+import static baseclient.BaseClient.triviasets;
 
 public class BaseClientBackEnd implements Runnable {
 
@@ -162,20 +170,28 @@ public class BaseClientBackEnd implements Runnable {
             case 139: // Start game.
                 startGame();
                 break;
-            case 201: // Request a question from backend
+            case 201: // Request a question from server.
                 if (command.args != null && command.args.length == 1) {
                     requestQuestion(Long.parseLong(command.args[0]));
                 }
                 break;
-            case 203: // Send question answer to backend.
+            case 203: // Send question answer to server.
                 if (command.args != null && command.args.length == 2) {
                 }
                 break;
-            case 211: // Request triviaset list from backend.
+            case 211: // Request triviaset list from server.
                 if (command.args != null && command.args.length == 0) {
                     fetchTriviasets();
                 }
                 break;
+            case 215: // Register new triviaset
+                if (command.args != null && command.args.length == 1) {
+                    sendTriviaSet(command.args[0]);
+                    System.out.println("BaseClientBackEnd " + command.args[0]);
+                }
+                break;
+
+
             default:
                 // For testing.
                 LOG.debug("Unknown command " + command + ". Sending to server.");
@@ -210,11 +226,12 @@ public class BaseClientBackEnd implements Runnable {
         String receivedHash = dataInputStream.readUTF();
         if (hash.equals(receivedHash)) {
             switch (commandCode) {
+                case 126:
+                    frontEnd.addCommandToFrontEnd(new Command(126, new String[0]));
+                    break;
                 case 136:
-
                     updateLobby();
                     break;
-
                 case 140: // Display next question
                     displayNextQuestion();
                     break;
@@ -265,6 +282,9 @@ public class BaseClientBackEnd implements Runnable {
                     break;
                 case 436:
                     LOG.debug("Server failed to send us next question");
+                    break;
+                case 440:
+                    LOG.debug("Server failed to send full trivia set");
                     break;
             }
         } else {
@@ -530,13 +550,67 @@ public class BaseClientBackEnd implements Runnable {
             String responseHash = dataInputStream.readUTF();
             if (hash.equals(responseHash)) {
                 // Read the Triviasets list
-                String triviasetsAsJson = dataInputStream.readUTF();
+                String triviasetListAsJson = dataInputStream.readUTF();
 
-                // For testing, until serializers work.
-                String[] triviasets = triviasetsAsJson.split(";");
+                Gson gson = new GsonBuilder().registerTypeAdapter(List.class, new TriviaSetsDeserializerBasic()).create();
+                List<TriviaSet> triviaSetList = gson.fromJson(triviasetListAsJson, List.class);
 
-                // Update triviasets.
-                frontEnd.addCommandToFrontEnd(new Command(212, triviasets));
+                // Update triviasets - send command with trivia sets as command arguments
+                String[] args = new String[triviaSetList.size()];
+                for (int i = 0; i < triviaSetList.size(); i++) {
+                    System.out.println(triviaSetList.get(i).getClass());
+                    args[i] = triviaSetList.get(i).getName();
+                }
+                frontEnd.addCommandToFrontEnd(new Command(212, args));
+
+            } else {
+                throw new MixedServerMessageException(hash, responseHash);
+            }
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+
+    }
+
+    private void fetchFullTriviaSet() throws IOException {
+        LOG.debug("Sending full trivia set request.");
+        dataOutputStream.writeInt(213);
+        dataOutputStream.writeUTF(hash);
+
+        // Read the response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 214) {
+
+            String triviaSetAsJson = dataInputStream.readUTF();
+
+            frontEnd.addCommandToFrontEnd(new Command(214, new String[]{triviaSetAsJson}, 0));
+
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+
+    }
+
+    private void sendTriviaSet(String serializedTriviaSet) throws IOException {
+        // Send register triviaset message
+        LOG.debug("Sending register trivia set message");
+        dataOutputStream.writeInt(215);
+        dataOutputStream.writeUTF(hash);
+
+        dataOutputStream.writeUTF(serializedTriviaSet);
+
+        //Receive response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 126){
+            LOG.debug("Server responded positively - trivia set registration was successful");
+            String responseHash = dataInputStream.readUTF();
+            if (hash.equals(responseHash)) {
+                // display trivia set registration successful screen
+                frontEnd.addCommandToFrontEnd(new Command(124, new String[0], 0));
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }

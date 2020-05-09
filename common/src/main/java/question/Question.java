@@ -36,6 +36,8 @@ public interface Question {
 
     void setAnswerType(AnswerType answerType);
 
+    void addAnswer(Answer answer);
+
     void setScoreDegradation(boolean scoreDegradation);
 
     void setQuestion(String question);

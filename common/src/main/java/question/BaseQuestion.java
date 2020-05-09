@@ -1,5 +1,6 @@
 package question;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BaseQuestion {
@@ -19,6 +20,7 @@ public class BaseQuestion {
         //Constructor for initializing a question in the application.
 
         this.questionType = questionType;
+        this.answerList = new ArrayList<>();
 
     }
 

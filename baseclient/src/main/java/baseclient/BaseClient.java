@@ -1,5 +1,7 @@
 package baseclient;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import command.Command;
 import command.CommandQueue;
 import configuration.Configuration;
@@ -11,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import popup.ErrorMessage;
 import question.QuestionQueue;
+import triviaset.TriviaSet;
+import triviaset.TriviaSetDeserializerFull;
 import view.*;
 
 import java.io.IOException;
@@ -106,10 +110,18 @@ public class BaseClient extends Application {
                 break;
             case 124:
                 Platform.runLater(() -> {
-                    LOG.debug("Switching scene to RegistrationSuccessfulScreen");
-                    guiStage.setScene(RegistrationSuccessfulScreen.change(this));
+                    LOG.debug("Switching scene to RegistrationSuccessfulScreen (user)");
+                    guiStage.setScene(new RegistrationSuccessfulScreen(this, "user"));
                 });
+                break;
+            case 126:
+                Platform.runLater(() -> {
+                    LOG.debug("Switching scene to RegistrationSuccessfulScreen (trivia set)");
+                    guiStage.setScene(new RegistrationSuccessfulScreen(this, "trivia set"));
+                });
+                break;
             case 132:
+                break;
             case 134:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");
@@ -142,6 +154,14 @@ public class BaseClient extends Application {
                     LOG.debug("Updating triviasets list.");
                     triviasets = command.args;
                     UserTriviasetPage.updateTriviasetsList(this.triviasets);
+                });
+                break;
+            case 214:
+                Platform.runLater(() -> {
+                    LOG.debug("Received full trivia set from backend.");
+                    Gson gson = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetDeserializerFull()).create();
+                    TriviaSet triviaSet = gson.fromJson(command.args[0], TriviaSet.class);
+                    //TODO: use the trivia set in the GUI!
                 });
                 break;
             case 422:

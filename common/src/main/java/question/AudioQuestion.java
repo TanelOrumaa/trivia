@@ -27,6 +27,12 @@ public class AudioQuestion extends BaseQuestion implements Question {
 
     }
 
+    public void setMediaPath(String audioPath){
+
+        this.audioAddress = audioPath;
+
+    }
+
     @Override
     public boolean validateQuestion() {
 

@@ -27,6 +27,10 @@ public class VideoQuestion extends BaseQuestion implements Question {
 
     }
 
+    public void setMediaPath(String videoAddress){
+        this.videoAddress = videoAddress;
+    }
+
     @Override
     public boolean validateQuestion() {
 
