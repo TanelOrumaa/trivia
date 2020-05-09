@@ -172,7 +172,7 @@ public class DatabaseConnection {
 
         if(this.isActive()) {
 
-            return databaseConnection.prepareStatement("SELECT max(id) FROM questions");
+            return databaseConnection.prepareStatement("SELECT max(id) as id FROM questions");
 
         }else throw new DatabaseConnectionInactiveError();
 
@@ -183,7 +183,7 @@ public class DatabaseConnection {
 
         if(this.isActive()) {
 
-            return databaseConnection.prepareStatement("SELECT max(id) FROM triviasets");
+            return databaseConnection.prepareStatement("SELECT max(id) as id FROM triviasets");
 
         }else throw new DatabaseConnectionInactiveError();
 

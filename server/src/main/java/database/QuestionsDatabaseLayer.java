@@ -32,7 +32,7 @@ public class QuestionsDatabaseLayer {
             }
 
         } catch (SQLException e){
-            throw new RuntimeException("SQL query for getting questionId failed!");
+            throw new RuntimeException("SQL query for getting questionId failed!", e);
         }
 
         for (Answer answer : question.getAnswerList()) {
