@@ -187,6 +187,7 @@ public class ClientConnectionBase implements Runnable {
                     sendTriviasets();
                     break;
                 case 213: // Fetching requested triviaset for user
+                    sendFullTriviaSet();
                     break;
                 case 215: // Registering a new triviaset
                     registerTriviaSet();
@@ -469,6 +470,31 @@ public class ClientConnectionBase implements Runnable {
         }
 
 
+    }
+
+    private void sendFullTriviaSet() throws IOException {
+        LOG.debug(clientId + "requests full trivia set.");
+
+        int triviaSetId = dataInputStream.readInt();
+        String triviaSetName = dataInputStream.readUTF();
+
+        try {
+            TriviaSet triviaSet = TriviaSetsDatabaseLayer.readFullTriviaSet(databaseConnection, triviaSetId, triviaSetName);
+            LOG.debug("Successfully fetched trivia set from database");
+
+            Gson gson = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetSerializerFull()).create();
+            String serializedTriviaSet = gson.toJson(triviaSet);
+            LOG.debug("Serialized trivia set");
+
+            dataOutputStream.writeInt(214);
+            dataOutputStream.writeUTF(this.hash);
+            dataOutputStream.writeUTF(serializedTriviaSet);
+
+        } catch (QuestionsFetchingError e){
+            LOG.debug("Failed to fetch questions for the requested trivia set");
+            dataOutputStream.writeInt(440);
+            dataOutputStream.writeUTF(this.hash);
+        }
     }
 
     private void sync() throws IOException {

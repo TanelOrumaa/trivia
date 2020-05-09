@@ -91,7 +91,7 @@
 #####212: Server -> Client "Send a list of user's triviasets"
 - Example: 212 hash TriviasetsList_as_json
 
-#####213: Client -> Server "Request triviaset"
+#####213: Client -> Server "Request full trivia set"
 - Example: 213 hash
 
 #####214: Server -> Client "Send user's requested triviaset"
@@ -108,9 +108,9 @@
 
 #####422 - Server -> Client "Invalid login data"
 
-#####424 - Server -> Client "Registration failed - username already exists"
+#####424 - Server -> Client "User registration failed - username already exists"
 
-#####426 - Server -> Client "Registration failed - try again"
+#####426 - Server -> Client "User registration failed - try again"
  
 #####432 - Server -> Client "Lobby does not exist"
 
@@ -119,6 +119,8 @@
 #####436 - Server -> Client "Failed to send next question"
 
 #####438 - Server -> Client "Failed to send requested trivia sets"
+
+#####440 - Server -> Client "Failed to send the requested trivia set"
 
 #####442 - Server -> Client "Failed to register new trivia set"
 
