@@ -174,6 +174,7 @@ public class BaseClientBackEnd implements Runnable {
                 break;
             case 203: // Send question answer to server.
                 if (command.args != null && command.args.length == 2) {
+                    sendAnswer(Integer.parseInt(command.args[0]), command.args[1]);
                 }
                 break;
             case 211: // Request triviaset list from server.
@@ -545,6 +546,32 @@ public class BaseClientBackEnd implements Runnable {
                 throw new MixedServerMessageException(hash, responseHash);
             }
 
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+    }
+
+    private void sendAnswer(int questionId, String answer) throws IOException {
+        // If answer type is choice, then String answer is answe id as String,
+        // and if answer type is freeform, then String answer is user's entered answer
+        LOG.debug("Sending client's answer to server");
+        dataOutputStream.writeInt(203);
+        dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeInt(questionId);
+        dataOutputStream.writeUTF(answer);
+
+        // Read the response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 204){
+            LOG.debug("Server received the answer successfully");
+            String responseHash = dataInputStream.readUTF();
+            if (hash.equals(responseHash)){
+                // Display waiting screen in frontEnd
+                frontEnd.addCommandToFrontEnd(new Command(204, new String[0]));
+
+            }
         } else if (responseCode >= 400 && responseCode < 500) {
             handleError(responseCode);
         } else {

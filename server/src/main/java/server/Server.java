@@ -145,6 +145,17 @@ public class Server {
         }
     }
 
+    public static Lobby addUsersAnserToLobby(User user, Lobby lobby, int questionId, String answer){
+        synchronized (monitor) {
+            if (lobby != null) {
+                lobby.addUserAnswerToLobby(user, questionId, answer);
+                return lobby;
+            } else {
+                throw new LobbyDoesNotExistException(lobby.getCode());
+            }
+        }
+    }
+
     public static Lobby addPresenterToLobby(int lobbyCode) {
         synchronized (monitor) {
             Lobby lobby = getLobbyByCode(lobbyCode);
