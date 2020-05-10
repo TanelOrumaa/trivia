@@ -122,11 +122,11 @@ public class Server {
         }
     }
 
-    public static boolean isLobbyAvailable(int lobbyCode) {
+    public static boolean isLobbyAvailable(int lobbyCode, boolean isPresenter) {
         synchronized (monitor) {
             Lobby lobby = getLobbyByCode(lobbyCode);
             if (lobby != null) {
-                return lobby.canAddUserToLobby();
+                return lobby.canAddUserToLobby() || isPresenter;
             } else {
                 throw new LobbyDoesNotExistException(lobbyCode);
             }
@@ -138,6 +138,28 @@ public class Server {
             Lobby lobby = getLobbyByCode(lobbyCode);
             if (lobby != null) {
                 lobby.addUserToLobby(user);
+                return lobby;
+            } else {
+                throw new LobbyDoesNotExistException(lobbyCode);
+            }
+        }
+    }
+
+    public static boolean addUsersAnswerToLobby(User user, Lobby lobby, long questionId, String answer){
+        synchronized (monitor) {
+            if (lobby != null) {
+                lobby.addUserAnswerToLobby(user, questionId, answer);
+                return lobby.getConnectedUsers().size() - 1 == lobby.getAnswersForQuestion(questionId);
+            } else {
+                throw new LobbyDoesNotExistException(lobby.getCode());
+            }
+        }
+    }
+
+    public static Lobby addPresenterToLobby(int lobbyCode) {
+        synchronized (monitor) {
+            Lobby lobby = getLobbyByCode(lobbyCode);
+            if (lobby != null) {
                 return lobby;
             } else {
                 throw new LobbyDoesNotExistException(lobbyCode);

@@ -68,6 +68,30 @@
 #####141: Client -> Server "Displaying next question"
 - Example: 141 hash
 
+#####142: Server -> Client "Everyone has answered"
+- Example: 142 hash nextQuestionId
+
+#####143: Client -> Server "Acknowledged"
+- Example: 143 hash
+
+#####145: Client -> Server "Display next question for everyone"
+- Example: 145 hash nextQuestionId
+
+#####146: Server -> Client "Sent next question command to everyone in lobby"
+- Example: 146 hash
+
+#####191: Client -> Server "Leaving lobby"
+- Example: 191 hash lobbyCode
+
+#####192: Server -> Client "User removed from lobby"
+- Example: 192 hash
+
+#####194: Server -> Client "Lobby was closed"
+- Example: 194 hash lobbyCode
+
+#####195: Client -> Server "Left the lobby in GUI"
+- Example: 195 hash
+
 #####199: Client -> Server "Quitting, please close socket."
 - Example: 199 hash 
 
@@ -127,3 +151,5 @@
 #####444 - Server -> Client "Failed to register new question"
 
 #####446 - Server -> Client "Failed to register new answer"
+
+#####448 - Server -> Client "Failed to store user's answer"

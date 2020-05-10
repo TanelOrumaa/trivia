@@ -16,6 +16,7 @@ public class TriviaSetSerializerFull implements JsonSerializer<TriviaSet> {
 
         triviaSetObject.addProperty("id", triviaSet.getId());
         triviaSetObject.addProperty("name", triviaSet.getName());
+        triviaSetObject.addProperty("ownerId", triviaSet.getOwnerId());
 
         JsonArray questionListArray = new JsonArray();
         LinkedHashMap<Integer, Question> questionMap = triviaSet.getQuestionMap();

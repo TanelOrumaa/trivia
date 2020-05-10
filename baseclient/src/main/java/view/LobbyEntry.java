@@ -1,14 +1,15 @@
 package view;
 
 import baseclient.BaseClient;
+import baseclient.ClientType;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import style.Styles;
 
 import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
@@ -17,41 +18,44 @@ public class LobbyEntry extends Scene {
     public LobbyEntry(BaseClient baseClient) {
         super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
 
-        //It is a scene, where player has to enter code to join a lobby.
-        BorderPane lobbyEntryRoot = new BorderPane();
-        VBox lobbyEntry = new VBox(20);
-        lobbyEntry.setStyle("-fx-background-color: ROYALBLUE;");
+        double width = baseClient.getWidth();
+        double height = baseClient.getHeight();
 
-        final Label lobbyEntryError = new Label("");
+        Styles style = new Styles(width, height);
 
-        final TextField lobbyEntryCodeInput = new TextField("Enter the code");
-        HBox lobbyEntryCode = new HBox(lobbyEntryCodeInput);
+        BorderPane lobbyEntryRoot = style.getStandardBorderPane();
+        HBox lobbyEntryPanel = style.getStandardHBox();
+        VBox lobbyEntry = style.getStandardVBox();
 
-
-        Button lobbyEntryButton = new Button("Enter lobby");
+        TextField lobbyEntryCodeInput = style.getRegularTextField("Enter lobby code", 8d/10, 2d/15);
+        Button lobbyEntryButton = style.getRegularButton("Join", 8d/10, 1d/10);
         //Event handler: entering code to join a lobby. Check if the lobby with this code exists.
         lobbyEntryButton.setOnAction(actionEvent -> {
             addCommandToBackEnd(131, new String[]{lobbyEntryCodeInput.getText()}, 0);
         });
 
+        lobbyEntryCodeInput.setAlignment(Pos.CENTER);
 
-        HBox lobbyEntryButtons = new HBox(lobbyEntryButton);
+        if (baseClient.getType() == ClientType.PLAYER) {
+            Button backButton = style.getNeutralButton("Back", 8d / 10, 1d / 10);
+            backButton.setOnMouseReleased(mouseEvent -> {
+                baseClient.setGuiStage(new UserMainPage(baseClient));
+            });
+            lobbyEntry.getChildren().addAll(lobbyEntryCodeInput, lobbyEntryButton, backButton);
+        } else {
+            lobbyEntry.getChildren().addAll(lobbyEntryCodeInput, lobbyEntryButton);
+        }
 
-        Button backButton = new Button("Back");
-        backButton.setOnMouseReleased(mouseEvent -> {
-            baseClient.setGuiStage(new UserMainPage(baseClient));
-        });
+        lobbyEntryPanel.setAlignment(Pos.CENTER);
+        lobbyEntryPanel.getChildren().addAll(lobbyEntry);
 
-        HBox backButtons = new HBox(backButton);
+        if (baseClient.getType() == ClientType.PLAYER) {
+            // Header
+            HBox header = style.getHeader(baseClient);
+            lobbyEntryRoot.setTop(header);
+        }
 
-        lobbyEntryButtons.setAlignment(Pos.CENTER);
-        lobbyEntryCode.setAlignment(Pos.CENTER);
-        lobbyEntry.setAlignment(Pos.CENTER);
-        backButtons.setAlignment(Pos.CENTER);
-
-        lobbyEntry.getChildren().addAll(lobbyEntryError, lobbyEntryCode, lobbyEntryButtons, backButtons);
-
-        lobbyEntryRoot.setCenter(lobbyEntry);
+        lobbyEntryRoot.setCenter(lobbyEntryPanel);
 
         super.setRoot(lobbyEntryRoot);
     }

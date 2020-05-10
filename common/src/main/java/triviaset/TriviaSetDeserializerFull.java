@@ -16,8 +16,9 @@ public class TriviaSetDeserializerFull implements JsonDeserializer<TriviaSet> {
         JsonObject triviaSetObject = jsonElement.getAsJsonObject();
         JsonArray questionListArray = triviaSetObject.get("questionList").getAsJsonArray();
 
-        int id = triviaSetObject.get("id").getAsInt();
+        long id = triviaSetObject.get("id").getAsLong();
         String name = triviaSetObject.get("name").getAsString();
+        long ownerId = triviaSetObject.get("ownerId").getAsLong();
 
         List<Question> questionList = new ArrayList<>();
         Gson gson = new GsonBuilder().registerTypeAdapter(Question.class, new QuestionDeserializer()).create();
@@ -28,7 +29,7 @@ public class TriviaSetDeserializerFull implements JsonDeserializer<TriviaSet> {
 
         }
 
-        return new TriviaSet(id, name, questionList);
+        return new TriviaSet(id, name, questionList, ownerId);
 
     }
 

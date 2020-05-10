@@ -1,15 +1,14 @@
 package lobby;
 
 import command.LobbyUpdateBase;
+import configuration.GameSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import configuration.GameSettings;
 import user.User;
-//import server.Server;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
+
+//import server.Server;
 
 // TODO: Add Triviaset reference and modify serializer/deserializer.
 public class Lobby {
@@ -19,14 +18,17 @@ public class Lobby {
     // Monitor
     private final Object monitor = new Object();
 
+    private Long triviaSetId;
     private String name;
     private int code;
     private List<User> connectedUsers;
     private User lobbyOwner;
     private TreeMap<Integer, LobbyUpdateBase> lobbyUpdates;
+    private Map<Long, Map<User, String>> answersToQuestions = new HashMap<>();
 
     // Constructor for creating a lobby from existing data (client side).
-    public Lobby(String name, int code, List<User> connectedUsers, User lobbyOwner) {
+    public Lobby(long triviaSetId, String name, int code, List<User> connectedUsers, User lobbyOwner) {
+        this.triviaSetId = triviaSetId;
         this.name = name;
         this.code = code;
         this.connectedUsers = connectedUsers;
@@ -35,13 +37,9 @@ public class Lobby {
     }
 
     // Constructor for creating a new lobby with a name.
-    public Lobby(int triviasetId, User user, int code) {
-        this.name = "Triviaset name"; // TODO:
-        this.connectedUsers = new ArrayList<>();
-        this.connectedUsers.add(user);
-        this.lobbyOwner = user;
-        this.code = code;
-        this.lobbyUpdates = new TreeMap<Integer, LobbyUpdateBase>();
+    public Lobby(long triviasetId, User user, int code) {
+        this(triviasetId, "", code, new ArrayList<>(), user);
+        connectedUsers.add(user);
     }
 
     /**
@@ -61,6 +59,10 @@ public class Lobby {
             lobbyUpdates.put(nextId, lobbyUpdate);
             LOG.debug("New update for lobby " + code + " added with ID " + nextId);
         }
+    }
+
+    public int getAnswersForQuestion(long questionId) {
+        return answersToQuestions.get(questionId).size();
     }
 
     /**
@@ -108,7 +110,7 @@ public class Lobby {
         return GameSettings.MAX_PLAYERS_IN_LOBBY - this.connectedUsers.size() >= 1;
     }
 
-    public int getLobbyOwnerId() {
+    public long getLobbyOwnerId() {
         return lobbyOwner.getId();
     }
 
@@ -116,7 +118,24 @@ public class Lobby {
         connectedUsers.add(user);
     }
 
+    public void addUserAnswerToLobby(User user, long questionId, String answer){
+        synchronized (monitor){
+            Map<User, String> usersAnswer = new HashMap<>();
+            usersAnswer.put(user, answer);
+            answersToQuestions.put(questionId, usersAnswer);
+            LOG.debug("Added user's answer to memory: questionId = " + questionId + ", answer = " + answer);
+        }
+    }
+
     public void removeUserFromLobby(User user) {
         connectedUsers.remove(user);
+    }
+
+    public Long getTriviaSetId() {
+        return triviaSetId;
+    }
+
+    public void setTriviaSetId(Long triviaSetId) {
+        this.triviaSetId = triviaSetId;
     }
 }

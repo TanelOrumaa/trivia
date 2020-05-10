@@ -66,6 +66,15 @@ public class BaseQuestion {
 
     }
 
+    public Answer getAnswerWithId(long answerId) {
+        for (Answer answer : answerList) {
+            if (answer.answerID == answerId) {
+                return answer;
+            }
+        }
+        return null;
+    }
+
     public void addAnswer(Answer answer) {
         //Todo: Check whether answer can be added or not.
 

@@ -10,6 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import triviaset.TriviaSet;
 
 
 public class TriviaSetMenu extends Scene {
@@ -41,7 +42,7 @@ public class TriviaSetMenu extends Scene {
         Button newTriviaSetButton = new Button("Create new trivia set");
         newTriviaSetButton.setOnMouseReleased(mouseEvent -> {
             // Display triviaset menu.
-            baseClient.setGuiStage(new TriviaSetTitleScreen(baseClient));
+            baseClient.setGuiStage(new AddTriviaSetFX(baseClient, new TriviaSet(-1L, "", 0, baseClient.getUserId())));
         });
 
         Button backButton = new Button("Back");

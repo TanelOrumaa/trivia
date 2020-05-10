@@ -2,11 +2,11 @@ package user;
 
 public class User {
 
-    private int id;
+    private long id;
     private String username;
     private String nickname;
 
-    public User(int id, String username, String nickname) {
+    public User(long id, String username, String nickname) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
@@ -18,7 +18,7 @@ public class User {
         this.nickname = nickname;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

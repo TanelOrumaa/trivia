@@ -16,6 +16,7 @@ public class LobbyDeserializer implements JsonDeserializer<Lobby> {
         // Read the lobby name and code
         String name = lobbyObject.get("name").getAsString();
         int code = lobbyObject.get("code").getAsInt();
+        Long triviaSetId = lobbyObject.get("triviaSetId").getAsLong();
 
         // Read the people in the lobby and who is the lobby owner.
         List<User> usersInLobby = new ArrayList<>();
@@ -25,9 +26,11 @@ public class LobbyDeserializer implements JsonDeserializer<Lobby> {
         for (int i = 0; i < users.size(); i++) {
             JsonObject user = users.get(i).getAsJsonObject();
             String nickname = user.get("nickname").getAsString();
+            String username = user.get("username").getAsString();
+            long userId = user.get("userId").getAsLong();
 
             // Create simplified User objects for displaying in clients.
-            User lobbyUser = new User(nickname);
+            User lobbyUser = new User(userId, username, nickname);
 
             // If this user is the lobby owner, mark it as so.
             boolean isLobbyOwner = user.get("isLobbyOwner").getAsBoolean();
@@ -39,7 +42,7 @@ public class LobbyDeserializer implements JsonDeserializer<Lobby> {
             usersInLobby.add(lobbyUser);
         }
 
-        return new Lobby(name, code, usersInLobby, lobbyOwner);
+        return new Lobby(triviaSetId, name, code, usersInLobby, lobbyOwner);
 
     }
 }

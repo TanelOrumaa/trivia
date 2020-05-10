@@ -2,7 +2,6 @@ package triviaset;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.internal.bind.util.ISO8601Utils;
 import question.*;
 
 import java.util.ArrayList;
@@ -13,9 +12,9 @@ public class TriviaTest {
     public static void main(String[] args) {
 
         List<Answer> answers = new ArrayList<>();
-        answers.add(new Answer("siin", true, 1));
-        answers.add(new Answer("seal", false, 2));
-        answers.add(new Answer("Lible", true, 3));
+        answers.add(new Answer(1L, "siin", true));
+        answers.add(new Answer(2L, "seal", false));
+        answers.add(new Answer(3L, "Lible", true));
 
         TextQuestion textQuestion = new TextQuestion(AnswerType.CHOICE, 1, true, "Kus sa oled?", answers, 69, 420);
         ImageQuestion imageQuestion = new ImageQuestion(AnswerType.FREEFORM, 1, true, "siin ma olen?", answers, 69, 420, "teerada");
@@ -28,8 +27,8 @@ public class TriviaTest {
         questions2.add(audioQuestion);
         questions2.add(videoQuestion);
 
-        TriviaSet triviaSet1 = new TriviaSet(-1, "Ülo Remmelgas", questions1);
-        TriviaSet triviaSet2 = new TriviaSet(-1, "Alo Ritsing", questions2);
+        TriviaSet triviaSet1 = new TriviaSet(-1L, "Ülo Remmelgas", questions1, 1L);
+        TriviaSet triviaSet2 = new TriviaSet(-1L, "Alo Ritsing", questions2, 1L);
         List<TriviaSet> triviaSets = new ArrayList<>();
         triviaSets.add(triviaSet1);
         triviaSets.add(triviaSet2);

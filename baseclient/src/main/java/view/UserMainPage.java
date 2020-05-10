@@ -1,79 +1,60 @@
 package view;
 
 import baseclient.BaseClient;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
+import javafx.scene.layout.*;
+import style.Styles;
 
 import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
 
 public class UserMainPage extends Scene {
 
-    private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
-
     public UserMainPage(BaseClient baseClient) {
         super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
+
         double width = baseClient.getWidth();
         double height = baseClient.getHeight();
 
-        //It is a scene, where player has to enter code to join a lobby.
-        BorderPane userMainPageRoot = new BorderPane();
-        VBox userMainPage = new VBox(20);
-        userMainPage.setStyle("-fx-background-color: ROYALBLUE;");
+        Styles style = new Styles(width, height);
 
+        BorderPane userMainPageRoot = style.getStandardBorderPane();
 
-        final Label usernameLabel = new Label(baseClient.getUsername());
-        usernameLabel.setFont(textFont);
+        HBox header = style.getHeader(baseClient);
 
-        HBox usernameLabelArea = new HBox(usernameLabel);
-        usernameLabelArea.setAlignment(Pos.TOP_RIGHT);
-        usernameLabelArea.setPadding(new Insets(width * 0.05, width * 0.05, width * 0.05, width * 0.05));
-
-        Button joinGameButton = new Button("Join a game");
+        Button joinGameButton = style.getRegularButton("Join a game", 8d/10, 1d/10);
         // User wants to join a game, display LobbyEntry scene.
         joinGameButton.setOnMouseReleased(actionEvent -> {
             baseClient.setGuiStage(new LobbyEntry(baseClient));
         });
 
 
-        Button hostGameButton = new Button("Host a game");
-        hostGameButton.setOnMouseReleased(mouseEvent -> {
+        Button triviasetsButton = style.getRegularButton("My trivia sets", 8d/10, 1d/10);
+        triviasetsButton.setOnMouseReleased(mouseEvent -> {
             // Fetch triviasets from server.
             addCommandToBackEnd(211, new String[0], 0);
             // Display the triviaset page.
             baseClient.setGuiStage(new UserTriviasetPage(baseClient));
         });
 
-        Button triviaSetsButton = new Button("Trivia sets");
-        triviaSetsButton.setOnMouseReleased(mouseEvent -> {
-            // Display triviaset menu.
-            baseClient.setGuiStage(new TriviaSetMenu(baseClient));
-        });
 
-        joinGameButton.setPadding(new Insets(width * 0.02));
-        hostGameButton.setPadding(new Insets(width * 0.02));
-        triviaSetsButton.setPadding(new Insets(width * 0.02));
+        Region topVerticalPadding = new Region();
+        topVerticalPadding.setMaxHeight(height * 0.08);
+        Region midVerticalPadding = new Region();
+        midVerticalPadding.setMaxHeight(height * 0.08);
+        Region bottomVerticalPadding = new Region();
+        VBox.setVgrow(topVerticalPadding, Priority.ALWAYS);
+        VBox.setVgrow(midVerticalPadding, Priority.ALWAYS);
+        VBox.setVgrow(bottomVerticalPadding, Priority.ALWAYS);
 
-        VBox.setMargin(hostGameButton, new Insets(width * 0.05));
-        VBox.setMargin(joinGameButton, new Insets(width * 0.05));
-        VBox.setMargin(triviaSetsButton, new Insets(width * 0.05));
+        VBox buttonsArea = new VBox();
+        buttonsArea.getChildren().addAll(topVerticalPadding, joinGameButton, midVerticalPadding, triviasetsButton, bottomVerticalPadding);
 
-        joinGameButton.setFont(textFont);
-        hostGameButton.setFont(textFont);
-        triviaSetsButton.setFont(textFont);
-
-        VBox buttonsArea = new VBox(joinGameButton, hostGameButton, triviaSetsButton);
         buttonsArea.setAlignment(Pos.CENTER);
 
-        userMainPage.getChildren().addAll(usernameLabelArea, buttonsArea);
-
-        userMainPageRoot.setCenter(userMainPage);
+        userMainPageRoot.setTop(header);
+        userMainPageRoot.setCenter(buttonsArea);
 
         super.setRoot(userMainPageRoot);
     }
