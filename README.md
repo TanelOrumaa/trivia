@@ -139,3 +139,5 @@
 #####444 - Server -> Client "Failed to register new question"
 
 #####446 - Server -> Client "Failed to register new answer"
+
+#####448 - Server -> Client "Failed to store user's answer"

@@ -192,7 +192,7 @@ public class ClientConnectionBase implements Runnable {
                     sendQuestion();
                     break;
                 case 203: // User answered question
-                    // Check answer.
+                    checkAnswer();
                     break;
                 case 211: // Fetching list of triviasets for user
                     sendTriviasets();
@@ -513,6 +513,25 @@ public class ClientConnectionBase implements Runnable {
             // TODO: FetchingQuestionFromDatabaseError or something
             LOG.warn(clientId + "Failed to send next question");
             dataOutputStream.writeInt(436);
+            dataOutputStream.writeUTF(this.hash);
+        }
+    }
+
+    private void checkAnswer() throws IOException {
+        LOG.debug(clientId + "sent user's answer to the question");
+
+        int questionId = dataInputStream.readInt();
+        String answer = dataInputStream.readUTF();
+
+        try {
+            // Store user's answer
+            Server.addUsersAnserToLobby(user, currentLobby, questionId, answer);
+            dataOutputStream.writeInt(204);
+            dataOutputStream.writeUTF(this.hash);
+
+        } catch (AnswerStoringError e){
+            LOG.warn(clientId + "Failed to store user's answer");
+            dataOutputStream.writeInt(448);
             dataOutputStream.writeUTF(this.hash);
         }
     }
