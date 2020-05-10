@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import view.LogInScreen;
 
 public class Styles {
@@ -178,6 +179,15 @@ public class Styles {
         return label;
     }
 
+    public Label getQuestionLabel(String questionText, double widthPercent, double heightPercent) {
+        Label label = getLabel(new String[] {questionText}, widthPercent, heightPercent, 0.4);
+        label.setWrapText(true);
+        label.setTextAlignment(TextAlignment.LEFT);
+        label.setStyle(titleLabel);
+        label.setMinHeight(height * heightPercent);
+        return label;
+    }
+
     public HBox getSlider(double min, double max, double currentValue, double increments, double widthPercent, double heightPercent) {
         HBox sliderArea = getStandardHBox();
         sliderArea.setPrefSize(width * widthPercent - 2 * horizontalPadding, height * heightPercent - 2 * verticalPadding);
@@ -233,6 +243,14 @@ public class Styles {
         return infoLabel;
     }
 
+    public TextField getAnswerTextField(String placeholder, double widthPercent, double heightPercent) {
+        TextField textField = getTextField(placeholder, widthPercent, heightPercent);
+        textField.setStyle(textfieldRegular);
+        textField.setFont(Font.font(BERLIN_FONT, heightPercent * STANDARD_FONT_SIZE * 0.3));
+
+        return textField;
+    }
+
     public TextField getRegularTextField(String placeholder, double widthPercent, double heightPercent) {
         TextField textField = getTextField(placeholder, widthPercent, heightPercent);
         textField.setStyle(textfieldRegular);
@@ -249,6 +267,18 @@ public class Styles {
         setMouseEvents(passwordField, textfieldRegular, textfieldHover, textfieldPressed);
 
         return passwordField;
+    }
+
+    public Button getAnswerButton(String text, double widthPercent, double heightPercent) {
+        Button button = getButton(text, widthPercent, heightPercent, buttonRegular, buttonRegularHover, buttonRegularPressed);
+        button.setFont(Font.font(BERLIN_FONT, heightPercent * STANDARD_FONT_SIZE * 0.5));
+        button.setStyle(buttonRegular);
+        VBox.setVgrow(button, Priority.ALWAYS);
+        button.setMaxWidth(width * widthPercent);
+        button.setWrapText(true);
+        button.setTextAlignment(TextAlignment.CENTER);
+
+        return button;
     }
 
     public Button getRegularButton(String text, double widthPercent, double heightPercent) {

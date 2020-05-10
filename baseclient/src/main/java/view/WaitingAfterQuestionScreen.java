@@ -1,32 +1,27 @@
 package view;
 
 import baseclient.BaseClient;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import style.Styles;
 
 public class WaitingAfterQuestionScreen extends Scene {
 
-    public WaitingAfterQuestionScreen(BaseClient baseClient) {
+    public WaitingAfterQuestionScreen(BaseClient baseClient, boolean asHost) {
         super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
 
         double width = baseClient.getWidth();
         double height = baseClient.getHeight();
 
+        Styles style = new Styles(width, height);
         //After answering question, player wait until others answered too.
-        BorderPane waitingAfterQuestionRoot = new BorderPane();
-        final VBox waitingAfterQuestion = new VBox(10);
-        waitingAfterQuestion.setStyle("-fx-background-color: ROYALBLUE;");
+        BorderPane waitingAfterQuestionRoot = style.getStandardBorderPane();
 
-        Label waitingAfterQuestionText = new Label("Let's wait others");
+        Label waitingText = style.getH2TitleLabel(new String[] {"Great answer!", "(probably)", "", "Next question", "coming soon."}, 8d/10, 5d/10);
 
-        waitingAfterQuestion.setAlignment(Pos.CENTER);
+        waitingAfterQuestionRoot.setCenter(waitingText);
 
-        waitingAfterQuestion.getChildren().addAll(waitingAfterQuestionText);
-
-        waitingAfterQuestionRoot.setCenter(waitingAfterQuestion);
 
         super.setRoot(waitingAfterQuestionRoot);
     }

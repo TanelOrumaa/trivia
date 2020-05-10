@@ -237,6 +237,9 @@ public class BaseClientBackEnd implements Runnable {
                 case 140: // Display next question
                     displayNextQuestion();
                     break;
+                case 142: // Everyone has answered.
+                    everyoneAnswered();
+                    break;
                 case 194:
                     int lobbyCode = dataInputStream.readInt();
                     leaveLobbyUnwillingly(lobbyCode);
@@ -502,10 +505,16 @@ public class BaseClientBackEnd implements Runnable {
     private void displayNextQuestion() throws IOException {
         Long questionId = dataInputStream.readLong();
         LOG.debug("Server said to display next question with id " + questionId);
-        frontEnd.addCommandToFrontEnd(new Command(140, new String[]{String.valueOf(questionId)}));
+        frontEnd.addCommandToFrontEnd(new Command(140, new String[]{String.valueOf(questionId), Boolean.toString(currentLobby.getLobbyOwnerId() == user.getId())}));
 
         // Respond to server.
         dataOutputStream.writeInt(141);
+        dataOutputStream.writeUTF(hash);
+    }
+
+    private void everyoneAnswered() throws IOException {
+        frontEnd.addCommandToFrontEnd(new Command(142, new String[0]));
+        dataOutputStream.writeInt(143);
         dataOutputStream.writeUTF(hash);
     }
 
