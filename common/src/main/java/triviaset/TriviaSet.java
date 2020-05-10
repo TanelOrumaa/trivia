@@ -124,6 +124,20 @@ public class TriviaSet {
 
     }
 
+    public String getQuestionAnswer(long questionId, long answerId) {
+        return this.getQuestionWithId(questionId).getAnswerWithId(answerId).getAnswerText();
+    }
+
+    private Question getQuestionWithId(long questionId) {
+
+        for (int key : questionMap.keySet()) {
+            if (questionMap.get(key).getQuestionID() == questionId) {
+                return questionMap.get(key);
+            }
+        }
+        return null;
+    }
+
     public Long getId() {
         return id;
     }

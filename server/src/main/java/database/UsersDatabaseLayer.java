@@ -91,7 +91,7 @@ public class UsersDatabaseLayer {
      * @param password - String for the password, should be unhashed.
      * @return true if the password matches with the one in the database and false otherwise.
      */
-    public static boolean isPasswordValidForUser(DatabaseConnection dbConnection, int user_id, String password) {
+    public static boolean isPasswordValidForUser(DatabaseConnection dbConnection, long user_id, String password) {
         if (user_id != -1) {
 
             // Get salt value from db.

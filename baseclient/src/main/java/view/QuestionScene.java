@@ -53,7 +53,7 @@ public class QuestionScene extends Scene {
                         if (baseClient.getType() == ClientType.PLAYER) {
                             answerButton.setOnMouseReleased(mouseEvent -> {
                                 addCommandToBackEnd(203, new String[] {Long.toString(question.getQuestionID()), Long.toString(answer.getAnswerID())}, 0);
-                                baseClient.setGuiStage(new WaitingAfterQuestionScreen(baseClient, asHost));
+                                baseClient.setGuiStage(new WaitingAfterQuestionScreen(baseClient, false, -1));
 
                             });
                         }
@@ -78,7 +78,7 @@ public class QuestionScene extends Scene {
                     Button submitButton = style.getRegularButton("Submit", 8d/10, 1d/10);
                     submitButton.setOnMouseReleased(mouseEvent -> {
                         addCommandToBackEnd(203, new String[] {Long.toString(question.getQuestionID()), answerField.getText()}, 0);
-                        baseClient.setGuiStage(new WaitingAfterQuestionScreen(baseClient, asHost));
+                        baseClient.setGuiStage(new WaitingAfterQuestionScreen(baseClient, false, -1));
                     });
 
                     answerField.setAlignment(Pos.CENTER);

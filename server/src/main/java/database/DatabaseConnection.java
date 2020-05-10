@@ -61,30 +61,30 @@ public class DatabaseConnection {
     }
 
 
-    public PreparedStatement saltByUserIdStatement(int userId) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement saltByUserIdStatement(long userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.salt FROM users u WHERE u.id = ?;");
-            ps.setString(1, Integer.toString(userId));
+            ps.setString(1, Long.toString(userId));
             return ps;
         } else throw new DatabaseConnectionInactiveError();
 
     }
 
 
-    public PreparedStatement passwordByUserIdStatement(int userId) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement passwordByUserIdStatement(long userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.password FROM users u WHERE u.id = ?;");
-            ps.setString(1, Integer.toString(userId));
+            ps.setString(1, Long.toString(userId));
             return ps;
         } else throw new DatabaseConnectionInactiveError();
 
     }
 
 
-    public PreparedStatement userInfoByUserIdStatement(int userId) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement userInfoByUserIdStatement(long userId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()) {
             PreparedStatement ps = databaseConnection.prepareStatement("SELECT u.username, u.nickname FROM users u WHERE u.id = ?;");
-            ps.setString(1, Integer.toString(userId));
+            ps.setString(1, Long.toString(userId));
             return ps;
         } else throw new DatabaseConnectionInactiveError();
 

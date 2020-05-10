@@ -38,6 +38,8 @@ public interface Question {
 
     void addAnswer(Answer answer);
 
+    Answer getAnswerWithId(long answerId);
+
     void setScoreDegradation(boolean scoreDegradation);
 
     void setQuestion(String question);

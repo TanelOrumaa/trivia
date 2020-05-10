@@ -2,14 +2,14 @@ package command;
 
 public class NewUserConnectedUpdate extends LobbyUpdateBase {
 
-    int userId;
+    long userId;
 
-    public NewUserConnectedUpdate(int userId) {
+    public NewUserConnectedUpdate(long userId) {
         super(LobbyUpdateType.NEW_USER_CONNECTED);
         this.userId = userId;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 }

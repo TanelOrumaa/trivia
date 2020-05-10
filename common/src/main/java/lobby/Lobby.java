@@ -24,7 +24,7 @@ public class Lobby {
     private List<User> connectedUsers;
     private User lobbyOwner;
     private TreeMap<Integer, LobbyUpdateBase> lobbyUpdates;
-    private Map<User, String[]> usersAnswersToQuestions = new HashMap<>();
+    private Map<Long, Map<User, String>> answersToQuestions = new HashMap<>();
 
     // Constructor for creating a lobby from existing data (client side).
     public Lobby(long triviaSetId, String name, int code, List<User> connectedUsers, User lobbyOwner) {
@@ -59,6 +59,10 @@ public class Lobby {
             lobbyUpdates.put(nextId, lobbyUpdate);
             LOG.debug("New update for lobby " + code + " added with ID " + nextId);
         }
+    }
+
+    public int getAnswersForQuestion(long questionId) {
+        return answersToQuestions.get(questionId).size();
     }
 
     /**
@@ -106,7 +110,7 @@ public class Lobby {
         return GameSettings.MAX_PLAYERS_IN_LOBBY - this.connectedUsers.size() >= 1;
     }
 
-    public int getLobbyOwnerId() {
+    public long getLobbyOwnerId() {
         return lobbyOwner.getId();
     }
 
@@ -114,9 +118,11 @@ public class Lobby {
         connectedUsers.add(user);
     }
 
-    public void addUserAnswerToLobby(User user, int questionId, String answer){
+    public void addUserAnswerToLobby(User user, long questionId, String answer){
         synchronized (monitor){
-            usersAnswersToQuestions.put(user, new String[]{String.valueOf(questionId), answer});
+            Map<User, String> usersAnswer = new HashMap<>();
+            usersAnswer.put(user, answer);
+            answersToQuestions.put(questionId, usersAnswer);
             LOG.debug("Added user's answer to memory: questionId = " + questionId + ", answer = " + answer);
         }
     }

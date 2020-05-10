@@ -68,6 +68,18 @@
 #####141: Client -> Server "Displaying next question"
 - Example: 141 hash
 
+#####142: Server -> Client "Everyone has answered"
+- Example: 142 hash nextQuestionId
+
+#####143: Client -> Server "Acknowledged"
+- Example: 143 hash
+
+#####145: Client -> Server "Display next question for everyone"
+- Example: 145 hash nextQuestionId
+
+#####146: Server -> Client "Sent next question command to everyone in lobby"
+- Example: 146 hash
+
 #####191: Client -> Server "Leaving lobby"
 - Example: 191 hash lobbyCode
 

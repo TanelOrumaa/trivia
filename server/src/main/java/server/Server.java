@@ -145,11 +145,11 @@ public class Server {
         }
     }
 
-    public static Lobby addUsersAnserToLobby(User user, Lobby lobby, int questionId, String answer){
+    public static boolean addUsersAnswerToLobby(User user, Lobby lobby, long questionId, String answer){
         synchronized (monitor) {
             if (lobby != null) {
                 lobby.addUserAnswerToLobby(user, questionId, answer);
-                return lobby;
+                return lobby.getConnectedUsers().size() - 1 == lobby.getAnswersForQuestion(questionId);
             } else {
                 throw new LobbyDoesNotExistException(lobby.getCode());
             }

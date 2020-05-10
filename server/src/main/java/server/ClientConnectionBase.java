@@ -2,10 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import command.DisplayNextQuestionUpdate;
-import command.LobbyDeletedUpdate;
-import command.LobbyUpdateBase;
-import command.NewUserConnectedUpdate;
+import command.*;
 import configuration.Configuration;
 import database.DatabaseConnection;
 import database.QuestionsDatabaseLayer;
@@ -53,6 +50,7 @@ public class ClientConnectionBase implements Runnable {
     private Lobby currentLobby;
     private int lastLobbyUpdateId;
     private TriviaSet triviaSet;
+    private int previousQuestionIndex;
 
     public ClientConnectionBase(Socket socket, DataInputStream dataInputStream, String hash, String clientId) {
         this.socket = socket;
@@ -100,6 +98,8 @@ public class ClientConnectionBase implements Runnable {
                                 sendNextQuestionToLobbyClients((DisplayNextQuestionUpdate) lobbyUpdateBase);
                             } else if (lobbyUpdateBase instanceof LobbyDeletedUpdate) {
                                 closeLobby((LobbyDeletedUpdate) lobbyUpdateBase);
+                            } else if (lobbyUpdateBase instanceof EveryoneAnswered) {
+                                everyoneAnswered((EveryoneAnswered) lobbyUpdateBase);
                             }
                         } else {
                             // If no updates from lobby either, sleep for a small amount of time to save CPU resources.
@@ -183,6 +183,9 @@ public class ClientConnectionBase implements Runnable {
                     startGameForLobby();
                     break;
 
+                case 145: // Display next question for all players
+                    nextQuestionForPlayers();
+                    break;
                 case 191:
                     removePlayerFromLobby();
                     break;
@@ -191,8 +194,9 @@ public class ClientConnectionBase implements Runnable {
                     // The client requests a question from the server
                     sendQuestion();
                     break;
-                case 203: // User answered question
-                    checkAnswer();
+                case 203:
+                case 205:// User answered question
+                    checkAnswer(code == 203);
                     break;
                 case 211: // Fetching list of triviasets for user
                     sendTriviasets();
@@ -283,7 +287,6 @@ public class ClientConnectionBase implements Runnable {
         Lobby lobby = new Lobby(triviasetId, this.user, Server.generateLobbyCode());
         Server.addLobby(lobby);
 
-
         Gson gson = new GsonBuilder().registerTypeAdapter(Lobby.class, new LobbySerializer()).create();
         String lobbyAsJson = gson.toJson(lobby);
 
@@ -292,6 +295,10 @@ public class ClientConnectionBase implements Runnable {
         dataOutputStream.writeUTF(lobbyAsJson);
 
         currentLobby = lobby;
+
+        // Fetch triviaset.
+        triviaSet = TriviaSetsDatabaseLayer.readFullTriviaSet(databaseConnection, currentLobby.getTriviaSetId());
+
         LOG.debug(clientId + "Connection to lobby (" + lobby.getCode() + ") succesful.");
 
     }
@@ -310,7 +317,6 @@ public class ClientConnectionBase implements Runnable {
                     lobby = Server.addPresenterToLobby(userSubmittedLobbyCode);
                 }
 
-
                 Gson gson = new GsonBuilder().registerTypeAdapter(Lobby.class, new LobbySerializer()).create();
                 String lobbyAsJson = gson.toJson(lobby);
 
@@ -320,6 +326,9 @@ public class ClientConnectionBase implements Runnable {
                 LOG.debug(clientId + "Connection to lobby (" + userSubmittedLobbyCode + ") succesful.");
 
                 currentLobby = lobby;
+
+                // Fetch triviaset.
+                triviaSet = TriviaSetsDatabaseLayer.readFullTriviaSet(databaseConnection, currentLobby.getTriviaSetId());
 
                 // Updating lobby for all other clients.
                 LOG.debug("Adding a new lobby update for lobby " + currentLobby.getCode() + "");
@@ -367,15 +376,21 @@ public class ClientConnectionBase implements Runnable {
     private void startGameForLobby() throws IOException {
         LOG.debug(clientId + "sent a start game message.");
 
-        // Fetch triviaset.
-        triviaSet = TriviaSetsDatabaseLayer.readFullTriviaSet(databaseConnection, currentLobby.getTriviaSetId());
-
         currentLobby.addNewLobbyUpdate(new DisplayNextQuestionUpdate(triviaSet.getNextQuestion(-1).getQuestionID()));
+        previousQuestionIndex++;
 
         // Send response to client.
         dataOutputStream.writeInt(138);
         dataOutputStream.writeUTF(hash);
         LOG.debug("Sent response to " + clientId);
+    }
+
+    private void nextQuestionForPlayers() throws IOException {
+        long nextQuestionId = dataInputStream.readLong();
+        currentLobby.addNewLobbyUpdate(new DisplayNextQuestionUpdate(nextQuestionId));
+        dataOutputStream.writeInt(146);
+        dataOutputStream.writeUTF(hash);
+        LOG.debug("Registered lobby update event to diplay next question for everyone.");
     }
 
     private void closeLobby(LobbyDeletedUpdate lobbyDeletedUpdate) throws IOException {
@@ -517,22 +532,52 @@ public class ClientConnectionBase implements Runnable {
         }
     }
 
-    private void checkAnswer() throws IOException {
+    private void checkAnswer(boolean isFreeForm) throws IOException {
         LOG.debug(clientId + "sent user's answer to the question");
 
-        int questionId = dataInputStream.readInt();
-        String answer = dataInputStream.readUTF();
+        long questionId = dataInputStream.readLong();
+
+        String answer;
+        if (isFreeForm) {
+            answer = dataInputStream.readUTF();
+        } else {
+            Long answerId = dataInputStream.readLong();
+            answer = triviaSet.getQuestionAnswer(questionId, answerId);
+        }
 
         try {
             // Store user's answer
-            Server.addUsersAnserToLobby(user, currentLobby, questionId, answer);
-            dataOutputStream.writeInt(204);
+            boolean lastAnswer = Server.addUsersAnswerToLobby(user, currentLobby, questionId, answer);
+            if (isFreeForm) {
+                dataOutputStream.writeInt(204);
+            } else {
+                dataOutputStream.writeInt(206);
+            }
             dataOutputStream.writeUTF(this.hash);
 
+            if (lastAnswer) {
+                currentLobby.addNewLobbyUpdate(new EveryoneAnswered(triviaSet.getNextQuestion(previousQuestionIndex).getQuestionID(), currentLobby.getLobbyOwnerId()));
+            }
         } catch (AnswerStoringError e){
             LOG.warn(clientId + "Failed to store user's answer");
             dataOutputStream.writeInt(448);
             dataOutputStream.writeUTF(this.hash);
+        }
+    }
+
+    private void everyoneAnswered(EveryoneAnswered everyoneAnswered) throws IOException {
+        LOG.debug("Everyone has answered.");
+        if (everyoneAnswered.getOwnerId() == user.getId()) {
+            dataOutputStream.writeInt(142);
+            dataOutputStream.writeUTF(hash);
+            dataOutputStream.writeLong(everyoneAnswered.getNextQuestionId());
+
+            int responseCode = dataInputStream.readInt();
+            if (responseCode == 143) {
+                if (!hash.equals(dataInputStream.readUTF())) {
+                    LOG.error("Invalid hash returned.");
+                }
+            }
         }
     }
 

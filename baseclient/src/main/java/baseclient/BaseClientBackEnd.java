@@ -162,6 +162,9 @@ public class BaseClientBackEnd implements Runnable {
             case 139: // Start game.
                 startGame();
                 break;
+            case 145: // Next question
+                displayNextQuestionForPlayers(Long.parseLong(command.args[0]));
+                break;
             case 191: // Leave lobby
                 if (command.args != null && command.args.length == 1) {
                     leaveLobby(Integer.parseInt(command.args[0]));
@@ -172,9 +175,14 @@ public class BaseClientBackEnd implements Runnable {
                     requestQuestion(Long.parseLong(command.args[0]));
                 }
                 break;
-            case 203: // Send question answer to server.
+            case 203: // Send freeform question answer to server.
                 if (command.args != null && command.args.length == 2) {
-                    sendAnswer(Integer.parseInt(command.args[0]), command.args[1]);
+                    sendFreeFormAnswer(Long.parseLong(command.args[0]), command.args[1]);
+                }
+                break;
+            case 205: // Send multiple choice answer to server.
+                if (command.args != null && command.args.length == 2) {
+                    sendMultipleChoiceAnswer(Long.parseLong(command.args[0]), Long.parseLong(command.args[1]));
                 }
                 break;
             case 211: // Request triviaset list from server.
@@ -513,8 +521,28 @@ public class BaseClientBackEnd implements Runnable {
         dataOutputStream.writeUTF(hash);
     }
 
+    private void displayNextQuestionForPlayers(long nextQuestionId) throws IOException {
+        dataOutputStream.writeInt(145);
+        dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeLong(nextQuestionId);
+
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 146) {
+            String responseHash = dataInputStream.readUTF();
+            if (!hash.equals(responseHash)) {
+                throw new MixedServerMessageException(hash, responseHash);
+            }
+
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+    }
+
     private void everyoneAnswered() throws IOException {
-        frontEnd.addCommandToFrontEnd(new Command(142, new String[0]));
+        long nextQuestionId = dataInputStream.readLong();
+        frontEnd.addCommandToFrontEnd(new Command(142, new String[] {Long.toString(nextQuestionId)}));
         dataOutputStream.writeInt(143);
         dataOutputStream.writeUTF(hash);
     }
@@ -553,13 +581,13 @@ public class BaseClientBackEnd implements Runnable {
         }
     }
 
-    private void sendAnswer(int questionId, String answer) throws IOException {
+    private void sendFreeFormAnswer(long questionId, String answer) throws IOException {
         // If answer type is choice, then String answer is answe id as String,
         // and if answer type is freeform, then String answer is user's entered answer
         LOG.debug("Sending client's answer to server");
         dataOutputStream.writeInt(203);
         dataOutputStream.writeUTF(hash);
-        dataOutputStream.writeInt(questionId);
+        dataOutputStream.writeLong(questionId);
         dataOutputStream.writeUTF(answer);
 
         // Read the response
@@ -567,10 +595,31 @@ public class BaseClientBackEnd implements Runnable {
         if (responseCode == 204){
             LOG.debug("Server received the answer successfully");
             String responseHash = dataInputStream.readUTF();
-            if (hash.equals(responseHash)){
-                // Display waiting screen in frontEnd
-                frontEnd.addCommandToFrontEnd(new Command(204, new String[0]));
+            if (!hash.equals(responseHash)){
+               throw new MixedServerMessageException(hash, responseHash);
 
+            }
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+    }
+
+    private void sendMultipleChoiceAnswer(long questionId, long answerId) throws IOException {
+        LOG.debug("Sending client's answer to server");
+        dataOutputStream.writeInt(205);
+        dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeLong(questionId);
+        dataOutputStream.writeLong(answerId);
+
+        // Read the response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 206){
+            LOG.debug("Server received the answer successfully");
+            String responseHash = dataInputStream.readUTF();
+            if (!hash.equals(responseHash)){
+                throw new MixedServerMessageException(hash, responseHash);
             }
         } else if (responseCode >= 400 && responseCode < 500) {
             handleError(responseCode);

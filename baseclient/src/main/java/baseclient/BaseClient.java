@@ -12,10 +12,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import popup.ErrorMessage;
-import question.Answer;
-import question.AnswerType;
 import question.QuestionQueue;
-import question.TextQuestion;
 import triviaset.TriviaSet;
 import triviaset.TriviaSetDeserializerFull;
 import triviaset.TriviaSetsDeserializerBasic;
@@ -77,15 +74,7 @@ public class BaseClient extends Application {
                 guiStage.setScene(new LobbyEntry(this));
                 break;
             case PLAYER:
-//                guiStage.setScene(new LogInScreen(this));
-                this.user = new User(1, "AwesomeZebra", "Tanel");
-                List<Answer> answerList = new ArrayList<>();
-                answerList.add(new Answer(1, "Suht suur, aga enam-vähem väike ikka", false));
-                answerList.add(new Answer(2, "Keskmine selline", false));
-                answerList.add(new Answer(3, "Väike, aga armas", false));
-                answerList.add(new Answer(4, "No ikka megasuur, nagu kõige suurem üldse ja siis veel peale noh", false));
-                guiStage.setScene(new QuestionScene(this, new TextQuestion(AnswerType.FREEFORM, 4L, false,
-                        "Kui suur on maailma kõige suurem suurus, mis pole väike, aga samas pole ka keskmine?", answerList, 1000, 50), true));
+                guiStage.setScene(new LogInScreen(this));
                 break;
         }
 
@@ -173,8 +162,10 @@ public class BaseClient extends Application {
                 break;
             case 142: // Everyone answered the question.
                 Platform.runLater(() -> {
-                    LOG.debug("Switching to WaitingAfterQuestionScene for the lobby owner.");
-                    guiStage.setScene(new WaitingAfterQuestionScreen(this, true));
+                    if (command.args != null && command.args.length == 1) {
+                        LOG.debug("Switching to WaitingAfterQuestionScene for the lobby owner.");
+                        guiStage.setScene(new WaitingAfterQuestionScreen(this, true, Long.parseLong(command.args[0])));
+                    }
                 });
                 break;
             case 194: // Lobby deleted

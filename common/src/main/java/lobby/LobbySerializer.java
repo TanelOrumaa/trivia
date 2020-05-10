@@ -28,6 +28,7 @@ public class LobbySerializer implements JsonSerializer<Lobby> {
             JsonObject userObject = new JsonObject();
             userObject.addProperty("username", user.getUsername());
             userObject.addProperty("nickname", user.getNickname());
+            userObject.addProperty("userId", user.getId());
             userObject.addProperty("isLobbyOwner", user.getId() == lobby.getLobbyOwnerId());
             usersObject.add(userObject);
         }
