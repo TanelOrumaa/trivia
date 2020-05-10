@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import user.User;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 //import server.Server;
 
@@ -26,6 +24,7 @@ public class Lobby {
     private List<User> connectedUsers;
     private User lobbyOwner;
     private TreeMap<Integer, LobbyUpdateBase> lobbyUpdates;
+    private Map<User, String[]> usersAnswersToQuestions = new HashMap<>();
 
     // Constructor for creating a lobby from existing data (client side).
     public Lobby(long triviaSetId, String name, int code, List<User> connectedUsers, User lobbyOwner) {
@@ -113,6 +112,13 @@ public class Lobby {
 
     public void addUserToLobby(User user) {
         connectedUsers.add(user);
+    }
+
+    public void addUserAnswerToLobby(User user, int questionId, String answer){
+        synchronized (monitor){
+            usersAnswersToQuestions.put(user, new String[]{String.valueOf(questionId), answer});
+            LOG.debug("Added user's answer to memory: questionId = " + questionId + ", answer = " + answer);
+        }
     }
 
     public void removeUserFromLobby(User user) {
