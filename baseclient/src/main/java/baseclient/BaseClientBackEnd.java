@@ -13,21 +13,13 @@ import org.slf4j.LoggerFactory;
 import question.Question;
 import question.QuestionDeserializer;
 import question.QuestionQueue;
-import triviaset.TriviaSet;
-import triviaset.TriviaSetDeserializerFull;
-import triviaset.TriviaSetSerializerFull;
-import triviaset.TriviaSetsDeserializerBasic;
 import user.User;
 import user.UserDeserializer;
-import user.UserSerializer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.List;
-
-import static baseclient.BaseClient.triviasets;
 
 public class BaseClientBackEnd implements Runnable {
 
@@ -170,6 +162,11 @@ public class BaseClientBackEnd implements Runnable {
             case 139: // Start game.
                 startGame();
                 break;
+            case 191: // Leave lobby
+                if (command.args != null && command.args.length == 1) {
+                    leaveLobby(Integer.parseInt(command.args[0]));
+                }
+                break;
             case 201: // Request a question from server.
                 if (command.args != null && command.args.length == 1) {
                     requestQuestion(Long.parseLong(command.args[0]));
@@ -182,6 +179,11 @@ public class BaseClientBackEnd implements Runnable {
             case 211: // Request triviaset list from server.
                 if (command.args != null && command.args.length == 0) {
                     fetchTriviasets();
+                }
+                break;
+            case 213: // Fetch one full triviaset from server and display it.
+                if (command.args != null && command.args.length == 1) {
+                    fetchFullTriviaSet(Long.parseLong(command.args[0]), false);
                 }
                 break;
             case 215: // Register new triviaset
@@ -234,6 +236,10 @@ public class BaseClientBackEnd implements Runnable {
                     break;
                 case 140: // Display next question
                     displayNextQuestion();
+                    break;
+                case 194:
+                    int lobbyCode = dataInputStream.readInt();
+                    leaveLobbyUnwillingly(lobbyCode);
                     break;
                 default:
                     // Just for testing.
@@ -347,7 +353,7 @@ public class BaseClientBackEnd implements Runnable {
                 user = gson.fromJson(userJson, User.class);
 
                 // Add the command to front end.
-                this.frontEnd.addCommandToFrontEnd(new Command(122, new String[]{user.getUsername()}));
+                this.frontEnd.addCommandToFrontEnd(new Command(122, new String[]{userJson}));
 
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
@@ -385,7 +391,7 @@ public class BaseClientBackEnd implements Runnable {
                 this.frontEnd.addCommandToFrontEnd(new Command(132, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray()));
 
                 // Request the first question
-                requestQuestion(-1);
+                fetchFullTriviaSet(currentLobby.getTriviaSetId(), true);
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }
@@ -552,16 +558,7 @@ public class BaseClientBackEnd implements Runnable {
                 // Read the Triviasets list
                 String triviasetListAsJson = dataInputStream.readUTF();
 
-                Gson gson = new GsonBuilder().registerTypeAdapter(List.class, new TriviaSetsDeserializerBasic()).create();
-                List<TriviaSet> triviaSetList = gson.fromJson(triviasetListAsJson, List.class);
-
-                // Update triviasets - send command with trivia sets as command arguments
-                String[] args = new String[triviaSetList.size()];
-                for (int i = 0; i < triviaSetList.size(); i++) {
-                    System.out.println(triviaSetList.get(i).getClass());
-                    args[i] = triviaSetList.get(i).getName();
-                }
-                frontEnd.addCommandToFrontEnd(new Command(212, args));
+                frontEnd.addCommandToFrontEnd(new Command(212, new String[] {triviasetListAsJson}));
 
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
@@ -574,18 +571,27 @@ public class BaseClientBackEnd implements Runnable {
 
     }
 
-    private void fetchFullTriviaSet() throws IOException {
+    private void fetchFullTriviaSet(long triviaSetId, boolean inTheBackground) throws IOException {
         LOG.debug("Sending full trivia set request.");
         dataOutputStream.writeInt(213);
         dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeLong(triviaSetId);
 
         // Read the response
         int responseCode = dataInputStream.readInt();
         if (responseCode == 214) {
+            String responseHash = dataInputStream.readUTF();
+            if (hash.equals(responseHash)) {
+                String triviaSetAsJson = dataInputStream.readUTF();
+                if (!inTheBackground) {
+                    frontEnd.addCommandToFrontEnd(new Command(214, new String[]{triviaSetAsJson}, 0));
+                } else {
+                    frontEnd.addCommandToFrontEnd(new Command(218, new String[] {triviaSetAsJson}));
+                }
+            } else {
+                throw new MixedServerMessageException(hash, responseHash);
+            }
 
-            String triviaSetAsJson = dataInputStream.readUTF();
-
-            frontEnd.addCommandToFrontEnd(new Command(214, new String[]{triviaSetAsJson}, 0));
 
         } else if (responseCode >= 400 && responseCode < 500) {
             handleError(responseCode);
@@ -622,11 +628,46 @@ public class BaseClientBackEnd implements Runnable {
 
     }
 
+    private void leaveLobby(int lobbyCode) throws IOException {
+        LOG.debug("Sending \"Leave lobby\" message for lobby " + lobbyCode);
+        dataOutputStream.writeInt(191);
+        dataOutputStream.writeUTF(hash);
+        dataOutputStream.writeInt(lobbyCode);
+
+        // Receive response
+        int responseCode = dataInputStream.readInt();
+        if (responseCode == 192) {
+            String responseHash = dataInputStream.readUTF();
+            if (hash.equals(responseHash)) {
+                LOG.debug("Server removed us from the lobby.");
+            } else {
+                throw new MixedServerMessageException(hash, responseHash);
+            }
+        } else if (responseCode >= 400 && responseCode < 500) {
+            handleError(responseCode);
+        } else {
+            handleIncoming(responseCode);
+        }
+
+    }
+
+    private void leaveLobbyUnwillingly(int lobbyCode) throws IOException {
+        LOG.debug("Leaving lobby since it was deleted.");
+
+        frontEnd.addCommandToFrontEnd(new Command(194, new String[] {Integer.toString(lobbyCode)}));
+        currentLobby = null;
+
+        dataOutputStream.writeInt(195);
+        dataOutputStream.writeUTF(hash);
+    }
+
     private void sendGoodbye() throws IOException {
         // Send goodbye message
-        LOG.debug("Sending goodbye message.");
-        dataOutputStream.writeInt(199);
-        dataOutputStream.writeUTF(hash);
+        if (dataOutputStream != null) {
+            LOG.debug("Sending goodbye message.");
+            dataOutputStream.writeInt(199);
+            dataOutputStream.writeUTF(hash);
+        }
     }
 
     private static long now() {

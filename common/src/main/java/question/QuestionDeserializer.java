@@ -26,9 +26,8 @@ public class QuestionDeserializer implements JsonDeserializer<Question> {
         for (JsonElement answerElement : answersObject) {
 
             JsonObject answerObject = answerElement.getAsJsonObject();
-            answerList.add(new Answer(answerObject.get("answerText").getAsString(),
-                    answerObject.get("isCorrect").getAsBoolean(),
-                    answerObject.get("answerID").getAsLong()));
+            answerList.add(new Answer(answerObject.get("answerID").getAsLong(), answerObject.get("answerText").getAsString(),
+                    answerObject.get("isCorrect").getAsBoolean()));
 
         }
 

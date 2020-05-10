@@ -68,6 +68,18 @@
 #####141: Client -> Server "Displaying next question"
 - Example: 141 hash
 
+#####191: Client -> Server "Leaving lobby"
+- Example: 191 hash lobbyCode
+
+#####192: Server -> Client "User removed from lobby"
+- Example: 192 hash
+
+#####194: Server -> Client "Lobby was closed"
+- Example: 194 hash lobbyCode
+
+#####195: Client -> Server "Left the lobby in GUI"
+- Example: 195 hash
+
 #####199: Client -> Server "Quitting, please close socket."
 - Example: 199 hash 
 

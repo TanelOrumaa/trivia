@@ -61,4 +61,8 @@ public class CommandQueue {
     public String toString() {
         return "CommandQueue has " + this.size() + " commands:" + commands;
     }
+
+    public void clear() {
+        commands.clear();
+    }
 }

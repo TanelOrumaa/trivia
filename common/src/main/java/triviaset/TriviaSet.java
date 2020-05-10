@@ -7,20 +7,21 @@ import java.util.List;
 
 public class TriviaSet {
 
-    private int id;
+    private Long id;
     private String name;
     private int numberOfQuestions;
     private LinkedHashMap<Integer, Question> questionMap;
+    private Long ownerId;
 
-    public TriviaSet(int id, String name, int numberOfQuestions) {
+    public TriviaSet(Long id, String name, int numberOfQuestions, Long ownerId) {
         //Constructor for creating a TriviaSet just for display.
         this.id = id;
         this.name = name;
         this.numberOfQuestions = numberOfQuestions;
-
+        this.ownerId = ownerId;
     }
 
-    public TriviaSet(int id, String name, List<Question> questions) {
+    public TriviaSet(Long id, String name, List<Question> questions, Long ownerId) {
 
         this.id = id;
         this.name = name;
@@ -31,6 +32,7 @@ public class TriviaSet {
             questions.forEach(question -> questionMap.put(questions.indexOf(question), question));
 
         }
+        this.ownerId = ownerId;
 
     }
 
@@ -122,7 +124,7 @@ public class TriviaSet {
 
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -142,4 +144,11 @@ public class TriviaSet {
         this.name = name;
     }
 
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
 }

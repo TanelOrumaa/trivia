@@ -15,20 +15,25 @@ import popup.ErrorMessage;
 import question.QuestionQueue;
 import triviaset.TriviaSet;
 import triviaset.TriviaSetDeserializerFull;
+import triviaset.TriviaSetsDeserializerBasic;
+import user.User;
+import user.UserSerializer;
 import view.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BaseClient extends Application {
 
     static final Logger LOG = LoggerFactory.getLogger(BaseClient.class);
 
     protected ClientType type;
-    protected static Stage guiStage;
+    protected Stage guiStage;
     protected BaseClientBackEnd baseClientBackEnd;
 
-    protected static String username;
-    protected static String[] triviasets = new String[0];
+    protected User user;
+    protected List<TriviaSet> basicTriviaSets = new ArrayList<>();
 
     protected CommandQueue incomingCommands = new CommandQueue();
     protected QuestionQueue questionQueue = new QuestionQueue();
@@ -70,6 +75,8 @@ public class BaseClient extends Application {
                 break;
             case PLAYER:
                 guiStage.setScene(new LogInScreen(this));
+//                this.username = "AwesomeZebra";
+//                guiStage.setScene(new LobbyFX(this, true, "124341", new String[] {"Pelmo", "Jaanus", "Jäänus", "Kallemar"}));
                 break;
         }
 
@@ -103,9 +110,13 @@ public class BaseClient extends Application {
         switch (command.code) {
             case 122:
                 Platform.runLater(() -> {
-                    LOG.debug("Switching scene to lobbyEntry");
-                    username = command.args[0];
-                    guiStage.setScene(new UserMainPage(this));
+                    LOG.debug("Switching scene to user main page");
+                    if (command.args != null && command.args.length == 1) {
+                        String userAsJson = command.args[0];
+                        Gson gson = new GsonBuilder().registerTypeAdapter(User.class, new UserSerializer()).create();
+                        this.user = gson.fromJson(userAsJson, User.class);
+                        guiStage.setScene(new UserMainPage(this));
+                    }
                 });
                 break;
             case 124:
@@ -121,7 +132,6 @@ public class BaseClient extends Application {
                 });
                 break;
             case 132:
-                break;
             case 134:
                 Platform.runLater(() -> {
                     LOG.debug("Switching scene to lobbyFX");
@@ -149,20 +159,45 @@ public class BaseClient extends Application {
                     guiStage.setScene(new QuestionScene(this, questionQueue.getQuestion(Long.parseLong(command.args[0]))));
                 });
                 break;
+            case 194: // Lobby deleted
+                Platform.runLater(() -> {
+                    LOG.debug("Lobby was deleted.");
+                    guiStage.setScene(new LobbyEntry(this));
+                });
             case 212:
                 Platform.runLater(() -> {
                     LOG.debug("Updating triviasets list.");
-                    triviasets = command.args;
-                    UserTriviasetPage.updateTriviasetsList(this.triviasets);
+                    List<TriviaSet> basicTriviaSetList = new ArrayList<>();
+                    if (command.args != null && command.args.length == 1) {
+                        String basicTrivaSetsJson = command.args[0];
+                        Gson gson = new GsonBuilder().registerTypeAdapter(List.class, new TriviaSetsDeserializerBasic()).create();
+                        basicTriviaSetList = gson.fromJson(basicTrivaSetsJson, List.class);
+                        this.basicTriviaSets = basicTriviaSetList;
+                    }
+                    UserTriviasetPage.updateTriviasetsList(basicTriviaSetList);
                 });
                 break;
             case 214:
                 Platform.runLater(() -> {
                     LOG.debug("Received full trivia set from backend.");
+                    if (command.args != null && command.args.length == 1) {
+                        Gson gson = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetDeserializerFull()).create();
+                        TriviaSet triviaSet = gson.fromJson(command.args[0], TriviaSet.class);
+                        replaceTriviaSet(triviaSet);
+                        setGuiStage(new TriviaSetDetailView(this, triviaSet));
+                    }
+                });
+                break;
+            case 218: // Triviaset fetched in the background
+                if (command.args != null && command.args.length == 1) {
+                    questionQueue.clearQueue();
                     Gson gson = new GsonBuilder().registerTypeAdapter(TriviaSet.class, new TriviaSetDeserializerFull()).create();
                     TriviaSet triviaSet = gson.fromJson(command.args[0], TriviaSet.class);
-                    //TODO: use the trivia set in the GUI!
-                });
+                    triviaSet.getQuestionMap().forEach((id, question) -> {
+                        questionQueue.addQuestion(question);
+                    });
+                    LOG.debug("Updated question queue.");
+                }
                 break;
             case 422:
                 Platform.runLater(() -> {
@@ -198,7 +233,11 @@ public class BaseClient extends Application {
     }
 
     public String getUsername() {
-        return username;
+        return user.getUsername();
+    }
+
+    public long getUserId() {
+        return user.getId();
     }
 
     public void setGuiStage(Scene scene) {
@@ -209,7 +248,31 @@ public class BaseClient extends Application {
         return type;
     }
 
-    public static String[] getTriviasets() {
-        return triviasets;
+    public List<TriviaSet> getBasicTriviaSets() {
+        return basicTriviaSets;
+    }
+
+    public void logout() {
+        this.user = null;
+        this.incomingCommands.clear();
+        this.questionQueue.clearQueue();
+    }
+
+    private void replaceTriviaSet(TriviaSet triviaSet) {
+        int index = getTriviaSetIndex(triviaSet.getId());
+        if (index != -1) {
+            basicTriviaSets.set(index, triviaSet);
+        } else {
+            basicTriviaSets.add(triviaSet);
+        }
+    }
+
+    private int getTriviaSetIndex(long triviaSetId) {
+        for (int i = 0; i < basicTriviaSets.size(); i++) {
+            if (basicTriviaSets.get(i).getId() == triviaSetId) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

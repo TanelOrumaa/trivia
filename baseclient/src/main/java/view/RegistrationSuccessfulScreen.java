@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 public class RegistrationSuccessfulScreen extends Scene {
+
     static final Font font = Font.font("Berlin Sans FB Demi", 20);
 
     public RegistrationSuccessfulScreen(BaseClient baseClient, String type){
@@ -39,7 +40,6 @@ public class RegistrationSuccessfulScreen extends Scene {
                 continueButton.setOnAction(actionEvent -> baseClient.setGuiStage(new TriviaSetMenu(baseClient)));
         }
         successLabel.setFont(font);
-
 
         HBox continueButtonBox = new HBox(continueButton);
         mainBox.getChildren().addAll(successLabel, continueButtonBox);

@@ -16,11 +16,11 @@ import triviaset.TriviaSet;
 
 import java.util.ArrayList;
 
-public class TriviaSetTitleScreen extends Scene {
+public class AddTriviaSetFX extends Scene {
 
     private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
 
-    public TriviaSetTitleScreen(BaseClient baseClient) {
+    public AddTriviaSetFX(BaseClient baseClient, TriviaSet triviaSet) {
         super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
         double width = baseClient.getWidth();
         double height = baseClient.getHeight();
@@ -43,7 +43,7 @@ public class TriviaSetTitleScreen extends Scene {
         nextButton.setOnMouseReleased(mouseEvent -> {
             //Start adding questions.
             if (titleInput.getText().length() > 2) {
-                baseClient.setGuiStage(new TriviaSetAddQuestion(baseClient, new TriviaSet(-1, titleInput.getText(), new ArrayList<>())));
+                baseClient.setGuiStage(new TriviaSetAddQuestion(baseClient, new TriviaSet(-1L, titleInput.getText(), new ArrayList<>(), 1L))); // TODO:
             } else {
                 ErrorMessage.popUp("Title should be longer than 2 characters");
             }

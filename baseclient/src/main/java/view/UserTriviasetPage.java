@@ -1,30 +1,28 @@
 package view;
 
 import baseclient.BaseClient;
+import baseclient.BaseClientBackEnd;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import style.Styles;
+import triviaset.TriviaSet;
 
 import java.util.ArrayList;
-
-import static baseclient.BaseClientBackEnd.addCommandToBackEnd;
+import java.util.List;
 
 public class UserTriviasetPage extends Scene {
 
     static final Logger LOG = LoggerFactory.getLogger(UserTriviasetPage.class);
 
-    private static final Font textFont = Font.font("Berlin Sans FB Demi", 20);
-    private static ObservableList<String> triviasetsList;
+    private static ObservableList<TriviaSet> triviasetsList;
 
     public UserTriviasetPage(BaseClient baseClient) {
         super(new BorderPane(), baseClient.getWidth(), baseClient.getHeight());
@@ -32,75 +30,85 @@ public class UserTriviasetPage extends Scene {
         double width = baseClient.getWidth();
         double height = baseClient.getHeight();
 
-        //It is a scene, where player has to enter code to join a lobby.
-        BorderPane triviasetsPageRoot = new BorderPane();
-        VBox triviasetsPageLayout = new VBox(20);
-        triviasetsPageLayout.setStyle("-fx-background-color: ROYALBLUE;");
+        Styles style = new Styles(width, height);
 
+        HBox header = style.getHeader(baseClient);
 
-        final Label usernameLabel = new Label(baseClient.getUsername());
-        usernameLabel.setFont(textFont);
-        HBox usernameLabelArea = new HBox(usernameLabel);
-        usernameLabelArea.setAlignment(Pos.TOP_RIGHT);
-        usernameLabelArea.setPadding(new Insets(width * 0.05, width * 0.05, width * 0.05, width * 0.05));
+        BorderPane triviasetsPageRoot = style.getStandardBorderPane();
 
-        triviasetsList = FXCollections.observableArrayList(baseClient.getTriviasets());
+        triviasetsList = FXCollections.observableArrayList(baseClient.getBasicTriviaSets());
 
-        VBox triviaSetsArea = new VBox();
-        ArrayList<HBox> triviasetsRows = new ArrayList<>();
+        VBox triviaSetsArea = style.getStandardVBox();
+        ArrayList<Button> triviasetsRows = new ArrayList<>();
 
-        updateTriviasetsArea(baseClient.getTriviasets(), triviasetsRows);
+        updateTriviasetsArea(baseClient, style, baseClient.getBasicTriviaSets(), triviasetsRows);
 
         triviaSetsArea.getChildren().addAll(triviasetsRows);
+        HBox triviaSetsPanel = new HBox();
 
-        triviasetsList.addListener((ListChangeListener<String>) observable -> {
-            updateTriviasetsArea(baseClient.getTriviasets(), triviasetsRows);
+        // Regions for alignment.
+        Region leftRegion = new Region();
+        Region rightRegion = new Region();
+        HBox.setHgrow(leftRegion, Priority.ALWAYS);
+        HBox.setHgrow(rightRegion, Priority.ALWAYS);
+
+        // Scrollpane with triviasets.
+        ScrollPane scrollPane = style.getStandardScrollPane();
+        scrollPane.setContent(triviaSetsArea);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        triviaSetsPanel.getChildren().addAll(leftRegion, scrollPane, rightRegion);
+
+        triviasetsList.addListener((ListChangeListener<TriviaSet>) observable -> {
+            updateTriviasetsArea(baseClient, style, baseClient.getBasicTriviaSets(), triviasetsRows);
             if (triviaSetsArea.getChildren().size() == 0) {
                 triviaSetsArea.getChildren().addAll(triviasetsRows);
             }
         });
 
+        Button createNewTriviaset = style.getRegularButton("Create new", 8d/10, 1d/10);
+//        createNewTriviaset.setOnMouseClicked(mouseEvent -> baseClient.setGuiStage());
 
-        Button back = new Button("Back");
-        back.setOnMouseReleased(mouseEvent -> {
-            baseClient.setGuiStage(new UserMainPage(baseClient));
-        });
+        Button backButton = style.getNeutralButton("Back", 8d/10, 1d/10);
+        backButton.setOnMouseReleased(mouseEvent -> baseClient.setGuiStage(new UserMainPage(baseClient)));
 
-        HBox buttonArea = new HBox(back);
+        VBox buttonArea = style.getStandardVBox();
+        buttonArea.getChildren().addAll(createNewTriviaset, backButton);
+
         buttonArea.setAlignment(Pos.CENTER);
 
-        triviasetsPageLayout.getChildren().addAll(usernameLabelArea, triviaSetsArea, buttonArea);
+        BorderPane.setMargin(buttonArea, style.getTopAndBottomMargin());
 
-        triviasetsPageRoot.setTop(triviasetsPageLayout);
+        triviasetsPageRoot.setTop(header);
+        triviasetsPageRoot.setCenter(triviaSetsPanel);
+        triviasetsPageRoot.setBottom(buttonArea);
 
         super.setRoot(triviasetsPageRoot);
     }
 
-    private void updateTriviasetsArea(String[] triviasets, ArrayList<HBox> triviasetsRows) {
-        for (String triviaset : triviasets) {
-            Label triviasetName = new Label(triviaset);
-            // TODO: Remove hardcoded values.
-            triviasetName.setPadding(new Insets(0, 0, 0, 10));
-            Button host = new Button("Host");
-            host.setOnMouseReleased(mouseEvent -> {
-                addCommandToBackEnd(133, new String[] {triviaset}, 0);
+    private void updateTriviasetsArea(BaseClient baseClient, Styles style, List<TriviaSet> triviasets, ArrayList<Button> triviasetsRows) {
+        for (TriviaSet triviaset : triviasets) {
+            Button triviasetName = style.getRegularButton(triviaset.getName(), 8d/10, 1d/10);
+            triviasetName.setOnMouseReleased(mouseEvent -> {
+                BaseClientBackEnd.addCommandToBackEnd(213, new String[] {Long.toString(triviaset.getId())}, 0);
             });
 
-            Region region = new Region();
-            HBox.setHgrow(region, Priority.ALWAYS);
+//            Region region = new Region();
+//            HBox.setHgrow(region, Priority.ALWAYS);
+//
+//            HBox triviasetRow = new HBox(triviasetName, region, host);
+//            triviasetName.setAlignment(Pos.CENTER_LEFT);
+//            host.setAlignment(Pos.CENTER_RIGHT);
+//            triviasetRow.setAlignment(Pos.CENTER);
+//            triviasetRow.setBorder(new Border(new BorderStroke(Paint.valueOf("black"), BorderStrokeStyle.SOLID, new CornerRadii(0.5), BorderWidths.DEFAULT)));
 
-            HBox triviasetRow = new HBox(triviasetName, region, host);
-            triviasetName.setAlignment(Pos.CENTER_LEFT);
-            host.setAlignment(Pos.CENTER_RIGHT);
-            triviasetRow.setAlignment(Pos.CENTER);
-            triviasetRow.setBorder(new Border(new BorderStroke(Paint.valueOf("black"), BorderStrokeStyle.SOLID, new CornerRadii(0.5), BorderWidths.DEFAULT)));
-
-            triviasetsRows.add(triviasetRow);
+            triviasetsRows.add(triviasetName);
         }
 
     }
 
-    public static void updateTriviasetsList(String[] triviasets) {
+    public static void updateTriviasetsList(List<TriviaSet> triviasets) {
         triviasetsList.setAll(triviasets);
-        LOG.debug("Participants list updated.");
+        LOG.debug("Triviasets list updated.");
     }}

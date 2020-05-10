@@ -17,6 +17,7 @@ public class LobbySerializer implements JsonSerializer<Lobby> {
         // Add the lobby name and code to the object.
         lobbyObject.addProperty("name", lobby.getName());
         lobbyObject.addProperty("code", lobby.getCode());
+        lobbyObject.addProperty("triviaSetId", lobby.getTriviaSetId());
 
         // Create a new array of users.
         JsonArray usersObject = new JsonArray();

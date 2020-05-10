@@ -6,7 +6,10 @@ import question.Answer;
 import question.Question;
 import triviaset.TriviaSet;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class DatabaseConnection {
 
@@ -228,11 +231,19 @@ public class DatabaseConnection {
 
     }
 
-    public PreparedStatement questionsByTriviaSetIdStatement(int triviaSetId) throws SQLException, DatabaseConnectionInactiveError {
+    public PreparedStatement getTriviaSetByIdStatement(long triviaSetId) throws SQLException, DatabaseConnectionInactiveError {
+        if (this.isActive()) {
+            PreparedStatement ps = this.databaseConnection.prepareStatement("SELECT name, questions_count, user_id FROM triviasets WHERE id = ?");
+            ps.setLong(1, triviaSetId);
+            return ps;
+        } else throw new DatabaseConnectionInactiveError();
+    }
+
+    public PreparedStatement questionsByTriviaSetIdStatement(Long triviaSetId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()){
-            PreparedStatement ps = this.databaseConnection.prepareStatement("SELECT id, question_type, answer_type, score_degradation, potential_points, time question_text, media_path FROM " +
+            PreparedStatement ps = this.databaseConnection.prepareStatement("SELECT id, question_type, answer_type, score_degradation, potential_points, time, question_text, media_path FROM " +
                     "questions WHERE triviaset_id = ?");
-            ps.setInt(1, triviaSetId);
+            ps.setLong(1, triviaSetId);
             return ps;
 
         } else throw new DatabaseConnectionInactiveError();
@@ -240,7 +251,7 @@ public class DatabaseConnection {
 
     public PreparedStatement answersByQuestionIdStatement(long questionId) throws SQLException, DatabaseConnectionInactiveError {
         if (this.isActive()){
-            PreparedStatement ps = this.databaseConnection.prepareStatement("SELECT question_id, answer_text, is_correct FROM answers" +
+            PreparedStatement ps = this.databaseConnection.prepareStatement("SELECT id, answer_text, is_correct FROM answers " +
                     "WHERE question_id = ?");
             ps.setLong(1, questionId);
             return ps;

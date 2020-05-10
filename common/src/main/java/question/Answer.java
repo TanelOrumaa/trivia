@@ -9,11 +9,11 @@ public class Answer {
     public Answer(String answerText, boolean isCorrect) {
         //Constructor for creating a question from the application.
 
-        this(answerText, isCorrect, -1);
+        this(-1, answerText, isCorrect);
 
     }
 
-    public Answer(String answerText, boolean isCorrect, long answerID) {
+    public Answer(long answerID, String answerText, boolean isCorrect) {
         //Constructor for creating an existing answer from the database.
 
         this.answerText = answerText;

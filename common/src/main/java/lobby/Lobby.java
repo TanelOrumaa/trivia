@@ -1,15 +1,16 @@
 package lobby;
 
 import command.LobbyUpdateBase;
+import configuration.GameSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import configuration.GameSettings;
 import user.User;
-//import server.Server;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+
+//import server.Server;
 
 // TODO: Add Triviaset reference and modify serializer/deserializer.
 public class Lobby {
@@ -19,6 +20,7 @@ public class Lobby {
     // Monitor
     private final Object monitor = new Object();
 
+    private Long triviaSetId;
     private String name;
     private int code;
     private List<User> connectedUsers;
@@ -26,7 +28,8 @@ public class Lobby {
     private TreeMap<Integer, LobbyUpdateBase> lobbyUpdates;
 
     // Constructor for creating a lobby from existing data (client side).
-    public Lobby(String name, int code, List<User> connectedUsers, User lobbyOwner) {
+    public Lobby(long triviaSetId, String name, int code, List<User> connectedUsers, User lobbyOwner) {
+        this.triviaSetId = triviaSetId;
         this.name = name;
         this.code = code;
         this.connectedUsers = connectedUsers;
@@ -35,13 +38,9 @@ public class Lobby {
     }
 
     // Constructor for creating a new lobby with a name.
-    public Lobby(int triviasetId, User user, int code) {
-        this.name = "Triviaset name"; // TODO:
-        this.connectedUsers = new ArrayList<>();
-        this.connectedUsers.add(user);
-        this.lobbyOwner = user;
-        this.code = code;
-        this.lobbyUpdates = new TreeMap<Integer, LobbyUpdateBase>();
+    public Lobby(long triviasetId, User user, int code) {
+        this(triviasetId, "", code, new ArrayList<>(), user);
+        connectedUsers.add(user);
     }
 
     /**
@@ -118,5 +117,13 @@ public class Lobby {
 
     public void removeUserFromLobby(User user) {
         connectedUsers.remove(user);
+    }
+
+    public Long getTriviaSetId() {
+        return triviaSetId;
+    }
+
+    public void setTriviaSetId(Long triviaSetId) {
+        this.triviaSetId = triviaSetId;
     }
 }
