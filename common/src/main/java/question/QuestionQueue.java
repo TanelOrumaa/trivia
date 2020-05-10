@@ -23,7 +23,6 @@ public class QuestionQueue {
     public Question getQuestion(Long id) {
         LOG.debug("Fetching question with id " + id);
         Question question = questionList.get(id);
-        questionList.remove(id);
         return question;
     }
 

@@ -123,7 +123,7 @@ public class LobbyFX extends Scene {
         LOG.debug("Participants list updated.");
 
         // There has to be at least 2 players in addition to lobby host.
-        allowStartGame(participantsList.size() >= 3);
+        allowStartGame(participantsList.size() >= 2); //TODO: Should be 3
     }
 
     private void updateParticipantsLabel(Styles style) {

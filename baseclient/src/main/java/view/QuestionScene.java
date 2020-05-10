@@ -35,6 +35,7 @@ public class QuestionScene extends Scene {
     public QuestionScene(BaseClient baseClient, Question question) {
         super(new ScrollPane(), baseClient.getWidth(), baseClient.getHeight());
 
+        
         ScrollPane scroller = new ScrollPane();
         scroller.setFitToWidth(true);
 

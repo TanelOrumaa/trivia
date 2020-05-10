@@ -390,7 +390,7 @@ public class BaseClientBackEnd implements Runnable {
 
                 this.frontEnd.addCommandToFrontEnd(new Command(132, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray()));
 
-                // Request the first question
+                // Request the questions.
                 fetchFullTriviaSet(currentLobby.getTriviaSetId(), true);
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
@@ -423,8 +423,8 @@ public class BaseClientBackEnd implements Runnable {
 
                 this.frontEnd.addCommandToFrontEnd(new Command(134, currentLobby.getLobbyCodeAndConnectedUserNamesAsArray()));
 
-                // Ask for the first question.
-                requestQuestion(-1);
+                // Request the questions.
+                fetchFullTriviaSet(currentLobby.getTriviaSetId(), true);
             } else {
                 throw new MixedServerMessageException(hash, responseHash);
             }

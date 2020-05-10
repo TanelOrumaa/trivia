@@ -52,6 +52,7 @@ public class ClientConnectionBase implements Runnable {
     // Class variables related to lobby.
     private Lobby currentLobby;
     private int lastLobbyUpdateId;
+    private TriviaSet triviaSet;
 
     public ClientConnectionBase(Socket socket, DataInputStream dataInputStream, String hash, String clientId) {
         this.socket = socket;
@@ -366,7 +367,10 @@ public class ClientConnectionBase implements Runnable {
     private void startGameForLobby() throws IOException {
         LOG.debug(clientId + "sent a start game message.");
 
-        currentLobby.addNewLobbyUpdate(new DisplayNextQuestionUpdate(0L));
+        // Fetch triviaset.
+        triviaSet = TriviaSetsDatabaseLayer.readFullTriviaSet(databaseConnection, currentLobby.getTriviaSetId());
+
+        currentLobby.addNewLobbyUpdate(new DisplayNextQuestionUpdate(triviaSet.getNextQuestion(-1).getQuestionID()));
 
         // Send response to client.
         dataOutputStream.writeInt(138);
